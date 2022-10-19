@@ -19,7 +19,7 @@ const { isObject } = require('../../lib/common/utils/isObject');
 const { isArray } = require('../../lib/common/utils/isArray');
 const OSS = require('../..');
 
-exports.throws = async function (block, checkError) {
+exports.throws = async function(block, checkError) {
   try {
     await block();
   } catch (err) {
@@ -39,22 +39,22 @@ exports.throws = async function (block, checkError) {
   throw new Error(`${block.toString()} should throws error`);
 };
 
-exports.sleep = function (ms) {
-  return new Promise((resolve) => {
+exports.sleep = function(ms) {
+  return new Promise(resolve => {
     setTimeout(() => {
       resolve();
     }, ms);
   });
 };
 
-exports.cleanAllBucket = async function (store) {
+exports.cleanAllBucket = async function(store) {
   const res = await store.listBuckets();
   const bucketList = [];
   for (let i = 0; i < res.buckets.length; i++) {
     if (!res.buckets[i].name.indexOf('ali-oss')) {
       bucketList.push({
         bucket: res.buckets[i].name,
-        region: res.buckets[i].region
+        region: res.buckets[i].region,
       });
     }
   }
@@ -62,14 +62,14 @@ exports.cleanAllBucket = async function (store) {
     const client = new OSS({
       ...store.options,
       bucket: bucketListItem.bucket,
-      region: bucketListItem.region
+      region: bucketListItem.region,
     });
     await this.cleanBucket(client, bucketListItem.bucket);
   }
 };
 
 
-exports.cleanBucket = async function (store, bucket, multiversion) {
+exports.cleanBucket = async function(store, bucket, multiversion) {
   store.useBucket(bucket);
   let result;
   const options = { versionId: null };
@@ -77,7 +77,7 @@ exports.cleanBucket = async function (store, bucket, multiversion) {
   if (!multiversion) {
     try {
       await store.getBucketVersions({
-        'max-keys': 1000
+        'max-keys': 1000,
       });
       multiversion = true;
     } catch (error) {
@@ -88,11 +88,11 @@ exports.cleanBucket = async function (store, bucket, multiversion) {
   async function handleDelete(deleteKey) {
     if (multiversion) {
       result = await store.getBucketVersions({
-        'max-keys': 1000
+        'max-keys': 1000,
       });
     } else {
       result = await store.list({
-        'max-keys': 1000
+        'max-keys': 1000,
       });
     }
     result[deleteKey] = result[deleteKey] || [];
@@ -108,7 +108,7 @@ exports.cleanBucket = async function (store, bucket, multiversion) {
   }
 
   result = await store.listUploads({
-    'max-uploads': 1000
+    'max-uploads': 1000,
   });
   const uploads = result.uploads || [];
   await Promise.all(uploads.map(_ => store.abortMultipartUpload(_.name, _.uploadId)));
@@ -133,10 +133,10 @@ exports.createTempFile = async function createTempFile(name, size) {
     fs.mkdirSync(tmpdir);
   }
 
-  await new Promise(((resolve, reject) => {
+  await new Promise((resolve, reject) => {
     const rs = fs.createReadStream('/dev/urandom', {
       start: 0,
-      end: size - 1
+      end: size - 1,
     });
     const ws = fs.createWriteStream(tmpdir + name);
     rs.pipe(ws);
@@ -147,7 +147,7 @@ exports.createTempFile = async function createTempFile(name, size) {
         resolve(res);
       }
     });
-  }));
+  });
 
   return tmpdir + name;
 };
@@ -160,14 +160,14 @@ exports.createTempFile = async function createTempFile(name, size) {
  *   body: '{"hello": "world"}'
  * };
  */
-exports.encodeCallback = function (cb) {
+exports.encodeCallback = function(cb) {
   const url = urlutil.parse(cb.url);
   url.query = cb.query;
 
   const json = {
     callbackUrl: url.format(),
     callbackBody: cb.body,
-    callbackBodyType: cb.contentType || 'application/x-www-form-urlencoded'
+    callbackBodyType: cb.contentType || 'application/x-www-form-urlencoded',
   };
 
   return Buffer.from(JSON.stringify(json)).toString('base64');

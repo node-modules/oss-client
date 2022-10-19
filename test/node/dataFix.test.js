@@ -11,7 +11,7 @@ describe('dataFix()', () => {
       const data = 'string';
 
       const conf = {
-        remove: ['rm', 'rm2'],
+        remove: [ 'rm', 'rm2' ],
       };
       dataFix(data, conf);
     });
@@ -26,7 +26,7 @@ describe('dataFix()', () => {
       };
 
       const conf = {
-        remove: ['rm', 'rm2'],
+        remove: [ 'rm', 'rm2' ],
       };
 
       dataFix(data, conf);
@@ -181,7 +181,7 @@ describe('dataFix()', () => {
     };
 
     dataFix(data, {
-      camel: [...Object.keys(data), 'noExistkey'],
+      camel: [ ...Object.keys(data), 'noExistkey' ],
     });
 
     it('should covert and remove the Old', () => {
@@ -211,7 +211,7 @@ describe('dataFix()', () => {
 
       const delKey = 'needDelete';
       const addKey = 'addKey';
-      dataFix(data, {}, (o) => {
+      dataFix(data, {}, o => {
         Object.keys(o).forEach(_ => {
           if (_.includes(delKey)) delete o[_];
         });

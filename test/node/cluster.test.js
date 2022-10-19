@@ -10,7 +10,7 @@ describe('test/cluster.test.js', () => {
   const { prefix } = utils;
   afterEach(mm.restore);
 
-  before(async function () {
+  before(async function() {
     this.region = config.region;
     this.bucket1 = `ali-oss-test-cluster1-${prefix.replace(/[/.]/g, '')}`;
     this.bucket2 = `ali-oss-test-cluster2-${prefix.replace(/[/.]/g, '')}`;
@@ -19,25 +19,25 @@ describe('test/cluster.test.js', () => {
     await client.putBucket(this.bucket2);
   });
 
-  before(function (done) {
+  before(function(done) {
     const options = {
       cluster: [
         {
           accessKeyId: config.accessKeyId,
           accessKeySecret: config.accessKeySecret,
           bucket: this.bucket1,
-          endpoint: config.endpoint
+          endpoint: config.endpoint,
         },
         {
           accessKeyId: config.accessKeyId,
           accessKeySecret: config.accessKeySecret,
           bucket: this.bucket2,
-          endpoint: config.endpoint
-        }
-      ]
+          endpoint: config.endpoint,
+        },
+      ],
     };
     this.store = cluster(options);
-    this.store.on('error', (err) => {
+    this.store.on('error', err => {
       if (err.name === 'MockError' || err.name === 'CheckAvailableError') {
         return;
       }
@@ -46,7 +46,7 @@ describe('test/cluster.test.js', () => {
     this.store.ready(done);
   });
 
-  after(async function () {
+  after(async function() {
     await utils.cleanBucket(this.store.clients[0], this.bucket1);
     await utils.cleanBucket(this.store.clients[1], this.bucket2);
     this.store.close();
@@ -54,13 +54,13 @@ describe('test/cluster.test.js', () => {
 
   describe('init', () => {
     it('require options.cluster to be an array', () => {
-      (function () {
+      (function() {
         cluster({});
       }).should.throw('require options.cluster to be an array');
     });
 
-    it('should _init() _checkAvailable throw error', function (done) {
-      this.store.once('error', (err) => {
+    it('should _init() _checkAvailable throw error', function(done) {
+      this.store.once('error', err => {
         err.message.should.equal('mock error');
         done();
       });
@@ -68,14 +68,14 @@ describe('test/cluster.test.js', () => {
       this.store._init();
     });
 
-    it('should skip put status file when ignoreStatusFile is set', async function () {
+    it('should skip put status file when ignoreStatusFile is set', async function() {
       mm.error(this.store, 'put', 'mock error');
       await this.store._checkAvailable(true);
     });
   });
 
   describe('put()', () => {
-    it('should add object with local file path', async function () {
+    it('should add object with local file path', async function() {
       const name = `${prefix}ali-sdk/oss/put-localfile.js`;
       const object = await this.store.put(name, __filename);
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
@@ -84,7 +84,7 @@ describe('test/cluster.test.js', () => {
       assert(object.name, name);
     });
 
-    it('should error when any one is error', async function () {
+    it('should error when any one is error', async function() {
       mm.error(this.store.clients[1], 'put', 'mock error');
       const name = `${prefix}ali-sdk/oss/put-localfile.js`;
       try {
@@ -95,7 +95,7 @@ describe('test/cluster.test.js', () => {
       }
     });
 
-    it('should ignore when any one is error', async function () {
+    it('should ignore when any one is error', async function() {
       mm.error(this.store.clients[1], 'put', 'mock error');
       const name = `${prefix}ali-sdk/oss/put-localfile.js`;
       try {
@@ -108,7 +108,7 @@ describe('test/cluster.test.js', () => {
   });
 
   describe('putACL() and getACL()', () => {
-    it('should add object with local file path', async function () {
+    it('should add object with local file path', async function() {
       const name = `${prefix}ali-sdk/oss/put-localfile.js`;
       const object = await this.store.put(name, __filename);
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
@@ -126,20 +126,20 @@ describe('test/cluster.test.js', () => {
   });
 
   describe('get()', () => {
-    before(async function () {
+    before(async function() {
       this.name = `${prefix}ali-sdk/oss/get-meta.js`;
       const object = await this.store.put(this.name, __filename, {
         meta: {
           uid: 1,
           pid: '123',
-          slus: 'test.html'
-        }
+          slus: 'test.html',
+        },
       });
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       this.headers = object.res.headers;
     });
 
-    it('should RR get from clients ok', async function () {
+    it('should RR get from clients ok', async function() {
       mm(this.store.clients[1], 'get', async () => {
         throw new Error('mock error');
       });
@@ -160,7 +160,7 @@ describe('test/cluster.test.js', () => {
       this.store.removeListener('error', onerror);
     });
 
-    it('should RR get from clients[1] when clients[0] not available', async function () {
+    it('should RR get from clients[1] when clients[0] not available', async function() {
       this.store.index = 0;
       mm(this.store.availables, '0', false);
       mm.data(this.store.clients[0], 'get', 'foo');
@@ -174,7 +174,7 @@ describe('test/cluster.test.js', () => {
       this.store.index.should.equal(0);
     });
 
-    it('should RR get from clients[1] when clients[0] error ok', async function () {
+    it('should RR get from clients[1] when clients[0] error ok', async function() {
       this.store.index = 0;
       mm.error(this.store.clients[0], 'get', 'mock error');
       let r = await this.store.get(this.name);
@@ -187,7 +187,7 @@ describe('test/cluster.test.js', () => {
       this.store.index.should.equal(0);
     });
 
-    it('should RR get from clients[0] when clients[1] not available', async function () {
+    it('should RR get from clients[0] when clients[1] not available', async function() {
       this.store.index = 0;
       mm(this.store.availables, '1', false);
       mm.data(this.store.clients[1], 'get', 'foo');
@@ -201,7 +201,7 @@ describe('test/cluster.test.js', () => {
       this.store.index.should.equal(1);
     });
 
-    it('should RR get from clients[0] when clients[1] error ok', async function () {
+    it('should RR get from clients[0] when clients[1] error ok', async function() {
       this.store.index = 0;
       mm.error(this.store.clients[1], 'get', 'mock error');
       let r = await this.store.get(this.name);
@@ -214,7 +214,7 @@ describe('test/cluster.test.js', () => {
       this.store.index.should.equal(0);
     });
 
-    it('should MS always get from clients[0] ok', async function () {
+    it('should MS always get from clients[0] ok', async function() {
       mm(this.store, 'schedule', 'masterSlave');
       mm(this.store.clients[1], 'get', 'mock error');
       function onerror() {
@@ -230,7 +230,7 @@ describe('test/cluster.test.js', () => {
       this.store.removeListener('error', onerror);
     });
 
-    it('should MS always get from clients[0] when masterOnly === true', async function () {
+    it('should MS always get from clients[0] when masterOnly === true', async function() {
       mm(this.store, 'schedule', 'masterSlave');
       mm(this.store, 'masterOnly', true);
       mm(this.store.clients[1], 'get', 'mock error');
@@ -247,7 +247,7 @@ describe('test/cluster.test.js', () => {
       this.store.removeListener('error', onerror);
     });
 
-    it('should get from clients[0] when clients[0] response 4xx ok', async function () {
+    it('should get from clients[0] when clients[0] response 4xx ok', async function() {
       mm(this.store, 'schedule', 'masterSlave');
       mm.error(this.store.clients[0], 'get', 'mock error', { status: 403 });
       try {
@@ -258,7 +258,7 @@ describe('test/cluster.test.js', () => {
       }
     });
 
-    it('should RR error when clients all down', async function () {
+    it('should RR error when clients all down', async function() {
       mm.error(this.store.clients[0], 'get', 'mock error');
       mm.error(this.store.clients[1], 'get', 'mock error');
       try {
@@ -270,7 +270,7 @@ describe('test/cluster.test.js', () => {
       }
     });
 
-    it('should MS error when clients all down', async function () {
+    it('should MS error when clients all down', async function() {
       mm(this.store, 'schedule', 'masterSlave');
       mm.error(this.store.clients[0], 'get', 'mock error');
       mm.error(this.store.clients[1], 'get', 'mock error');
@@ -283,7 +283,7 @@ describe('test/cluster.test.js', () => {
       }
     });
 
-    it('should RR throw error when read err status >= 200 && < 500', async function () {
+    it('should RR throw error when read err status >= 200 && < 500', async function() {
       mm(this.store.clients[0], 'get', async () => {
         const err = new Error('mock error');
         throw err;
@@ -320,7 +320,7 @@ describe('test/cluster.test.js', () => {
       }
     });
 
-    it('should RR use the first client when all server down', async function () {
+    it('should RR use the first client when all server down', async function() {
       mm(this.store.availables, '0', false);
       mm(this.store.availables, '1', false);
 
@@ -333,20 +333,20 @@ describe('test/cluster.test.js', () => {
   });
 
   describe('signatureUrl(), getObjectUrl()', () => {
-    before(async function () {
+    before(async function() {
       this.name = `${prefix}ali-sdk/oss/get-meta.js`;
       const object = await this.store.put(this.name, __filename, {
         meta: {
           uid: 1,
           pid: '123',
-          slus: 'test.html'
-        }
+          slus: 'test.html',
+        },
       });
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       this.headers = object.res.headers;
     });
 
-    it('should get object cdn url', function () {
+    it('should get object cdn url', function() {
       const url = this.store.getObjectUrl(this.name);
       assert(/\.aliyuncs\.com\//.test(url), url);
       assert(/\/ali-sdk\/oss\/get-meta\.js$/.test(url), url);
@@ -356,7 +356,7 @@ describe('test/cluster.test.js', () => {
       assert(/\/ali-sdk\/oss\/get-meta\.js$/.test(cdnurl), cdnurl);
     });
 
-    it('should RR signatureUrl from clients ok', function () {
+    it('should RR signatureUrl from clients ok', function() {
       mm(this.store.clients[1], 'head', 'mock error');
       let url = this.store.signatureUrl(this.name);
       url.should.match(/ali-sdk\/oss\/get-meta\.js/);
@@ -366,12 +366,12 @@ describe('test/cluster.test.js', () => {
       url.should.match(/ali-sdk\/oss\/get-meta\.js/);
     });
 
-    it('should RR signature from clients[1] when clients[0] error ok', function () {
+    it('should RR signature from clients[1] when clients[0] error ok', function() {
       const url = this.store.signatureUrl(this.name);
       url.should.match(/ali-sdk\/oss\/get-meta\.js/);
     });
 
-    it('should MS always signature from clients[0] ok', function () {
+    it('should MS always signature from clients[0] ok', function() {
       mm(this.store, 'schedule', 'masterSlave');
       mm(this.store.clients[1], 'head', 'mock error');
       let url = this.store.signatureUrl(this.name);
@@ -380,21 +380,21 @@ describe('test/cluster.test.js', () => {
       url.should.match(/ali-sdk\/oss\/get-meta\.js/);
     });
 
-    it('should signature from clients[0] when clients[0] response 4xx ok', function () {
+    it('should signature from clients[0] when clients[0] response 4xx ok', function() {
       mm(this.store, 'schedule', 'masterSlave');
       mm.error(this.store.clients[0], 'head', 'mock error', { status: 403 });
       const url = this.store.signatureUrl(this.name);
       url.should.match(/ali-sdk\/oss\/get-meta\.js/);
     });
 
-    it('should signature ok when clients all down', function () {
+    it('should signature ok when clients all down', function() {
       mm.error(this.store.clients[0], 'head', 'mock error');
       mm.error(this.store.clients[1], 'head', 'mock error');
       const url = this.store.signatureUrl(this.name);
       url.should.match(/ali-sdk\/oss\/get-meta\.js/);
     });
 
-    it('should RR use the first client when all server down', function () {
+    it('should RR use the first client when all server down', function() {
       mm(this.store.availables, '0', false);
       mm(this.store.availables, '1', false);
 
@@ -407,7 +407,7 @@ describe('test/cluster.test.js', () => {
       url.should.match(/ali-sdk\/oss\/get-meta\.js/);
     });
 
-    it('should masterSlave use the first client when all server down', function () {
+    it('should masterSlave use the first client when all server down', function() {
       mm(this.store, 'schedule', 'masterSlave');
       mm(this.store.availables, '0', false);
       mm(this.store.availables, '1', false);
@@ -423,19 +423,19 @@ describe('test/cluster.test.js', () => {
   });
 
   describe('_checkAvailable()', () => {
-    it('should write status file on the first check', async function () {
+    it('should write status file on the first check', async function() {
       await this.store._checkAvailable(true);
       this.store.availables['0'].should.equal(true);
       this.store.availables['1'].should.equal(true);
     });
 
-    it('should write status pass', async function () {
+    it('should write status pass', async function() {
       await this.store._checkAvailable();
       this.store.availables['0'].should.equal(true);
       this.store.availables['1'].should.equal(true);
     });
 
-    it('should available on err status 404', async function () {
+    it('should available on err status 404', async function() {
       mm(this.store.clients[0], 'head', async () => {
         const err = new Error('mock 404 error');
         err.status = 404;
@@ -452,7 +452,7 @@ describe('test/cluster.test.js', () => {
       this.store.availables['1'].should.equal(true);
     });
 
-    it('should not available on err status < 200 or >= 500', async function () {
+    it('should not available on err status < 200 or >= 500', async function() {
       mm(this.store.clients[0], 'head', async () => {
         const err = new Error('mock -1 error');
         err.status = -1;
@@ -469,10 +469,10 @@ describe('test/cluster.test.js', () => {
       this.store.availables['1'].should.equal(false);
     });
 
-    it('should available on error count < 3', async function () {
+    it('should available on error count < 3', async function() {
       // client[0] error 2 times
       let count = 0;
-      mm(this.store.clients[0], 'head', async (name) => {
+      mm(this.store.clients[0], 'head', async name => {
         count++;
         if (count === 3) {
           return { name };
@@ -487,7 +487,7 @@ describe('test/cluster.test.js', () => {
 
       // client[1] error 1 times
       count = 0;
-      mm(this.store.clients[1], 'head', async (name) => {
+      mm(this.store.clients[1], 'head', async name => {
         count++;
         if (count === 2) {
           return { name };
@@ -500,7 +500,7 @@ describe('test/cluster.test.js', () => {
       count.should.equal(2);
     });
 
-    it('should try 3 times on check status fail', async function () {
+    it('should try 3 times on check status fail', async function() {
       // client[0] error
       mm.error(this.store.clients[0], 'head', 'mock error');
       await this.store._checkAvailable();

@@ -29,7 +29,7 @@ describe('test/multipart.test.js', () => {
   describe('listUploads()', () => {
     beforeEach(async () => {
       const result = await store.listUploads({
-        'max-uploads': 1000
+        'max-uploads': 1000,
       });
       const uploads = result.uploads || [];
       await Promise.all(uploads.map(_ => store.abortMultipartUpload(_.name, _.uploadId)));
@@ -46,7 +46,7 @@ describe('test/multipart.test.js', () => {
       ).map(_ => _.uploadId);
       // list all uploads
       let result = await store.listUploads({
-        'max-uploads': 10
+        'max-uploads': 10,
       });
       const all = result.uploads.map(up => up.uploadId);
       assert.deepEqual(all, ids);
@@ -54,7 +54,7 @@ describe('test/multipart.test.js', () => {
       // after 1
       result = await store.listUploads({
         'max-uploads': 10,
-        'key-marker': name + 0
+        'key-marker': name + 0,
       });
       const after1 = result.uploads.map(up => up.uploadId);
       assert.deepEqual(after1, ids.slice(1));
@@ -62,7 +62,7 @@ describe('test/multipart.test.js', () => {
       // after 5
       result = await store.listUploads({
         'max-uploads': 10,
-        'key-marker': name + 4
+        'key-marker': name + 4,
       });
       const after5 = result.uploads.map(up => up.uploadId);
       assert.deepEqual(after5.length, 0);
@@ -82,7 +82,7 @@ describe('test/multipart.test.js', () => {
 
       // list all uploads
       let result = await store.listUploads({
-        'max-uploads': 10
+        'max-uploads': 10,
       });
       const all = result.uploads.map(up => up.uploadId);
       assert.deepEqual(all, ids);
@@ -90,7 +90,7 @@ describe('test/multipart.test.js', () => {
       // after 1: upload id marker alone is ignored
       result = await store.listUploads({
         'max-uploads': 10,
-        'upload-id-marker': ids[1]
+        'upload-id-marker': ids[1],
       });
       const after1 = result.uploads.map(up => up.uploadId);
       assert.deepEqual(after1, ids);
@@ -98,7 +98,7 @@ describe('test/multipart.test.js', () => {
       // after 5: upload id marker alone is ignored
       result = await store.listUploads({
         'max-uploads': 10,
-        'upload-id-marker': ids[4]
+        'upload-id-marker': ids[4],
       });
       const after5 = result.uploads.map(up => up.uploadId);
       assert.deepEqual(after5, ids);
@@ -131,7 +131,7 @@ describe('test/multipart.test.js', () => {
       let result = await store.listUploads({
         'max-uploads': 10,
         'key-marker': barName,
-        'upload-id-marker': barIds[0]
+        'upload-id-marker': barIds[0],
       });
       const after1 = result.uploads.map(up => up.uploadId);
       after1.sort();
@@ -142,7 +142,7 @@ describe('test/multipart.test.js', () => {
       result = await store.listUploads({
         'max-uploads': 10,
         'key-marker': barName,
-        'upload-id-marker': barIds[4]
+        'upload-id-marker': barIds[4],
       });
       const after5 = result.uploads.map(up => up.uploadId);
       assert.deepEqual(after5, fooIds);
@@ -156,8 +156,8 @@ describe('test/multipart.test.js', () => {
       const name = 'multipart-x-oss-server-side-encryption';
       const result = await store.initMultipartUpload(name, {
         headers: {
-          'x-oss-server-side-encryption': 'AES256'
-        }
+          'x-oss-server-side-encryption': 'AES256',
+        },
       });
 
       assert.equal(result.res.headers['x-oss-server-side-encryption'], 'AES256');
@@ -168,8 +168,8 @@ describe('test/multipart.test.js', () => {
       const fileName = await utils.createTempFile('multipart-fallback', 1003 * 1020);
       const result = await store.multipartUpload(name, fileName, {
         headers: {
-          'x-oss-server-side-encryption': 'KMS'
-        }
+          'x-oss-server-side-encryption': 'KMS',
+        },
       });
       assert.equal(result.res.headers['x-oss-server-side-encryption'], 'KMS');
     });
@@ -185,7 +185,7 @@ describe('test/multipart.test.js', () => {
       const result = await store.multipartUpload(name, fileName, {
         progress() {
           progress++;
-        }
+        },
       });
       assert.equal(result.res.status, 200);
       assert.equal(putStreamSpy.callCount, 1);
@@ -228,7 +228,7 @@ describe('test/multipart.test.js', () => {
         partSize: 100 * 1024,
         progress() {
           progress++;
-        }
+        },
       });
       assert.equal(result.res.status, 200);
       assert.equal(progress, 13);
@@ -272,7 +272,7 @@ describe('test/multipart.test.js', () => {
 
       const name = `${prefix}multipart/upload-buffer`;
       const result = await store.multipartUpload(name, fileBuf, {
-        partSize: 100 * 1024
+        partSize: 100 * 1024,
       });
 
       assert.equal(result.res.status, 200);
@@ -308,7 +308,7 @@ describe('test/multipart.test.js', () => {
           progress(percent, cpt) {
             progress++;
             lastCpt = cpt;
-          }
+          },
         });
         // should not succeed
         assert(false);
@@ -321,7 +321,7 @@ describe('test/multipart.test.js', () => {
         checkpoint: lastCpt,
         progress() {
           progress++;
-        }
+        },
       });
       assert.equal(result.res.status, 200);
       assert.equal(progress, 13);
@@ -334,12 +334,12 @@ describe('test/multipart.test.js', () => {
     });
 
     it('should upload web file using multipart upload', async () => {
-      const File = function (name, content) {
+      const File = function(name, content) {
         this.name = name;
         this.buffer = content;
         this.size = this.buffer.length;
 
-        this.slice = function (start, end) {
+        this.slice = function(start, end) {
           return new File(this.name, this.buffer.slice(start, end));
         };
       };
@@ -356,7 +356,7 @@ describe('test/multipart.test.js', () => {
 
       const name = `${prefix}multipart/upload-webfile`;
       const result = await store.multipartUpload(name, webFile, {
-        partSize: 100 * 1024
+        partSize: 100 * 1024,
       });
       assert.equal(result.res.status, 200);
 
@@ -371,12 +371,12 @@ describe('test/multipart.test.js', () => {
     });
 
     it('should upload web file using multipart upload in IE10', async () => {
-      const File = function (name, content) {
+      const File = function(name, content) {
         this.name = name;
         this.buffer = content;
         this.size = this.buffer.length;
 
-        this.slice = function (start, end) {
+        this.slice = function(start, end) {
           return new File(this.name, this.buffer.slice(start, end));
         };
       };
@@ -398,7 +398,7 @@ describe('test/multipart.test.js', () => {
         (browser, version) => browser === 'Internet Explorer' && version === '10'
       );
       const result = await clientTmp.multipartUpload(name, webFile, {
-        partSize: 100 * 1024
+        partSize: 100 * 1024,
       });
       assert.equal(result.res.status, 200);
 
@@ -434,7 +434,7 @@ describe('test/multipart.test.js', () => {
           progress(percent, cpt) {
             progress++;
             fs.writeFileSync(cptFile, JSON.stringify(cpt));
-          }
+          },
         });
         // should not succeed
         assert(false);
@@ -447,7 +447,7 @@ describe('test/multipart.test.js', () => {
         checkpoint: JSON.parse(fs.readFileSync(cptFile)),
         progress() {
           progress++;
-        }
+        },
       });
       assert.equal(result.res.status, 200);
       assert.equal(progress, 13);
@@ -467,7 +467,7 @@ describe('test/multipart.test.js', () => {
       const result = await store.multipartUpload(name, fileName, {
         progress(p, checkpoint, res) {
           assert.equal(true, res && Object.keys(res).length !== 0);
-        }
+        },
       });
       assert.equal(true, result.res && Object.keys(result.res).length !== 0);
       assert.equal(result.res.status, 200);
@@ -497,7 +497,7 @@ describe('test/multipart.test.js', () => {
       );
       const dones = parts.map((_, i) => ({
         number: i + 1,
-        etag: _.etag
+        etag: _.etag,
       }));
 
       const result = await store.completeMultipartUpload(name, uploadId, dones);
@@ -515,7 +515,7 @@ describe('test/multipart.test.js', () => {
           partSize: 14.56,
           progress() {
             progress++;
-          }
+          },
         });
       } catch (e) {
         assert.equal('partSize must be int number', e.message);
@@ -526,7 +526,7 @@ describe('test/multipart.test.js', () => {
           partSize: 1,
           progress() {
             progress++;
-          }
+          },
         });
       } catch (e) {
         assert.ok(e.message.startsWith('partSize must not be smaller'));
@@ -541,7 +541,7 @@ describe('test/multipart.test.js', () => {
       const fileName = await utils.createTempFile(object, FILE_SIZE);
       const uploadPart = store._uploadPart;
       let checkpoint;
-      mm(store, '_uploadPart', function (name, uploadId, partNo, data) {
+      mm(store, '_uploadPart', function(name, uploadId, partNo, data) {
         if (partNo === SUSPENSION_LIMIT) {
           throw new Error('mock upload part fail.');
         } else {
@@ -554,7 +554,7 @@ describe('test/multipart.test.js', () => {
           partSize: PART_SIZE,
           progress: (percentage, c) => {
             checkpoint = c;
-          }
+          },
         });
       } catch (e) {
         assert.strictEqual(checkpoint.doneParts.length, SUSPENSION_LIMIT - 1);
@@ -564,7 +564,7 @@ describe('test/multipart.test.js', () => {
       await store.multipartUpload(object, fileName, {
         parallel: 1,
         partSize: PART_SIZE,
-        checkpoint
+        checkpoint,
       });
       assert.strictEqual(uploadPartSpy.callCount, FILE_SIZE / PART_SIZE - SUSPENSION_LIMIT + 1);
       store._uploadPart.restore();
@@ -678,7 +678,7 @@ describe('test/multipart.test.js', () => {
       try {
         await client.multipartUploadCopy(copyName, {
           sourceKey: objectKey,
-          sourceBucketName: bucket
+          sourceBucketName: bucket,
         });
       } catch (err) {
         copyErr = err;
@@ -696,10 +696,10 @@ describe('test/multipart.test.js', () => {
           copyName,
           {
             sourceKey: name,
-            sourceBucketName: bucket
+            sourceBucketName: bucket,
           },
           {
-            partSize: 50 * 1024
+            partSize: 50 * 1024,
           }
         );
       } catch (err) {
@@ -721,7 +721,7 @@ describe('test/multipart.test.js', () => {
       const copyName = `${prefix}multipart/upload-file-with-copy-new`;
       const sourceData = {
         sourceKey: name,
-        sourceBucketName: bucket
+        sourceBucketName: bucket,
       };
       const objectMeta = await client._getObjectMeta(sourceData.sourceBucketName, sourceData.sourceKey, {});
       const fileSize = objectMeta.res.headers['content-length'];
@@ -737,7 +737,7 @@ describe('test/multipart.test.js', () => {
         const part = await store.uploadPartCopy(copyName, result.uploadId, i, range, sourceData, {});
         dones.push({
           number: i,
-          etag: part.res.headers.etag
+          etag: part.res.headers.etag,
         });
       };
 
@@ -759,10 +759,10 @@ describe('test/multipart.test.js', () => {
         copyName,
         {
           sourceKey: name,
-          sourceBucketName: bucket
+          sourceBucketName: bucket,
         },
         {
-          partSize: 256 * 1024
+          partSize: 256 * 1024,
         }
       );
 
@@ -782,10 +782,10 @@ describe('test/multipart.test.js', () => {
         copyName,
         {
           sourceKey: name,
-          sourceBucketName: bucket
+          sourceBucketName: bucket,
         },
         {
-          partSize: 100 * 1024
+          partSize: 100 * 1024,
         }
       );
       assert.equal(result.res.status, 200);
@@ -799,11 +799,11 @@ describe('test/multipart.test.js', () => {
         copyName,
         {
           sourceKey: name,
-          sourceBucketName: bucket
+          sourceBucketName: bucket,
         },
         {
           partSize: 256 * 1024,
-          parallel: 1
+          parallel: 1,
         }
       );
 
@@ -819,7 +819,7 @@ describe('test/multipart.test.js', () => {
           copyName,
           {
             sourceKey: name,
-            sourceBucketName: bucket
+            sourceBucketName: bucket,
           },
           {
             partSize: 100 * 1024,
@@ -828,7 +828,7 @@ describe('test/multipart.test.js', () => {
               if (p > 0.5) {
                 client.cancel();
               }
-            }
+            },
           }
         );
       } catch (err) {
@@ -839,14 +839,14 @@ describe('test/multipart.test.js', () => {
         copyName,
         {
           sourceKey: name,
-          sourceBucketName: bucket
+          sourceBucketName: bucket,
         },
         {
           partSize: 100 * 1024,
           checkpoint: tempCheckpoint,
           progress(p) {
             assert.equal(p > 0.5, true);
-          }
+          },
         }
       );
 
@@ -873,7 +873,7 @@ describe('test/multipart.test.js', () => {
       try {
         await clientTmp.multipartUploadCopy(copyName, {
           sourceKey: name,
-          sourceBucketName: bucket
+          sourceBucketName: bucket,
         });
       } catch (err) {
         errorMsg = err.message;
@@ -896,7 +896,7 @@ describe('test/multipart.test.js', () => {
           copyName,
           {
             sourceKey: name,
-            sourceBucketName: bucket
+            sourceBucketName: bucket,
           },
           {
             parallel: 1,
@@ -908,7 +908,7 @@ describe('test/multipart.test.js', () => {
               if (p > 0.5) {
                 client.cancel();
               }
-            }
+            },
           }
         );
       } catch (err) {
@@ -919,7 +919,7 @@ describe('test/multipart.test.js', () => {
         copyName,
         uploadIdz,
         {
-          'max-parts': 1000
+          'max-parts': 1000,
         },
         {}
       );
@@ -934,7 +934,7 @@ describe('test/multipart.test.js', () => {
       const uploadPart = store._uploadPart;
       let i = 0;
       const LIMIT = 1;
-      mm(store, '_uploadPart', function (name, uploadId, partNo, data) {
+      mm(store, '_uploadPart', function(name, uploadId, partNo, data) {
         if (i === LIMIT) {
           throw new Error('mock upload part fail.');
         } else {
@@ -947,10 +947,10 @@ describe('test/multipart.test.js', () => {
       const name = `${prefix}multipart/upload-file-${Date.now()}`;
       const name1 = `${prefix}multipart/upload-file-1-${Date.now()}`;
       try {
-        await Promise.all([store.multipartUpload(name, fileName), store.multipartUpload(name1, fileName)]);
+        await Promise.all([ store.multipartUpload(name, fileName), store.multipartUpload(name1, fileName) ]);
       } catch (e) {}
       mm.restore();
-      await Promise.all([store.multipartUpload(name, fileName), store.multipartUpload(name1, fileName)]);
+      await Promise.all([ store.multipartUpload(name, fileName), store.multipartUpload(name1, fileName) ]);
       assert.strictEqual(store.multipartUploadStreams.length, 0);
     });
 

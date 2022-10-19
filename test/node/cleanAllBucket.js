@@ -12,7 +12,7 @@ store.listBuckets().then(r => {
       if (calculateData(i.name) < interval) {
         bucketList.push({
           bucket: i.name,
-          region: i.region
+          region: i.region,
         });
       }
     }
@@ -22,7 +22,7 @@ store.listBuckets().then(r => {
     const client = new OSS({
       ...store.options,
       bucket: bucketListItem.bucket,
-      region: bucketListItem.region
+      region: bucketListItem.region,
     });
     utils.cleanBucket(client, bucketListItem.bucket).catch(e => {
       console.log('bucket name =======>', bucketListItem.bucket);

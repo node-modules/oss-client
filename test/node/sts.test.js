@@ -20,12 +20,12 @@ describe('test/sts.test.js', () => {
       const policy = {
         Statement: [
           {
-            Action: ['oss:*'],
+            Action: [ 'oss:*' ],
             Effect: 'Allow',
-            Resource: ['acs:oss:*:*:*']
-          }
+            Resource: [ 'acs:oss:*:*:*' ],
+          },
         ],
-        Version: '1'
+        Version: '1',
       };
       const result = await stsClient.assumeRole(stsConfig.roleArn, policy);
       assert.strictEqual(result.res.status, 200);
@@ -84,7 +84,7 @@ describe('test/sts.test.js', () => {
         accessKeyId: result.credentials.AccessKeyId,
         accessKeySecret: result.credentials.AccessKeySecret,
         stsToken: result.credentials.SecurityToken,
-        bucket: stsConfig.bucket
+        bucket: stsConfig.bucket,
       });
 
       const name = `${prefix}ali-sdk/oss/sts-put1.js`;
@@ -92,7 +92,7 @@ describe('test/sts.test.js', () => {
       assert.strictEqual(result.res.status, 200);
 
       result = await ossClient.list({
-        'max-keys': 10
+        'max-keys': 10,
       });
 
       assert.strictEqual(result.res.status, 200);
@@ -104,12 +104,12 @@ describe('test/sts.test.js', () => {
       let policy = {
         Statement: [
           {
-            Action: ['oss:PutObject'],
+            Action: [ 'oss:PutObject' ],
             Effect: 'Allow',
-            Resource: ['acs:oss:*:*:*']
-          }
+            Resource: [ 'acs:oss:*:*:*' ],
+          },
         ],
-        Version: '1'
+        Version: '1',
       };
 
       let result = await stsClient.assumeRole(stsConfig.roleArn, policy);
@@ -120,7 +120,7 @@ describe('test/sts.test.js', () => {
         accessKeyId: result.credentials.AccessKeyId,
         accessKeySecret: result.credentials.AccessKeySecret,
         stsToken: result.credentials.SecurityToken,
-        bucket: stsConfig.bucket
+        bucket: stsConfig.bucket,
       });
 
       const name1 = `${prefix}ali-sdk/oss/sts-put1.js`;
@@ -132,7 +132,7 @@ describe('test/sts.test.js', () => {
       assert.strictEqual(result.res.status, 200);
 
       try {
-        await ossClient.deleteMulti([name1, name2]);
+        await ossClient.deleteMulti([ name1, name2 ]);
         assert(false);
       } catch (err) {
         err.message.should.match(/Access denied by authorizer's policy/);
@@ -141,12 +141,12 @@ describe('test/sts.test.js', () => {
       policy = {
         Statement: [
           {
-            Action: ['oss:DeleteObject'],
+            Action: [ 'oss:DeleteObject' ],
             Effect: 'Allow',
-            Resource: ['acs:oss:*:*:*']
-          }
+            Resource: [ 'acs:oss:*:*:*' ],
+          },
         ],
-        Version: '1'
+        Version: '1',
       };
 
       result = await stsClient.assumeRole(stsConfig.roleArn, policy);
@@ -157,10 +157,10 @@ describe('test/sts.test.js', () => {
         accessKeyId: result.credentials.AccessKeyId,
         accessKeySecret: result.credentials.AccessKeySecret,
         stsToken: result.credentials.SecurityToken,
-        bucket: stsConfig.bucket
+        bucket: stsConfig.bucket,
       });
 
-      result = await ossClient.deleteMulti([name1, name2]);
+      result = await ossClient.deleteMulti([ name1, name2 ]);
       assert.strictEqual(result.res.status, 200);
     });
   });
@@ -177,7 +177,7 @@ describe('test/sts.test.js', () => {
         accessKeySecret: credentials.AccessKeySecret,
         stsToken: credentials.SecurityToken,
         bucket: stsConfig.bucket,
-        refreshSTSTokenInterval: 1000
+        refreshSTSTokenInterval: 1000,
       };
       store = new OSS(testRefreshSTSTokenConf);
     });
@@ -214,11 +214,11 @@ describe('test/sts.test.js', () => {
           return {
             accessKeyId: 'b',
             accessKeySecret: 'b',
-            stsToken: 'b'
+            stsToken: 'b',
           };
         },
         bucket: stsConfig.bucket,
-        refreshSTSTokenInterval: 1000
+        refreshSTSTokenInterval: 1000,
       });
       await utils.sleep(2000);
       await store.asyncSignatureUrl('test.txt');

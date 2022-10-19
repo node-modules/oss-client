@@ -1,15 +1,3 @@
-/** !
- * Copyright(c) ali-sdk and other contributors.
- * MIT Licensed
- *
- * Authors:
- *   rockuw <rockuw@gmail.com> (http://rockuw.com)
- */
-
-/**
- * Module dependencies.
- */
-
 const assert = require('assert');
 const utils = require('./utils');
 const is = require('is-type-of');
@@ -41,8 +29,8 @@ describe('test/rtmp.test.js', () => {
         Type: 'HLS',
         FragDuration: '10',
         FragCount: '5',
-        PlaylistName: 'playlist.m3u8'
-      }
+        PlaylistName: 'playlist.m3u8',
+      },
     };
   });
 
@@ -72,7 +60,7 @@ describe('test/rtmp.test.js', () => {
 
       await utils.throws(async () => {
         await store.getChannel(tempCid);
-      }, (err) => {
+      }, err => {
         assert.equal(err.status, 404);
       });
     });
@@ -127,7 +115,7 @@ describe('test/rtmp.test.js', () => {
       const query = {
         prefix: 'channel-list-',
         marker: 'channel-list-4',
-        'max-keys': 3
+        'max-keys': 3,
       };
 
       const result = await store.listChannels(query);
@@ -179,9 +167,9 @@ describe('test/rtmp.test.js', () => {
       assert.equal(result.res.status, 200);
       const url = store.getRtmpUrl(createVodCid, {
         params: {
-          playlistName: 'vod.m3u8'
+          playlistName: 'vod.m3u8',
         },
-        expires: 3600
+        expires: 3600,
       });
       console.log(url);
     });
@@ -198,7 +186,7 @@ describe('test/rtmp.test.js', () => {
       try {
         const result = await store.createVod(cid, name, {
           startTime: Math.floor((now - 100) / 1000),
-          endTime: Math.floor(now / 1000)
+          endTime: Math.floor(now / 1000),
         });
 
         assert.equal(result.res.status, 200);
@@ -226,9 +214,9 @@ describe('test/rtmp.test.js', () => {
       const name = 'vod.m3u8';
       const url = store.getRtmpUrl(getRtmpUrlCid, {
         params: {
-          playlistName: name
+          playlistName: name,
         },
-        expires: 3600
+        expires: 3600,
       });
       console.log(url);
       // verify the url is ok used by OBS or ffmpeg

@@ -1,5 +1,4 @@
 const assert = require('assert');
-const { Buffer } = require('buffer');
 const { deepCopy, deepCopyWith } = require('../../../lib/common/utils/deepCopy');
 
 describe('utils/deepCopy()', () => {
@@ -8,7 +7,7 @@ describe('utils/deepCopy()', () => {
     // See https://nodejs.org/api/buffer.html#buffer_buffer_constants_max_length
     const numberBytes = Math.pow(2, 30) - 1;
     const obj = {
-      buffer: Buffer.alloc(numberBytes)
+      buffer: Buffer.alloc(numberBytes),
     };
     const copy = deepCopy(obj);
     assert.strictEqual(Object.keys(obj).length, Object.keys(copy).length);
@@ -20,9 +19,9 @@ describe('utils/deepCopy()', () => {
     const obj = {
       a: 1,
       b: {
-        c: 2
+        c: 2,
       },
-      buffer: Buffer.alloc(numberBytes)
+      buffer: Buffer.alloc(numberBytes),
     };
     const copy1 = deepCopyWith(obj, (_, key) => {
       if (key === 'buffer') return null;
@@ -30,9 +29,9 @@ describe('utils/deepCopy()', () => {
     assert.deepStrictEqual(copy1, {
       a: 1,
       b: {
-        c: 2
+        c: 2,
       },
-      buffer: null
+      buffer: null,
     });
 
     const copy2 = deepCopyWith(obj);

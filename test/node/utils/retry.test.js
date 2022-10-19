@@ -53,7 +53,7 @@ describe('test/retry.test.js', () => {
   it('should throw when retry count bigger than options retryMax', async () => {
     mm.error(store.urllib, 'request', {
       status: -1, // timeout
-      headers: {}
+      headers: {},
     });
     try {
       await store.listBuckets();
@@ -66,7 +66,7 @@ describe('test/retry.test.js', () => {
   it('should not retry when err.status is not -1 or -2', async () => {
     mm.error(store.urllib, 'request', {
       status: -3,
-      headers: {}
+      headers: {},
     });
     try {
       const name = `ali-oss-test-retry-file-${Date.now()}`;

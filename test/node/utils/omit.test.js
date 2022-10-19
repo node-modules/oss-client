@@ -8,8 +8,8 @@ describe('omit test case', () => {
     sex: 'male',
     children: {
       name: 'child',
-      age: '18'
-    }
+      age: '18',
+    },
   };
 
   it('should return new object', () => {
@@ -17,11 +17,11 @@ describe('omit test case', () => {
     assert(newObject !== originObject);
   });
   it('should remove properties', () => {
-    const newObject = omit(originObject, ['age']);
+    const newObject = omit(originObject, [ 'age' ]);
     assert.equal(newObject.age, undefined);
   });
   it('should not remove children node name', () => {
-    const newObject = omit(originObject, ['name']);
+    const newObject = omit(originObject, [ 'name' ]);
     assert.equal(newObject.name, undefined);
     assert.equal(newObject.children.name, 'child');
   });

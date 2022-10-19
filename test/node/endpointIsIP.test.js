@@ -29,7 +29,7 @@ describe('test/endpoint.test.js', () => {
     const endpoint = await getIP(`${bucket}.${store.options.endpoint.hostname}`);
     const testEndponitConfig = Object.assign({}, config, {
       cname: true,
-      endpoint
+      endpoint,
     });
     store = oss(testEndponitConfig);
     store.useBucket(bucket);

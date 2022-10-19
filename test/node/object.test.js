@@ -95,7 +95,7 @@ describe('test/object.test.js', () => {
       });
 
       const options = {
-        contentLength: fs.statSync(__filename).size
+        contentLength: fs.statSync(__filename).size,
       };
       const result = await store.putStream(name, fs.createReadStream(__filename), options);
 
@@ -107,7 +107,7 @@ describe('test/object.test.js', () => {
       const name = `${prefix}ali-sdk/oss/nodejs-1024x768.png`;
       const imagepath = path.join(__dirname, 'nodejs-1024x768.png');
       const object = await store.putStream(name, fs.createReadStream(imagepath), {
-        mime: 'image/png'
+        mime: 'image/png',
       });
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       assert.equal(typeof object.res.rt, 'number');
@@ -181,7 +181,7 @@ describe('test/object.test.js', () => {
     before(async () => {
       const imagepath = path.join(__dirname, 'nodejs-1024x768.png');
       await store.putStream(name, fs.createReadStream(imagepath), {
-        mime: 'image/png'
+        mime: 'image/png',
       });
     });
     const target = `processObject_target${Date.now()}.jpg`;
@@ -319,8 +319,8 @@ describe('test/object.test.js', () => {
       const stat = await store._statFile(__filename);
       const object = await store.put(name, fs.createReadStream(__filename), {
         headers: {
-          'Content-Length': stat.size
-        }
+          'Content-Length': stat.size,
+        },
       });
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       assert.equal(typeof object.res.rt, 'number');
@@ -333,8 +333,8 @@ describe('test/object.test.js', () => {
       const object = await store.put(name, __filename, {
         meta: {
           uid: 1,
-          slus: 'test.html'
-        }
+          slus: 'test.html',
+        },
       });
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       assert.equal(typeof object.res.rt, 'number');
@@ -344,7 +344,7 @@ describe('test/object.test.js', () => {
       const info = await store.head(name);
       assert.deepEqual(info.meta, {
         uid: '1',
-        slus: 'test.html'
+        slus: 'test.html',
       });
       assert.equal(info.status, 200);
     });
@@ -353,8 +353,8 @@ describe('test/object.test.js', () => {
       const name = `${prefix}ali-sdk/oss/put-Content-Disposition.js`;
       const object = await store.put(name, __filename, {
         headers: {
-          'Content-Disposition': 'ascii-name.js'
-        }
+          'Content-Disposition': 'ascii-name.js',
+        },
       });
       assert(object.name, name);
       const info = await store.head(name);
@@ -365,8 +365,8 @@ describe('test/object.test.js', () => {
       const name = `${prefix}ali-sdk/oss/put-Content-Disposition.js`;
       const object = await store.put(name, __filename, {
         headers: {
-          'Content-Disposition': encodeURIComponent('non-ascii-名字.js')
-        }
+          'Content-Disposition': encodeURIComponent('non-ascii-名字.js'),
+        },
       });
       assert(object.name, name);
       const info = await store.head(name);
@@ -377,8 +377,8 @@ describe('test/object.test.js', () => {
       const name = `${prefix}ali-sdk/oss/put-Expires.js`;
       const object = await store.put(name, __filename, {
         headers: {
-          Expires: 1000000
-        }
+          Expires: 1000000,
+        },
       });
       assert(object.name, name);
       const info = await store.head(name);
@@ -389,8 +389,8 @@ describe('test/object.test.js', () => {
       const name = `${prefix}ali-sdk/oss/put-Content-Type.js`;
       const object = await store.put(name, __filename, {
         headers: {
-          'Content-Type': 'text/plain; charset=gbk'
-        }
+          'Content-Type': 'text/plain; charset=gbk',
+        },
       });
       assert(object.name, name);
       const info = await store.head(name);
@@ -401,8 +401,8 @@ describe('test/object.test.js', () => {
       const name = `${prefix}ali-sdk/oss/put-Content-Type.js`;
       const object = await store.put(name, __filename, {
         headers: {
-          'content-type': 'application/javascript; charset=utf8'
-        }
+          'content-type': 'application/javascript; charset=utf8',
+        },
       });
       assert(object.name, name);
       const info = await store.head(name);
@@ -415,13 +415,13 @@ describe('test/object.test.js', () => {
       const MD5Value = crypto.createHash('md5').update(fs.readFileSync(fileName)).digest('base64');
       await store.put(name, fileName, {
         headers: {
-          'Content-MD5': MD5Value
-        }
+          'Content-MD5': MD5Value,
+        },
       });
       await store.put(name, fileName, {
         headers: {
-          'content-Md5': MD5Value
-        }
+          'content-Md5': MD5Value,
+        },
       });
     });
 
@@ -429,8 +429,8 @@ describe('test/object.test.js', () => {
       const name = 'ali-sdkhahhhh+oss+mm xxx.js';
       const object = await store.put(name, __filename, {
         headers: {
-          'Content-Type': 'text/plain; charset=gbk'
-        }
+          'Content-Type': 'text/plain; charset=gbk',
+        },
       });
       assert(object.name, name);
       const info = await store.head(name);
@@ -447,7 +447,7 @@ describe('test/object.test.js', () => {
       assert.equal(resultPut.res.status, 200);
       try {
         await store.put(name, body, {
-          headers: { 'x-oss-forbid-overwrite': 'true' }
+          headers: { 'x-oss-forbid-overwrite': 'true' },
         });
       } catch (error) {
         assert(true);
@@ -489,7 +489,7 @@ describe('test/object.test.js', () => {
       await new Promise((resolve, reject) => {
         const rs = fs.createReadStream('/dev/random', {
           start: 0,
-          end: size - 1
+          end: size - 1,
         });
         const ws = fs.createWriteStream(name);
         rs.pipe(ws);
@@ -541,7 +541,7 @@ describe('test/object.test.js', () => {
       let result = await store.head(name);
       assert.equal(result.res.headers['content-type'], 'text/plain');
       await store.multipartUpload(name, filepath, {
-        mime: 'text/plain'
+        mime: 'text/plain',
       });
       result = await store.head(name);
       assert.equal(result.res.headers['content-type'], 'text/plain');
@@ -557,8 +557,8 @@ describe('test/object.test.js', () => {
         meta: {
           uid: 1,
           pid: '123',
-          slus: 'test.html'
-        }
+          slus: 'test.html',
+        },
       });
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       resHeaders = object.res.headers;
@@ -583,8 +583,8 @@ describe('test/object.test.js', () => {
       lastYear = lastYear.toGMTString();
       const info = await store.head(name, {
         headers: {
-          'If-Modified-Since': lastYear
-        }
+          'If-Modified-Since': lastYear,
+        },
       });
       assert.equal(info.status, 200);
       assert(info.meta);
@@ -593,8 +593,8 @@ describe('test/object.test.js', () => {
     it('should head exists object with If-Modified-Since = object modified time', async () => {
       const info = await store.head(name, {
         headers: {
-          'If-Modified-Since': resHeaders.date
-        }
+          'If-Modified-Since': resHeaders.date,
+        },
       });
       assert.equal(info.status, 304);
       assert.equal(info.meta, null);
@@ -607,8 +607,8 @@ describe('test/object.test.js', () => {
 
       const info = await store.head(name, {
         headers: {
-          'If-Modified-Since': nextYear
-        }
+          'If-Modified-Since': nextYear,
+        },
       });
       assert.equal(info.status, 304);
       assert.equal(info.meta, null);
@@ -622,8 +622,8 @@ describe('test/object.test.js', () => {
         async () => {
           await store.head(name, {
             headers: {
-              'If-Unmodified-Since': lastYear
-            }
+              'If-Unmodified-Since': lastYear,
+            },
           });
         },
         err => {
@@ -636,8 +636,8 @@ describe('test/object.test.js', () => {
     it('should head exists object with If-Unmodified-Since = object modified time', async () => {
       const info = await store.head(name, {
         headers: {
-          'If-Unmodified-Since': resHeaders.date
-        }
+          'If-Unmodified-Since': resHeaders.date,
+        },
       });
       assert.equal(info.status, 200);
       assert(info.meta);
@@ -650,8 +650,8 @@ describe('test/object.test.js', () => {
 
       const info = await store.head(name, {
         headers: {
-          'If-Unmodified-Since': nextYear
-        }
+          'If-Unmodified-Since': nextYear,
+        },
       });
       assert.equal(info.status, 200);
       assert(info.meta);
@@ -660,8 +660,8 @@ describe('test/object.test.js', () => {
     it('should head exists object with If-Match equal etag', async () => {
       const info = await store.head(name, {
         headers: {
-          'If-Match': resHeaders.etag
-        }
+          'If-Match': resHeaders.etag,
+        },
       });
       assert.equal(info.meta.uid, '1');
       assert.equal(info.meta.pid, '123');
@@ -674,8 +674,8 @@ describe('test/object.test.js', () => {
         async () => {
           await store.head(name, {
             headers: {
-              'If-Match': '"foo-etag"'
-            }
+              'If-Match': '"foo-etag"',
+            },
           });
         },
         err => {
@@ -688,8 +688,8 @@ describe('test/object.test.js', () => {
     it('should head exists object with If-None-Match equal etag', async () => {
       const info = await store.head(name, {
         headers: {
-          'If-None-Match': resHeaders.etag
-        }
+          'If-None-Match': resHeaders.etag,
+        },
       });
       assert.equal(info.meta, null);
       assert.equal(info.status, 304);
@@ -698,8 +698,8 @@ describe('test/object.test.js', () => {
     it('should head exists object with If-None-Match not equal etag', async () => {
       const info = await store.head(name, {
         headers: {
-          'If-None-Match': '"foo-etag"'
-        }
+          'If-None-Match': '"foo-etag"',
+        },
       });
       assert.equal(info.meta.uid, '1');
       assert.equal(info.meta.pid, '123');
@@ -751,8 +751,8 @@ describe('test/object.test.js', () => {
         meta: {
           uid: 1,
           pid: '123',
-          slus: 'test.html'
-        }
+          slus: 'test.html',
+        },
       });
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       resHeaders = object.res.headers;
@@ -762,8 +762,8 @@ describe('test/object.test.js', () => {
         meta: {
           uid: 1,
           pid: '123',
-          slus: 'test.html'
-        }
+          slus: 'test.html',
+        },
       });
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
     });
@@ -833,7 +833,7 @@ describe('test/object.test.js', () => {
       const originImagePath = path.join(__dirname, 'nodejs-1024x768.png');
       path.join(__dirname, 'nodejs-processed-w200.png');
       await store.put(imageName, originImagePath, {
-        mime: 'image/png'
+        mime: 'image/png',
       });
 
       let result = await store.get(imageName, { process: 'image/resize,w_200' });
@@ -846,7 +846,7 @@ describe('test/object.test.js', () => {
       // when 'subres.x-oss-process' coexists with 'process'.
       result = await store.get(imageName, {
         process: 'image/resize,w_200',
-        subres: { 'x-oss-process': 'image/resize,w_100' }
+        subres: { 'x-oss-process': 'image/resize,w_100' },
       });
       assert.equal(result.res.status, 200);
       assert(Buffer.isBuffer(result.content), 'content should be Buffer');
@@ -873,8 +873,8 @@ describe('test/object.test.js', () => {
         lastYear = lastYear.toGMTString();
         const result = await store.get(name, {
           headers: {
-            'If-Modified-Since': lastYear
-          }
+            'If-Modified-Since': lastYear,
+          },
         });
         assert(Buffer.isBuffer(result.content), 'content should be Buffer');
         assert(result.content.toString().indexOf('ali-sdk/oss/get-meta.js') > 0);
@@ -884,8 +884,8 @@ describe('test/object.test.js', () => {
       it('should 304 when If-Modified-Since = object modified time', async () => {
         const result = await store.get(name, {
           headers: {
-            'If-Modified-Since': resHeaders.date
-          }
+            'If-Modified-Since': resHeaders.date,
+          },
         });
         assert(Buffer.isBuffer(result.content), 'content should be Buffer');
         assert.equal(result.content.length, 0);
@@ -898,8 +898,8 @@ describe('test/object.test.js', () => {
         nextYear = nextYear.toGMTString();
         const result = await store.get(name, {
           headers: {
-            'If-Modified-Since': nextYear
-          }
+            'If-Modified-Since': nextYear,
+          },
         });
         assert(Buffer.isBuffer(result.content), 'content should be Buffer');
         assert.equal(result.content.length, 0);
@@ -916,8 +916,8 @@ describe('test/object.test.js', () => {
           async () => {
             await store.get(name, {
               headers: {
-                'If-Unmodified-Since': lastYear
-              }
+                'If-Unmodified-Since': lastYear,
+              },
             });
           },
           err => {
@@ -936,8 +936,8 @@ describe('test/object.test.js', () => {
       it('should 200 when If-Unmodified-Since = object modified time', async () => {
         const result = await store.get(name, {
           headers: {
-            'If-Unmodified-Since': resHeaders.date
-          }
+            'If-Unmodified-Since': resHeaders.date,
+          },
         });
         assert.equal(result.res.status, 200);
         assert(Buffer.isBuffer(result.content), 'content should be Buffer');
@@ -950,8 +950,8 @@ describe('test/object.test.js', () => {
         nextYear = nextYear.toGMTString();
         const result = await store.get(name, {
           headers: {
-            'If-Unmodified-Since': nextYear
-          }
+            'If-Unmodified-Since': nextYear,
+          },
         });
         assert.equal(result.res.status, 200);
         assert(Buffer.isBuffer(result.content), 'content should be Buffer');
@@ -963,8 +963,8 @@ describe('test/object.test.js', () => {
       it('should 200 when If-Match equal object etag', async () => {
         const result = await store.get(name, {
           headers: {
-            'If-Match': resHeaders.etag
-          }
+            'If-Match': resHeaders.etag,
+          },
         });
         assert.equal(result.res.status, 200);
       });
@@ -974,8 +974,8 @@ describe('test/object.test.js', () => {
           async () => {
             await store.get(name, {
               headers: {
-                'If-Match': 'foo'
-              }
+                'If-Match': 'foo',
+              },
             });
           },
           err => {
@@ -990,8 +990,8 @@ describe('test/object.test.js', () => {
       it('should 200 when If-None-Match not equal object etag', async () => {
         const result = await store.get(name, {
           headers: {
-            'If-None-Match': 'foo'
-          }
+            'If-None-Match': 'foo',
+          },
         });
         assert.equal(result.res.status, 200);
       });
@@ -999,8 +999,8 @@ describe('test/object.test.js', () => {
       it('should 304 when If-None-Match equal object etag', async () => {
         const result = await store.get(name, {
           headers: {
-            'If-None-Match': resHeaders.etag
-          }
+            'If-None-Match': resHeaders.etag,
+          },
         });
         assert.equal(result.res.status, 304);
         assert.equal(result.content.length, 0);
@@ -1013,8 +1013,8 @@ describe('test/object.test.js', () => {
         await store.put('range-header-test', content);
         const result = await store.get('range-header-test', {
           headers: {
-            Range: 'bytes=0-9'
-          }
+            Range: 'bytes=0-9',
+          },
         });
         assert.equal(result.res.headers['content-length'], '10');
         assert(Buffer.isBuffer(result.content), 'content should be Buffer');
@@ -1032,8 +1032,8 @@ describe('test/object.test.js', () => {
         meta: {
           uid: 1,
           pid: '123',
-          slus: 'test.html'
-        }
+          slus: 'test.html',
+        },
       });
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
 
@@ -1042,8 +1042,8 @@ describe('test/object.test.js', () => {
         meta: {
           uid: 1,
           pid: '123',
-          slus: 'test.html'
-        }
+          slus: 'test.html',
+        },
       });
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
     });
@@ -1063,7 +1063,7 @@ describe('test/object.test.js', () => {
       try {
         const response = {
           'content-type': 'xml',
-          'content-language': 'zh-cn'
+          'content-language': 'zh-cn',
         };
         const url = store.signatureUrl(name, { response });
         assert(url.indexOf('response-content-type=xml') !== -1);
@@ -1078,17 +1078,17 @@ describe('test/object.test.js', () => {
         const options = {
           expires: 3600,
           subResource: {
-            'x-oss-process': 'image/resize,w_200'
+            'x-oss-process': 'image/resize,w_200',
           },
           // others parameters
           filename: 'test.js',
-          testParameters: 'xxx'
+          testParameters: 'xxx',
         };
         const imageName = `${prefix}ali-sdk/oss/nodejs-test-signature-1024x768.png`;
         const originImagePath = path.join(__dirname, 'nodejs-1024x768.png');
         path.join(__dirname, 'nodejs-processed-w200.png');
         await store.put(imageName, originImagePath, {
-          mime: 'image/png'
+          mime: 'image/png',
         });
 
         const signUrl = store.signatureUrl(imageName, options);
@@ -1107,7 +1107,7 @@ describe('test/object.test.js', () => {
         const originImagePath = path.join(__dirname, 'nodejs-1024x768.png');
         path.join(__dirname, 'nodejs-processed-w200.png');
         await store.put(imageName, originImagePath, {
-          mime: 'image/png'
+          mime: 'image/png',
         });
 
         const signUrl = store.signatureUrl(imageName, { expires: 3600, process: 'image/resize,w_200' });
@@ -1127,11 +1127,11 @@ describe('test/object.test.js', () => {
         const url = store.signatureUrl(name, {
           method: 'PUT',
           'Content-Type': 'text/plain; charset=UTF-8',
-          'Content-Md5': contentMd5
+          'Content-Md5': contentMd5,
         });
         const headers = {
           'Content-Type': 'text/plain; charset=UTF-8',
-          'Content-MD5': contentMd5
+          'Content-MD5': contentMd5,
         };
         const res = await urllib.request(url, { method: 'PUT', data: putString, headers });
         assert.equal(res.status, 200);
@@ -1200,13 +1200,13 @@ describe('test/object.test.js', () => {
       try {
         url = store.signatureUrl(limit_name, {
           trafficLimit: 8 * 1024 * 100 * 4,
-          method: 'PUT'
+          method: 'PUT',
         });
 
         result = await store.urllib.request(url, {
           method: 'PUT',
           stream: fs.createReadStream(file_1mb),
-          timeout: 600000
+          timeout: 600000,
         });
         assert.strictEqual(200, result.status);
       } catch (error) {
@@ -1215,10 +1215,10 @@ describe('test/object.test.js', () => {
 
       try {
         url = store.signatureUrl(name, {
-          trafficLimit: 8 * 1024 * 100 * 4
+          trafficLimit: 8 * 1024 * 100 * 4,
         });
         result = await store.urllib.request(url, {
-          timeout: 600000
+          timeout: 600000,
         });
         assert.strictEqual(200, result.status);
       } catch (error) {
@@ -1235,8 +1235,8 @@ describe('test/object.test.js', () => {
         meta: {
           uid: 1,
           pid: '123',
-          slus: 'test.html'
-        }
+          slus: 'test.html',
+        },
       });
     });
 
@@ -1272,7 +1272,7 @@ describe('test/object.test.js', () => {
       const processedImagePath = path.join(__dirname, 'nodejs-processed-w200.png');
       const processedImagePath2 = path.join(__dirname, 'nodejs-processed-w200-latest.png');
       await store.put(imageName, originImagePath, {
-        mime: 'image/png'
+        mime: 'image/png',
       });
 
       let result = await store.getStream(imageName, { process: 'image/resize,w_200' });
@@ -1284,11 +1284,11 @@ describe('test/object.test.js', () => {
       assert(isEqual || isEqual2);
       result = await store.getStream(imageName, {
         process: 'image/resize,w_200',
-        subres: { 'x-oss-process': 'image/resize,w_100' }
+        subres: { 'x-oss-process': 'image/resize,w_100' },
       });
       result2 = await store.getStream(imageName, {
         process: 'image/resize,w_200',
-        subres: { 'x-oss-process': 'image/resize,w_100' }
+        subres: { 'x-oss-process': 'image/resize,w_100' },
       });
       assert.equal(result.res.status, 200);
       assert.equal(result2.res.status, 200);
@@ -1309,7 +1309,7 @@ describe('test/object.test.js', () => {
     if (!process.env.ONCI) {
       it('should throw error and consume the response stream', async () => {
         store.agent = new AgentKeepalive({
-          keepAlive: true
+          keepAlive: true,
         });
         store.httpsAgent = new HttpsAgentKeepalive();
         try {
@@ -1371,10 +1371,10 @@ describe('test/object.test.js', () => {
     });
 
     it('should delete 2 exists and 2 not exists objs', async () => {
-      const result = await store.deleteMulti(names.slice(0, 2).concat(['not-exist1', 'not-exist2']));
+      const result = await store.deleteMulti(names.slice(0, 2).concat([ 'not-exist1', 'not-exist2' ]));
       assert.deepEqual(
         result.deleted.map(v => v.Key),
-        names.slice(0, 2).concat(['not-exist1', 'not-exist2'])
+        names.slice(0, 2).concat([ 'not-exist1', 'not-exist2' ])
       );
       assert.equal(result.res.status, 200);
     });
@@ -1390,7 +1390,7 @@ describe('test/object.test.js', () => {
 
     it('should delete in quiet mode', async () => {
       const result = await store.deleteMulti(names, {
-        quiet: true
+        quiet: true,
       });
       assert(result.deleted.length === 0);
       assert.equal(result.res.status, 200);
@@ -1408,8 +1408,8 @@ describe('test/object.test.js', () => {
         meta: {
           uid: 1,
           pid: '123',
-          slus: 'test.html'
-        }
+          slus: 'test.html',
+        },
       });
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       resHeaders = object.res.headers;
@@ -1447,8 +1447,8 @@ describe('test/object.test.js', () => {
       const disposition = 'attachment; filename=test';
       const result = await store.copy(originname, name, {
         headers: {
-          'Content-Disposition': disposition
-        }
+          'Content-Disposition': disposition,
+        },
       });
       assert.strictEqual(result.res.status, 200);
       const { res } = await store.get(originname);
@@ -1481,8 +1481,8 @@ describe('test/object.test.js', () => {
         meta: {
           uid: 2,
           pid: '1234',
-          slus: 'test1.html'
-        }
+          slus: 'test1.html',
+        },
       });
 
       const originname = `${prefix}ali-sdk/oss/copy-new_测试.js`;
@@ -1504,8 +1504,8 @@ describe('test/object.test.js', () => {
         meta: {
           uid: 3,
           pid: '12345',
-          slus: 'test2.html'
-        }
+          slus: 'test2.html',
+        },
       });
 
       let info = await store.head(sourceName);
@@ -1532,8 +1532,8 @@ describe('test/object.test.js', () => {
       const originname = `${prefix}ali-sdk/oss/copy-new-2.js`;
       const result = await store.copy(originname, name, {
         meta: {
-          uid: '2'
-        }
+          uid: '2',
+        },
       });
       assert.equal(result.res.status, 200);
       assert.equal(typeof result.data.etag, 'string');
@@ -1566,8 +1566,8 @@ describe('test/object.test.js', () => {
       // add Cache-Control header to a exists object
       result = await store.copy(originname, originname, {
         headers: {
-          'Cache-Control': 'max-age=0, s-maxage=86400'
-        }
+          'Cache-Control': 'max-age=0, s-maxage=86400',
+        },
       });
       assert.equal(result.res.status, 200);
       assert.equal(typeof result.data.etag, 'string');
@@ -1595,8 +1595,8 @@ describe('test/object.test.js', () => {
           async () => {
             await store.copy('new-name', name, {
               headers: {
-                'If-Match': 'foo-bar'
-              }
+                'If-Match': 'foo-bar',
+              },
             });
           },
           err => {
@@ -1614,8 +1614,8 @@ describe('test/object.test.js', () => {
         const originname = `${prefix}ali-sdk/oss/copy-new-If-Match.js`;
         const result = await store.copy(originname, name, {
           headers: {
-            'If-Match': resHeaders.etag
-          }
+            'If-Match': resHeaders.etag,
+          },
         });
         assert.equal(result.res.status, 200);
         assert.equal(typeof result.data.etag, 'string');
@@ -1627,8 +1627,8 @@ describe('test/object.test.js', () => {
       it('should return 304 when If-None-Match equal source object etag', async () => {
         const result = await store.copy('new-name', name, {
           headers: {
-            'If-None-Match': resHeaders.etag
-          }
+            'If-None-Match': resHeaders.etag,
+          },
         });
         assert.equal(result.res.status, 304);
         assert.equal(result.data, null);
@@ -1638,8 +1638,8 @@ describe('test/object.test.js', () => {
         const originname = `${prefix}ali-sdk/oss/copy-new-If-None-Match.js`;
         const result = await store.copy(originname, name, {
           headers: {
-            'If-None-Match': 'foo-bar'
-          }
+            'If-None-Match': 'foo-bar',
+          },
         });
         assert.equal(result.res.status, 200);
         assert.equal(typeof result.data.etag, 'string');
@@ -1655,8 +1655,8 @@ describe('test/object.test.js', () => {
         nextYear = nextYear.toGMTString();
         const result = await store.copy(originname, name, {
           headers: {
-            'If-Modified-Since': nextYear
-          }
+            'If-Modified-Since': nextYear,
+          },
         });
         assert.equal(result.res.status, 304);
       });
@@ -1665,8 +1665,8 @@ describe('test/object.test.js', () => {
         const originname = `${prefix}ali-sdk/oss/copy-new-If-Modified-Since.js`;
         const result = await store.copy(originname, name, {
           headers: {
-            'If-Modified-Since': resHeaders.date
-          }
+            'If-Modified-Since': resHeaders.date,
+          },
         });
         assert.equal(result.res.status, 304);
       });
@@ -1678,8 +1678,8 @@ describe('test/object.test.js', () => {
         lastYear = lastYear.toGMTString();
         const result = await store.copy(originname, name, {
           headers: {
-            'If-Modified-Since': lastYear
-          }
+            'If-Modified-Since': lastYear,
+          },
         });
         assert.equal(result.res.status, 200);
       });
@@ -1693,8 +1693,8 @@ describe('test/object.test.js', () => {
         nextYear = nextYear.toGMTString();
         const result = await store.copy(originname, name, {
           headers: {
-            'If-Unmodified-Since': nextYear
-          }
+            'If-Unmodified-Since': nextYear,
+          },
         });
         assert.equal(result.res.status, 200);
       });
@@ -1703,8 +1703,8 @@ describe('test/object.test.js', () => {
         const originname = `${prefix}ali-sdk/oss/copy-new-If-Unmodified-Since.js`;
         const result = await store.copy(originname, name, {
           headers: {
-            'If-Unmodified-Since': resHeaders.date
-          }
+            'If-Unmodified-Since': resHeaders.date,
+          },
         });
         assert.equal(result.res.status, 200);
       });
@@ -1718,8 +1718,8 @@ describe('test/object.test.js', () => {
           async () => {
             await store.copy(originname, name, {
               headers: {
-                'If-Unmodified-Since': lastYear
-              }
+                'If-Unmodified-Since': lastYear,
+              },
             });
           },
           err => {
@@ -1743,15 +1743,15 @@ describe('test/object.test.js', () => {
         meta: {
           uid: 1,
           pid: '123',
-          slus: 'test.html'
-        }
+          slus: 'test.html',
+        },
       });
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
     });
 
     it('should update exists object meta', async () => {
       await store.putMeta(name, {
-        uid: '2'
+        uid: '2',
       });
       const info = await store.head(name);
       assert.equal(info.meta.uid, '2');
@@ -1763,7 +1763,7 @@ describe('test/object.test.js', () => {
       await utils.throws(
         async () => {
           await store.putMeta(`${name}not-exists`, {
-            uid: '2'
+            uid: '2',
           });
         },
         err => {
@@ -1804,7 +1804,7 @@ describe('test/object.test.js', () => {
 
     it('should list only 1 object', async () => {
       const result = await store.list({
-        'max-keys': 1
+        'max-keys': 1,
       });
       assert(result.objects.length <= 1);
       result.objects.map(checkObjectProperties);
@@ -1815,7 +1815,7 @@ describe('test/object.test.js', () => {
 
     it('should list top 3 objects', async () => {
       const result = await store.list({
-        'max-keys': 3
+        'max-keys': 3,
       });
       assert(result.objects.length <= 3);
       result.objects.map(checkObjectProperties);
@@ -1826,7 +1826,7 @@ describe('test/object.test.js', () => {
       // next 2
       const result2 = await store.list({
         'max-keys': 2,
-        marker: result.nextMarker
+        marker: result.nextMarker,
       });
       assert(result2.objects.length <= 2);
       result.objects.map(checkObjectProperties);
@@ -1837,7 +1837,7 @@ describe('test/object.test.js', () => {
 
     it('should list with prefix', async () => {
       let result = await store.list({
-        prefix: `${listPrefix}fun/movie/`
+        prefix: `${listPrefix}fun/movie/`,
       });
       assert.equal(result.objects.length, 2);
       result.objects.map(checkObjectProperties);
@@ -1846,7 +1846,7 @@ describe('test/object.test.js', () => {
       assert.equal(result.prefixes, null);
 
       result = await store.list({
-        prefix: `${listPrefix}fun/movie`
+        prefix: `${listPrefix}fun/movie`,
       });
       assert.equal(result.objects.length, 2);
       result.objects.map(checkObjectProperties);
@@ -1858,27 +1858,27 @@ describe('test/object.test.js', () => {
     it('should list current dir files only', async () => {
       let result = await store.list({
         prefix: listPrefix,
-        delimiter: '/'
+        delimiter: '/',
       });
       assert.equal(result.objects.length, 1);
       result.objects.map(checkObjectProperties);
       assert.equal(result.nextMarker, null);
       assert(!result.isTruncated);
-      assert.deepEqual(result.prefixes, [`${listPrefix}fun/`, `${listPrefix}other/`]);
+      assert.deepEqual(result.prefixes, [ `${listPrefix}fun/`, `${listPrefix}other/` ]);
 
       result = await store.list({
         prefix: `${listPrefix}fun/`,
-        delimiter: '/'
+        delimiter: '/',
       });
       assert.equal(result.objects.length, 1);
       result.objects.map(checkObjectProperties);
       assert.equal(result.nextMarker, null);
       assert(!result.isTruncated);
-      assert.deepEqual(result.prefixes, [`${listPrefix}fun/movie/`]);
+      assert.deepEqual(result.prefixes, [ `${listPrefix}fun/movie/` ]);
 
       result = await store.list({
         prefix: `${listPrefix}fun/movie/`,
-        delimiter: '/'
+        delimiter: '/',
       });
       assert.equal(result.objects.length, 2);
       result.objects.map(checkObjectProperties);
@@ -1916,7 +1916,7 @@ describe('test/object.test.js', () => {
 
     it('should list top 3 objects', async () => {
       const result = await store.listV2({
-        'max-keys': 1
+        'max-keys': 1,
       });
       assert(result.objects.length <= 1);
       result.objects.forEach(checkObjectProperties);
@@ -1927,7 +1927,7 @@ describe('test/object.test.js', () => {
       // next 2
       const result2 = await store.listV2({
         'max-keys': 2,
-        continuationToken: result.nextContinuationToken
+        continuationToken: result.nextContinuationToken,
       });
       assert(result2.objects.length <= 2);
       result.objects.forEach(checkObjectProperties);
@@ -1939,7 +1939,7 @@ describe('test/object.test.js', () => {
     it('should list with prefix', async () => {
       let result = await store.listV2({
         prefix: `${listPrefix}fun/movie/`,
-        'fetch-owner': true
+        'fetch-owner': true,
       });
       assert.equal(result.objects.length, 2);
       result.objects.forEach(obj => checkObjectProperties(obj, { owner: true }));
@@ -1948,7 +1948,7 @@ describe('test/object.test.js', () => {
       assert.equal(result.prefixes, null);
 
       result = await store.listV2({
-        prefix: `${listPrefix}fun/movie`
+        prefix: `${listPrefix}fun/movie`,
       });
       assert.equal(result.objects.length, 2);
       result.objects.forEach(checkObjectProperties);
@@ -1960,27 +1960,27 @@ describe('test/object.test.js', () => {
     it('should list current dir files only', async () => {
       let result = await store.listV2({
         prefix: listPrefix,
-        delimiter: '/'
+        delimiter: '/',
       });
       assert.equal(result.objects.length, 1);
       result.objects.forEach(checkObjectProperties);
       assert.equal(result.nextContinuationToken, null);
       assert(!result.isTruncated);
-      assert.deepEqual(result.prefixes, [`${listPrefix}fun/`, `${listPrefix}other/`]);
+      assert.deepEqual(result.prefixes, [ `${listPrefix}fun/`, `${listPrefix}other/` ]);
 
       result = await store.listV2({
         prefix: `${listPrefix}fun/`,
-        delimiter: '/'
+        delimiter: '/',
       });
       assert.equal(result.objects.length, 1);
       result.objects.forEach(checkObjectProperties);
       assert.equal(result.nextContinuationToken, null);
       assert(!result.isTruncated);
-      assert.deepEqual(result.prefixes, [`${listPrefix}fun/movie/`]);
+      assert.deepEqual(result.prefixes, [ `${listPrefix}fun/movie/` ]);
 
       result = await store.listV2({
         prefix: `${listPrefix}fun/movie/`,
-        delimiter: '/'
+        delimiter: '/',
       });
       assert.equal(result.objects.length, 2);
       result.objects.forEach(checkObjectProperties);
@@ -1992,20 +1992,20 @@ describe('test/object.test.js', () => {
     it('should list with start-after', async () => {
       let result = await store.listV2({
         'start-after': `${listPrefix}fun`,
-        'max-keys': 1
+        'max-keys': 1,
       });
       assert(result.objects[0].name === `${listPrefix}fun/movie/001.avi`);
 
       result = await store.listV2({
         'start-after': `${listPrefix}fun/movie/001.avi`,
-        'max-keys': 1
+        'max-keys': 1,
       });
       assert(result.objects[0].name === `${listPrefix}fun/movie/007.avi`);
 
       result = await store.listV2({
         delimiter: '/',
         prefix: `${listPrefix}fun/movie/`,
-        'start-after': `${listPrefix}fun/movie/002.avi`
+        'start-after': `${listPrefix}fun/movie/002.avi`,
       });
       assert(result.objects.length === 1);
       assert(result.objects[0].name === `${listPrefix}fun/movie/007.avi`);
@@ -2014,7 +2014,7 @@ describe('test/object.test.js', () => {
         prefix: `${listPrefix}`,
         'max-keys': 5,
         'start-after': `${listPrefix}a`,
-        delimiter: '/'
+        delimiter: '/',
       });
       assert.strictEqual(result.keyCount, 3);
       assert.strictEqual(result.objects.length, 1);
@@ -2027,7 +2027,7 @@ describe('test/object.test.js', () => {
         prefix: `${listPrefix}`,
         'max-keys': 5,
         'start-after': `${listPrefix}oss.jpg`,
-        delimiter: '/'
+        delimiter: '/',
       });
       assert.strictEqual(result.keyCount, 1);
       assert.strictEqual(result.objects.length, 0);
@@ -2042,7 +2042,7 @@ describe('test/object.test.js', () => {
         const result = await store.listV2({
           prefix: listPrefix,
           'max-keys': 2,
-          'continuation-token': nextContinuationToken
+          'continuation-token': nextContinuationToken,
         });
         keyCount += result.keyCount;
         nextContinuationToken = result.nextContinuationToken;
@@ -2059,7 +2059,7 @@ describe('test/object.test.js', () => {
         chinese: '杭州・中国',
         space: '是 空格 yeah +-/\\&*#(1) ',
         invisible: '\x01\x0a\x0c\x07\x50\x63',
-        xml: 'a<b&c>d +'
+        xml: 'a<b&c>d +',
       };
 
       const names = [];
@@ -2068,7 +2068,7 @@ describe('test/object.test.js', () => {
         let result = await store.put(key, Buffer.from(''));
         assert.equal(result.res.status, 200);
         result = await store.list({
-          prefixz
+          prefixz,
         });
         const objects = result.objects.map(obj => obj.name);
         assert(objects.indexOf(key) >= 0);
@@ -2127,7 +2127,7 @@ describe('test/object.test.js', () => {
       assert(res.res.headers['x-oss-next-append-position'] === '3');
 
       object = await store.append(name, Buffer.from('bar'), {
-        position: 3
+        position: 3,
       });
       assert(object.res.status === 200);
       assert(object.nextAppendPosition === '6');
@@ -2153,7 +2153,7 @@ describe('test/object.test.js', () => {
       assert(object.nextAppendPosition === '16');
 
       object = await store.append(name, fs.createReadStream(file), {
-        position: 16
+        position: 16,
       });
       assert(object.nextAppendPosition === '32');
     });
@@ -2175,11 +2175,11 @@ describe('test/object.test.js', () => {
       assert(object.nextAppendPosition === '3');
 
       object = await store.append(name, Buffer.from('bar'), {
-        position: object.nextAppendPosition
+        position: object.nextAppendPosition,
       });
 
       object = await store.append(name, Buffer.from('baz'), {
-        position: object.nextAppendPosition
+        position: object.nextAppendPosition,
       });
 
       const res = await store.get(name);
@@ -2192,13 +2192,13 @@ describe('test/object.test.js', () => {
     before(async () => {
       await store.put('/oss/coldRestore.js', __filename, {
         headers: {
-          'x-oss-storage-class': 'ColdArchive'
-        }
+          'x-oss-storage-class': 'ColdArchive',
+        },
       });
       await store.put('/oss/daysRestore.js', __filename, {
         headers: {
-          'x-oss-storage-class': 'ColdArchive'
-        }
+          'x-oss-storage-class': 'ColdArchive',
+        },
       });
     });
     after(async () => {
@@ -2246,10 +2246,10 @@ describe('test/object.test.js', () => {
       const name = '/oss/daysRestore.js';
       const result = await store.restore(name, {
         type: 'ColdArchive',
-        Days: 2
+        Days: 2,
       });
       assert.equal(
-        ['Expedited', 'Standard', 'Bulk'].includes(result.res.headers['x-oss-object-restore-priority']),
+        [ 'Expedited', 'Standard', 'Bulk' ].includes(result.res.headers['x-oss-object-restore-priority']),
         true
       );
     });
@@ -2257,10 +2257,10 @@ describe('test/object.test.js', () => {
     it('ColdArchive is Accepted', async () => {
       const name = '/oss/coldRestore.js';
       const result = await store.restore(name, {
-        type: 'ColdArchive'
+        type: 'ColdArchive',
       });
       assert.equal(
-        ['Expedited', 'Standard', 'Bulk'].includes(result.res.headers['x-oss-object-restore-priority']),
+        [ 'Expedited', 'Standard', 'Bulk' ].includes(result.res.headers['x-oss-object-restore-priority']),
         true
       );
     });
@@ -2277,8 +2277,8 @@ describe('test/object.test.js', () => {
         storageClass: 'IA',
         meta: {
           uid: '1',
-          slus: 'test.html'
-        }
+          slus: 'test.html',
+        },
       });
       assert.equal(result.res.status, 200);
 
@@ -2292,7 +2292,7 @@ describe('test/object.test.js', () => {
       assert.equal(result.res.headers['x-oss-object-type'], 'Symlink');
       assert.deepEqual(result.meta, {
         uid: '1',
-        slus: 'test.html'
+        slus: 'test.html',
       });
       // TODO getObjectMeta should return storage class,
       // headObject return targetObject storage class
@@ -2310,7 +2310,7 @@ describe('test/object.test.js', () => {
         date.setDate(date.getDate() + 1);
         const policy = {
           expiration: date.toISOString(),
-          conditions: [{ bucket: store.options.bucket }]
+          conditions: [{ bucket: store.options.bucket }],
         };
 
         const params = store.calculatePostSignature(policy);
@@ -2325,10 +2325,10 @@ describe('test/object.test.js', () => {
               value: 'calculatePostSignature',
               options: {
                 filename: name,
-                contentType: 'application/x-javascript'
-              }
-            }
-          }
+                contentType: 'application/x-javascript',
+              },
+            },
+          },
         };
 
         const postFile = () =>
@@ -2492,7 +2492,7 @@ describe('test/object.test.js', () => {
 
     it('should throw error when the type of tag value is Array', async () => {
       try {
-        const tag = { a: ['1', '2'] };
+        const tag = { a: [ '1', '2' ] };
         await store.putObjectTagging(name, tag);
       } catch (error) {
         assert.strictEqual('the key and value of the tag must be String', error.message);
@@ -2527,8 +2527,8 @@ describe('test/object.test.js', () => {
       name = `${prefix}ali-sdk/oss/put-new-latin1.js`;
       const result = await store.put(name, __filename, {
         meta: {
-          a: utf8_content
-        }
+          a: utf8_content,
+        },
       });
       assert.equal(result.res.status, 200);
       const info = await store.head(name);
@@ -2544,8 +2544,8 @@ describe('test/object.test.js', () => {
       const originname = `${prefix}ali-sdk/oss/copy-new-latin1.js`;
       const result = await store.copy(originname, name, {
         meta: {
-          a: utf8_content
-        }
+          a: utf8_content,
+        },
       });
       assert.equal(result.res.status, 200);
       const info = await store.head(originname);
@@ -2557,8 +2557,8 @@ describe('test/object.test.js', () => {
       const originname = `${prefix}ali-sdk/oss/copy-new-latin1-中文.js`;
       const result = await store.copy(originname, name, {
         meta: {
-          a: utf8_content
-        }
+          a: utf8_content,
+        },
       });
       assert.equal(result.res.status, 200);
       const info = await store.head(originname);
@@ -2568,7 +2568,7 @@ describe('test/object.test.js', () => {
 
     it('putMeta() should return 200', async () => {
       const result = await store.putMeta(name, {
-        b: utf8_content
+        b: utf8_content,
       });
       assert.equal(result.res.status, 200);
       const info = await store.head(name);
