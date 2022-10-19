@@ -1,24 +1,11 @@
 {
-  "name": "ali-oss",
-  "version": "6.17.1",
-  "description": "aliyun oss(object storage service) node client",
+  "name": "oss-client",
+  "version": "1.0.0",
+  "description": "Aliyun OSS(Object Storage Service) Node.js Client",
   "main": "./lib/client.js",
   "files": [
-    "lib",
-    "shims",
-    "dist"
+    "lib"
   ],
-  "browser": {
-    "./lib/client.js": "./dist/aliyun-oss-sdk.js",
-    "mime": "mime/lite",
-    "urllib": "./shims/xhr.js",
-    "utility": "./shims/utility.js",
-    "crypto": "./shims/crypto/crypto.js",
-    "debug": "./shims/debug",
-    "fs": false,
-    "child_process": false,
-    "is-type-of": "./shims/is-type-of.js"
-  },
   "scripts": {
     "build-change-log": "standard-version",
     "test": "npm run tsc && mocha -t 120000 -r should -r dotenv/config test/node/*.test.js test/node/**/*.test.js",

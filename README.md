@@ -1,48 +1,26 @@
-oss-js-sdk
-=======
+# oss-client
 
 [![NPM version][npm-image]][npm-url]
-[![build status][travis-image]][travis-url]
 [![coverage][cov-image]][cov-url]
-[![David deps][david-image]][david-url]
 
-[npm-image]: https://img.shields.io/npm/v/ali-oss.svg?style=flat-square
-[npm-url]: https://npmjs.org/package/ali-oss
-[travis-image]: https://img.shields.io/travis/ali-sdk/ali-oss/master.svg?style=flat-square
-[travis-url]: https://travis-ci.org/ali-sdk/ali-oss.svg?branch=master
-[cov-image]: http://codecov.io/github/ali-sdk/ali-oss/coverage.svg?branch=master
-[cov-url]: http://codecov.io/github/ali-sdk/ali-oss?branch=master
-[david-image]: https://img.shields.io/david/ali-sdk/ali-oss.svg?style=flat-square
-[david-url]: https://david-dm.org/ali-sdk/ali-oss
+[npm-image]: https://img.shields.io/npm/v/oss-client.svg?style=flat-square
+[npm-url]: https://npmjs.org/package/oss-client
+[cov-image]: http://codecov.io/github/node-modules/oss-client/coverage.svg?branch=master
+[cov-url]: http://codecov.io/github/node-modules/oss-client?branch=master
 
-aliyun OSS(Object Storage Service) js client for Node and Browser env.
-
-`NOTE`： For SDK `5.X` document, please go to [README.md](https://github.com/ali-sdk/ali-oss/blob/5.x/README.md)
+Aliyun OSS(Object Storage Service) Node.js Client.
 
 ## Install
 
 ```bash
-npm install ali-oss --save
+npm install oss-client --save
 ```
 
 ## Compatibility
 
-### Node
-Node.js >= 8.0.0 required. You can use 4.x in Node.js < 8.
+### Node.js
 
-### Browser
-
-- IE >= 10 & Edge
-- Major versions of Chrome/Firefox/Safari
-- Major versions of Android/iOS/WP
-
-`Note`:
-- For Lower browsers you can refer to [PostObject](https://help.aliyun.com/document_detail/31988.html), if you want to see more practices ,please refer to [Web Post](https://help.aliyun.com/document_detail/31923.html)
-
-### QA
-You can join DingDing Talk Group, [Group Link](https://qr.dingtalk.com/action/joingroup?code=v1,k1,inkSDqCxm7LilkaR/kknRVBDQ8PDA0Lj5hj4Cf9io3w=&_dt_no_comment=1&origin=11)
-
-<img src="task/dingding.jpg" height="400" title="dingding" width="300">
+Node.js >= 14.0.0 required.
 
 ## License
 
@@ -56,146 +34,288 @@ All operation use es7 async/await to implement. All api is async function.
 
 ## Summary
 
-- [Node Usage](#node-usage)
-- [Browser Usage](#browser-usage)
-- [Data Regions](#data-regions)
-- [Create Account](#create-account)
-- [Create A Bucket Instance](#create-a-bucket-instance)
+- [oss-client](#oss-client)
+  - [Install](#install)
+  - [Compatibility](#compatibility)
+    - [Node.js](#nodejs)
+  - [License](#license)
+- [OSS Usage](#oss-usage)
+  - [Summary](#summary)
+  - [Node Usage](#node-usage)
+    - [Compatibility](#compatibility-1)
+    - [Basic usage](#basic-usage)
+  - [Browser Usage](#browser-usage)
+    - [Compatibility](#compatibility-2)
+    - [Setup](#setup)
+      - [Bucket setup](#bucket-setup)
+      - [STS setup](#sts-setup)
+    - [Basic usage](#basic-usage-1)
+    - [How to build](#how-to-build)
+  - [Data Regions](#data-regions)
+  - [Create Account](#create-account)
+  - [Create A Bucket Instance](#create-a-bucket-instance)
   - [oss(options)](#ossoptions)
-- [Bucket Operations](#bucket-operations)
-  - Base
+  - [Bucket Operations](#bucket-operations)
     - [.listBuckets(query[, options])](#listbucketsquery-options)
     - [.putBucket(name[, options])](#putbucketname-options)
-    - [.useBucket(name)](#usebucketname)
     - [.deleteBucket(name[, options])](#deletebucketname-options)
+    - [.useBucket(name)](#usebucketname)
     - [.getBucketInfo(name)](#getbucketinfoname)
     - [.getBucketStat(name)](#getbucketstatname)
     - [.getBucketLocation(name)](#getbucketlocationname)
-  - ACL
     - [.putBucketACL(name, acl[, options])](#putbucketaclname-acl-options)
     - [.getBucketACL(name[, options])](#getbucketaclname-options)
-  - Logging
     - [.putBucketLogging(name, prefix[, options])](#putbucketloggingname-prefix-options)
     - [.getBucketLogging(name[, options])](#getbucketloggingname-options)
     - [.deleteBucketLogging(name[, options])](#deletebucketloggingname-options)
-  - Website
     - [.putBucketWebsite(name, config[, options])](#putbucketwebsitename-config-options)
     - [.getBucketWebsite(name[, options])](#getbucketwebsitename-options)
-    - [.deleteBucketWebsite(name, region[, options])](#deletebucketwebsitename-options)
-  - Referer
+    - [.deleteBucketWebsite(name[, options])](#deletebucketwebsitename-options)
     - [.putBucketReferer(name, allowEmpty, referers[, options])](#putbucketreferername-allowempty-referers-options)
     - [.getBucketReferer(name[, options])](#getbucketreferername-options)
     - [.deleteBucketReferer(name[, options])](#deletebucketreferername-options)
-  - Lifecycle
     - [.putBucketLifecycle(name, rules[, options])](#putbucketlifecyclename-rules-options)
     - [.getBucketLifecycle(name[, options])](#getbucketlifecyclename-options)
     - [.deleteBucketLifecycle(name[, options])](#deletebucketlifecyclename-options)
-  - CORS
     - [.putBucketCORS(name, rules[, options])](#putbucketcorsname-rules-options)
     - [.getBucketCORS(name[, options])](#getbucketcorsname-options)
     - [.deleteBucketCORS(name[, options])](#deletebucketcorsname-options)
-  - RequestPayment
     - [.getBucketRequestPayment(bucketName[, options])](#getbucketrequestpaymentbucketname-options)
-    - [.putBucketRequestPayment(bucketName, payer[, options])](#putBucketRequestpaymentbucketname-payer-options)
-  - BucketEncryption
-    - [.putBucketEncryption(name[, rules])](#putbucketencryptionname-rules)
+    - [.putBucketRequestPayment(bucketName, payer[, options])](#putbucketrequestpaymentbucketname-payer-options)
+    - [.putBucketEncryption(name, rules)](#putbucketencryptionname-rules)
     - [.getBucketEncryption(name)](#getbucketencryptionname)
     - [.deleteBucketEncryption(name)](#deletebucketencryptionname)
-  - tagging
-    - [.putBucketTags(name, tag[, options])](#putBucketTagsname-tag-options)
-    - [.getBucketTags(name, [, options])](#getBucketTagsname-options)
-    - [.deleteBucketTags(name, [, options])](#deleteBucketTagsname-options)
-  - policy
-    - [.putBucketPolicy(name, policy[, options])](#putBucketPolicyname-policy-options)
-    - [.getBucketPolicy(name, [, options])](#getBucketPolicyname-options)
-    - [.deleteBucketPolicy(name, [, options])](#deleteBucketPolicyname-options)
-  - versioning
-    - [.getBucketVersioning(name, [, options])](#getBucketVersioningname-options)
-    - [.putBucketVersioning(name, status[, options])](#putBucketVersioningname-status-options)
-  - inventory
-      - [.getBucketInventory(name, inventoryId[, options])](#getBucketInventoryname-inventoryid-options)
-      - [.putBucketInventory(name, inventory[, options])](#putBucketInventoryname-inventory-options)
-      - [.deleteBucketInventory(name, inventoryId[, options])](#deleteBucketInventoryname-inventoryid-options)
-      - [.listBucketInventory(name, [, options])](#listBucketInventoryname-options)
-  - worm
-    - [.abortBucketWorm(name[, options])](#abortBucketWormname-options)
-    - [.completeBucketWorm(name, wormId[, options])](#completeBucketWormname-wormId-options)
-    - [.extendBucketWorm(name, wormId, days[, options])](#extendBucketWormname-wormId-days-options)
-    - [.getBucketWorm(name[, options])](#getBucketWormname-options)
-    - [.initiateBucketWorm(name, days[, options])](#initiateBucketWormname-days-options)
+    - [.putBucketTags(name, tag[, options])](#putbuckettagsname-tag-options)
+    - [.getBucketTags(name[, options])](#getbuckettagsname-options)
+    - [.deleteBucketTags(name[, options])](#deletebuckettagsname-options)
+    - [.putBucketPolicy(name, policy[, options])](#putbucketpolicyname-policy-options)
+    - [.getBucketPolicy(name[, options])](#getbucketpolicyname-options)
+    - [.deleteBucketPolicy(name[, options])](#deletebucketpolicyname-options)
+    - [.getBucketVersioning(name[, options])](#getbucketversioningname-options)
+    - [.putBucketVersioning(name, status[, options])](#putbucketversioningname-status-options)
+    - [.getBucketInventory(name, inventoryId[, options])](#getbucketinventoryname-inventoryid-options)
+    - [putBucketInventory(name, inventory[, options])](#putbucketinventoryname-inventory-options)
+    - [deleteBucketInventory(name, inventoryId[, options])](#deletebucketinventoryname-inventoryid-options)
+    - [listBucketInventory(name[, options])](#listbucketinventoryname-options)
+    - [.abortBucketWorm(name[, options])](#abortbucketwormname-options)
+    - [.completeBucketWorm(name, wormId[, options])](#completebucketwormname-wormid-options)
+    - [.extendBucketWorm(name, wormId, days[, options])](#extendbucketwormname-wormid-days-options)
+    - [.getBucketWorm(name[, options])](#getbucketwormname-options)
+    - [.initiateBucketWorm(name, days[, options])](#initiatebucketwormname-days-options)
+  - [Object Operations](#object-operations)
+    - [.put(name, file[, options])](#putname-file-options)
+    - [.putStream(name, stream[, options])](#putstreamname-stream-options)
+    - [.append(name, file[, options])](#appendname-file-options)
+    - [.getObjectUrl(name[, baseUrl])](#getobjecturlname-baseurl)
+    - [.generateObjectUrl(name[, baseUrl])](#generateobjecturlname-baseurl)
+    - [.head(name[, options])](#headname-options)
+    - [.getObjectMeta(name[, options])](#getobjectmetaname-options)
+    - [.get(name[, file, options])](#getname-file-options)
+    - [.getStream(name[, options])](#getstreamname-options)
+    - [.delete(name[, options])](#deletename-options)
+    - [.copy(name, sourceName[, sourceBucket, options])](#copyname-sourcename-sourcebucket-options)
+    - [.putMeta(name, meta[, options])](#putmetaname-meta-options)
+    - [.deleteMulti(names[, options])](#deletemultinames-options)
+    - [.list(query[, options])](#listquery-options)
+    - [.listV2(query[, options])](#listv2query-options)
+    - [.getBucketVersions(query[, options])](#getbucketversionsquery-options)
+    - [.signatureUrl(name[, options])](#signatureurlname-options)
+    - [.asyncSignatureUrl(name[, options])](#asyncsignatureurlname-options)
+    - [.putACL(name, acl[, options])](#putaclname-acl-options)
+    - [.getACL(name[, options])](#getaclname-options)
+    - [.restore(name[, options])](#restorename-options)
+    - [.putSymlink(name, targetName[, options])](#putsymlinkname-targetname-options)
+    - [.getSymlink(name[, options])](#getsymlinkname-options)
+    - [.initMultipartUpload(name[, options])](#initmultipartuploadname-options)
+    - [.uploadPart(name, uploadId, partNo, file, start, end[, options])](#uploadpartname-uploadid-partno-file-start-end-options)
+    - [.uploadPartCopy(name, uploadId, partNo, range, sourceData[, options])](#uploadpartcopyname-uploadid-partno-range-sourcedata-options)
+    - [.completeMultipartUpload(name, uploadId, parts[, options])](#completemultipartuploadname-uploadid-parts-options)
+    - [.multipartUpload(name, file[, options])](#multipartuploadname-file-options)
+    - [.multipartUploadCopy(name, sourceData[, options])](#multipartuploadcopyname-sourcedata-options)
+    - [.listParts(name, uploadId[, query, options])](#listpartsname-uploadid-query-options)
+    - [.listUploads(query[, options])](#listuploadsquery-options)
+    - [.abortMultipartUpload(name, uploadId[, options])](#abortmultipartuploadname-uploadid-options)
+    - [.calculatePostSignature(policy)](#calculatepostsignaturepolicy)
+    - [.getObjectTagging(name[, options])](#getobjecttaggingname-options)
+    - [.putObjectTagging(name, tag[, options])](#putobjecttaggingname-tag-options)
+    - [.deleteObjectTagging(name[, options])](#deleteobjecttaggingname-options)
+    - [.processObjectSave(sourceObject, targetObject, process[, targetBucket])](#processobjectsavesourceobject-targetobject-process-targetbucket)
+  - [RTMP Operations](#rtmp-operations)
+    - [.putChannel(id, conf[, options])](#putchannelid-conf-options)
+    - [.getChannel(id[, options])](#getchannelid-options)
+    - [.deleteChannel(id[, options])](#deletechannelid-options)
+    - [.putChannelStatus(id, status[, options])](#putchannelstatusid-status-options)
+    - [.getChannelStatus(id[, options])](#getchannelstatusid-options)
+    - [.listChannels(query[, options])](#listchannelsquery-options)
+    - [.getChannelHistory(id[, options])](#getchannelhistoryid-options)
+    - [.createVod(id, name, time[, options])](#createvodid-name-time-options)
+    - [.getRtmpUrl(channelId[, options])](#getrtmpurlchannelid-options)
+  - [Create A Image Service Instance](#create-a-image-service-instance)
+    - [oss.ImageClient(options)](#ossimageclientoptions)
+  - [Image Operations](#image-operations)
+    - [imgClient.get(name, file[, options])](#imgclientgetname-file-options)
+    - [imgClient.getStream(name[, options])](#imgclientgetstreamname-options)
+    - [imgClient.getExif(name[, options])](#imgclientgetexifname-options)
+    - [imgClient.getInfo(name[, options])](#imgclientgetinfoname-options)
+    - [imgClient.putStyle(name, style[, options])](#imgclientputstylename-style-options)
+    - [imgClient.getStyle(name[, options])](#imgclientgetstylename-options)
+    - [imgClient.listStyle([options])](#imgclientliststyleoptions)
+    - [imgClient.deleteStyle(name[, options])](#imgclientdeletestylename-options)
+    - [imgClient.signatureUrl(name)](#imgclientsignatureurlname)
+  - [Cluster Mode](#cluster-mode)
+    - [Get Methods](#get-methods)
+    - [Put Methods](#put-methods)
+  - [Known Errors](#known-errors)
 
-- [Object Operations](#object-operations)
-  - [.list(query[, options])](#listquery-options)
-  - [.listV2(query[, options])](#listV2query-options)
-  - [.getBucketVersions(query[, options])](#getBucketVersionsquery-options)
-  - [.put(name, file[, options])](#putname-file-options)
-  - [.putStream(name, stream[, options])](#putstreamname-stream-options)
-  - [.append(name, file[, options])](#appendname-file-options)
-  - [.getObjectUrl(name[, baseUrl])](#getobjecturlname-baseurl)
-  - [.generateObjectUrl(name[, baseUrl])](#generateobjecturlname-baseurl)
-  - [.head(name[, options])](#headname-options)
-  - [.getObjectMeta(name[, options])](#getobjectmetaname-options)
-  - [.get(name[, file, options])](#getname-file-options)
-  - [.getStream(name[, options])](#getstreamname-options)
-  - [.delete(name[, options])](#deletename-options)
-  - [.copy(name, sourceName[, sourceBucket, options])](#copyname-sourcename-sourcebucket-options)
-  - [.putMeta(name, meta[, options])](#putmetaname-meta-options)
-  - [.deleteMulti(names[, options])](#deletemultinames-options)
-  - [.signatureUrl(name[, options])](#signatureurlname-options)
-  - [.asyncSignatureUrl(name[, options])](#signatureurlname-options)
-  - [.putACL(name, acl[, options])](#putaclname-acl-options)
-  - [.getACL(name[, options])](#getaclname-options)
-  - [.restore(name[, options])](#restorename-options)
-  - [.putSymlink(name, targetName[, options])](#putsymlinkname-targetname-options)
-  - [.getSymlink(name[, options])](#getsymlinkname-options)
-  - [.initMultipartUpload(name[, options])](#initmultipartuploadname-options)
-  - [.uploadPart(name, uploadId, partNo, file, start, end[, options])](#uploadpartname-uploadid-partno-file-start-end-options)
-  - [.uploadPartCopy(name, uploadId, partNo, range, sourceData[, options])](#uploadpartcopyname-uploadid-partno-range-sourcedata-options)
-  - [.completeMultipartUpload(name, uploadId, parts[, options])](#completemultipartuploadname-uploadid-parts-options)
-  - [.multipartUpload(name, file[, options])](#multipartuploadname-file-options)
-  - [.multipartUploadCopy(name, sourceData[, options])](#multipartuploadcopyname-sourcedata-options)
-  - [.listParts(name, uploadId[, query, options])](#listpartsname-uploadid-query-options)
-  - [.listUploads(query[, options])](#listuploadsquery-options)
-  - [.abortMultipartUpload(name, uploadId[, options])](#abortmultipartuploadname-uploadid-options)
-  - [.calculatePostSignature(policy)](#calculatePostSignaturepolicy)
-  - [.getObjectTagging(name, [, options])](#getObjectTaggingname-options)
-  - [.putObjectTagging(name, tag[, options])](#putObjectTaggingname-tag-options)
-  - [.deleteObjectTagging(name, [, options])](#deleteObjectTaggingname-options)
-- [RTMP Operations](#rtmp-operations)
-  - [.putChannel(id, conf[, options])](#putchannelid-conf-options)
-  - [.getChannel(id[, options])](#getchannelid-options)
-  - [.deleteChannel(id[, options])](#deletechannelid-options)
-  - [.putChannelStatus(id, status[, options])](#putchannelstatusid-status-options)
-  - [.getChannelStatus(id[, options])](#getchannelstatusid-options)
-  - [.listChannels(query[, options])](#listchannelsquery-options)
-  - [.getChannelHistory(id[, options])](#getchannelhistoryid-options)
-  - [.createVod(id, name, time[, options])](#createvodid-name-time-options)
-  - [.getRtmpUrl(channelId[, options])](#getrtmpurlchannelid-options)
-- [Create A Image Service Instance](#create-a-image-service-instance)
-  - [oss.ImageClient(options)](#ossimageclientoptions)
-- [Image Operations](#image-operations)
-  - [imgClient.get(name, file[, options])](#imgclientgetname-file-options)
-  - [imgClient.getStream(name[, options])](#imgclientgetstreamname-options)
-  - [imgClient.getExif(name[, options])](#imgclientgetexifname-options)
-  - [imgClient.getInfo(name[, options])](#imgclientgetinfoname-options)
-  - [imgClient.putStyle(name, style[, options])](#imgclientputstylename-style-options)
-  - [imgClient.getStyle(name[, options])](#imgclientgetstylename-options)
-  - [imgClient.listStyle([options])](#imgclientliststyleoptions)
-  - [imgClient.deleteStyle(name[, options])](#imgclientdeletestylename-options)
-  - [imgClient.signatureUrl(name)](#imgclientsignatureurlname)
-- [Known Errors](#known-errors)
+- [oss-client](#oss-client)
+  - [Install](#install)
+  - [Compatibility](#compatibility)
+    - [Node.js](#nodejs)
+  - [License](#license)
+- [OSS Usage](#oss-usage)
+  - [Summary](#summary)
+  - [Node Usage](#node-usage)
+    - [Compatibility](#compatibility-1)
+    - [Basic usage](#basic-usage)
+  - [Browser Usage](#browser-usage)
+    - [Compatibility](#compatibility-2)
+    - [Setup](#setup)
+      - [Bucket setup](#bucket-setup)
+      - [STS setup](#sts-setup)
+    - [Basic usage](#basic-usage-1)
+    - [How to build](#how-to-build)
+  - [Data Regions](#data-regions)
+  - [Create Account](#create-account)
+  - [Create A Bucket Instance](#create-a-bucket-instance)
+  - [oss(options)](#ossoptions)
+  - [Bucket Operations](#bucket-operations)
+    - [.listBuckets(query[, options])](#listbucketsquery-options)
+    - [.putBucket(name[, options])](#putbucketname-options)
+    - [.deleteBucket(name[, options])](#deletebucketname-options)
+    - [.useBucket(name)](#usebucketname)
+    - [.getBucketInfo(name)](#getbucketinfoname)
+    - [.getBucketStat(name)](#getbucketstatname)
+    - [.getBucketLocation(name)](#getbucketlocationname)
+    - [.putBucketACL(name, acl[, options])](#putbucketaclname-acl-options)
+    - [.getBucketACL(name[, options])](#getbucketaclname-options)
+    - [.putBucketLogging(name, prefix[, options])](#putbucketloggingname-prefix-options)
+    - [.getBucketLogging(name[, options])](#getbucketloggingname-options)
+    - [.deleteBucketLogging(name[, options])](#deletebucketloggingname-options)
+    - [.putBucketWebsite(name, config[, options])](#putbucketwebsitename-config-options)
+    - [.getBucketWebsite(name[, options])](#getbucketwebsitename-options)
+    - [.deleteBucketWebsite(name[, options])](#deletebucketwebsitename-options)
+    - [.putBucketReferer(name, allowEmpty, referers[, options])](#putbucketreferername-allowempty-referers-options)
+    - [.getBucketReferer(name[, options])](#getbucketreferername-options)
+    - [.deleteBucketReferer(name[, options])](#deletebucketreferername-options)
+    - [.putBucketLifecycle(name, rules[, options])](#putbucketlifecyclename-rules-options)
+    - [.getBucketLifecycle(name[, options])](#getbucketlifecyclename-options)
+    - [.deleteBucketLifecycle(name[, options])](#deletebucketlifecyclename-options)
+    - [.putBucketCORS(name, rules[, options])](#putbucketcorsname-rules-options)
+    - [.getBucketCORS(name[, options])](#getbucketcorsname-options)
+    - [.deleteBucketCORS(name[, options])](#deletebucketcorsname-options)
+    - [.getBucketRequestPayment(bucketName[, options])](#getbucketrequestpaymentbucketname-options)
+    - [.putBucketRequestPayment(bucketName, payer[, options])](#putbucketrequestpaymentbucketname-payer-options)
+    - [.putBucketEncryption(name, rules)](#putbucketencryptionname-rules)
+    - [.getBucketEncryption(name)](#getbucketencryptionname)
+    - [.deleteBucketEncryption(name)](#deletebucketencryptionname)
+    - [.putBucketTags(name, tag[, options])](#putbuckettagsname-tag-options)
+    - [.getBucketTags(name[, options])](#getbuckettagsname-options)
+    - [.deleteBucketTags(name[, options])](#deletebuckettagsname-options)
+    - [.putBucketPolicy(name, policy[, options])](#putbucketpolicyname-policy-options)
+    - [.getBucketPolicy(name[, options])](#getbucketpolicyname-options)
+    - [.deleteBucketPolicy(name[, options])](#deletebucketpolicyname-options)
+    - [.getBucketVersioning(name[, options])](#getbucketversioningname-options)
+    - [.putBucketVersioning(name, status[, options])](#putbucketversioningname-status-options)
+    - [.getBucketInventory(name, inventoryId[, options])](#getbucketinventoryname-inventoryid-options)
+    - [putBucketInventory(name, inventory[, options])](#putbucketinventoryname-inventory-options)
+    - [deleteBucketInventory(name, inventoryId[, options])](#deletebucketinventoryname-inventoryid-options)
+    - [listBucketInventory(name[, options])](#listbucketinventoryname-options)
+    - [.abortBucketWorm(name[, options])](#abortbucketwormname-options)
+    - [.completeBucketWorm(name, wormId[, options])](#completebucketwormname-wormid-options)
+    - [.extendBucketWorm(name, wormId, days[, options])](#extendbucketwormname-wormid-days-options)
+    - [.getBucketWorm(name[, options])](#getbucketwormname-options)
+    - [.initiateBucketWorm(name, days[, options])](#initiatebucketwormname-days-options)
+  - [Object Operations](#object-operations)
+    - [.put(name, file[, options])](#putname-file-options)
+    - [.putStream(name, stream[, options])](#putstreamname-stream-options)
+    - [.append(name, file[, options])](#appendname-file-options)
+    - [.getObjectUrl(name[, baseUrl])](#getobjecturlname-baseurl)
+    - [.generateObjectUrl(name[, baseUrl])](#generateobjecturlname-baseurl)
+    - [.head(name[, options])](#headname-options)
+    - [.getObjectMeta(name[, options])](#getobjectmetaname-options)
+    - [.get(name[, file, options])](#getname-file-options)
+    - [.getStream(name[, options])](#getstreamname-options)
+    - [.delete(name[, options])](#deletename-options)
+    - [.copy(name, sourceName[, sourceBucket, options])](#copyname-sourcename-sourcebucket-options)
+    - [.putMeta(name, meta[, options])](#putmetaname-meta-options)
+    - [.deleteMulti(names[, options])](#deletemultinames-options)
+    - [.list(query[, options])](#listquery-options)
+    - [.listV2(query[, options])](#listv2query-options)
+    - [.getBucketVersions(query[, options])](#getbucketversionsquery-options)
+    - [.signatureUrl(name[, options])](#signatureurlname-options)
+    - [.asyncSignatureUrl(name[, options])](#asyncsignatureurlname-options)
+    - [.putACL(name, acl[, options])](#putaclname-acl-options)
+    - [.getACL(name[, options])](#getaclname-options)
+    - [.restore(name[, options])](#restorename-options)
+    - [.putSymlink(name, targetName[, options])](#putsymlinkname-targetname-options)
+    - [.getSymlink(name[, options])](#getsymlinkname-options)
+    - [.initMultipartUpload(name[, options])](#initmultipartuploadname-options)
+    - [.uploadPart(name, uploadId, partNo, file, start, end[, options])](#uploadpartname-uploadid-partno-file-start-end-options)
+    - [.uploadPartCopy(name, uploadId, partNo, range, sourceData[, options])](#uploadpartcopyname-uploadid-partno-range-sourcedata-options)
+    - [.completeMultipartUpload(name, uploadId, parts[, options])](#completemultipartuploadname-uploadid-parts-options)
+    - [.multipartUpload(name, file[, options])](#multipartuploadname-file-options)
+    - [.multipartUploadCopy(name, sourceData[, options])](#multipartuploadcopyname-sourcedata-options)
+    - [.listParts(name, uploadId[, query, options])](#listpartsname-uploadid-query-options)
+    - [.listUploads(query[, options])](#listuploadsquery-options)
+    - [.abortMultipartUpload(name, uploadId[, options])](#abortmultipartuploadname-uploadid-options)
+    - [.calculatePostSignature(policy)](#calculatepostsignaturepolicy)
+    - [.getObjectTagging(name[, options])](#getobjecttaggingname-options)
+    - [.putObjectTagging(name, tag[, options])](#putobjecttaggingname-tag-options)
+    - [.deleteObjectTagging(name[, options])](#deleteobjecttaggingname-options)
+    - [.processObjectSave(sourceObject, targetObject, process[, targetBucket])](#processobjectsavesourceobject-targetobject-process-targetbucket)
+  - [RTMP Operations](#rtmp-operations)
+    - [.putChannel(id, conf[, options])](#putchannelid-conf-options)
+    - [.getChannel(id[, options])](#getchannelid-options)
+    - [.deleteChannel(id[, options])](#deletechannelid-options)
+    - [.putChannelStatus(id, status[, options])](#putchannelstatusid-status-options)
+    - [.getChannelStatus(id[, options])](#getchannelstatusid-options)
+    - [.listChannels(query[, options])](#listchannelsquery-options)
+    - [.getChannelHistory(id[, options])](#getchannelhistoryid-options)
+    - [.createVod(id, name, time[, options])](#createvodid-name-time-options)
+    - [.getRtmpUrl(channelId[, options])](#getrtmpurlchannelid-options)
+  - [Create A Image Service Instance](#create-a-image-service-instance)
+    - [oss.ImageClient(options)](#ossimageclientoptions)
+  - [Image Operations](#image-operations)
+    - [imgClient.get(name, file[, options])](#imgclientgetname-file-options)
+    - [imgClient.getStream(name[, options])](#imgclientgetstreamname-options)
+    - [imgClient.getExif(name[, options])](#imgclientgetexifname-options)
+    - [imgClient.getInfo(name[, options])](#imgclientgetinfoname-options)
+    - [imgClient.putStyle(name, style[, options])](#imgclientputstylename-style-options)
+    - [imgClient.getStyle(name[, options])](#imgclientgetstylename-options)
+    - [imgClient.listStyle([options])](#imgclientliststyleoptions)
+    - [imgClient.deleteStyle(name[, options])](#imgclientdeletestylename-options)
+    - [imgClient.signatureUrl(name)](#imgclientsignatureurlname)
+  - [Cluster Mode](#cluster-mode)
+    - [Get Methods](#get-methods)
+    - [Put Methods](#put-methods)
+  - [Known Errors](#known-errors)
 
 ## Node Usage
 
 ### Compatibility
+
 - Node: >= 8.0.0
 
 ### Basic usage
+
 1.install SDK using npm
+
 ```
 npm install ali-oss --save
 ```
+
 2.for example:
+
 ```js
 const OSS = require('ali-oss');
 const store= new OSS({
@@ -205,6 +325,7 @@ const store= new OSS({
   bucket: '<Your bucket name>'
 });
 ```
+
 ## Browser Usage
 
 You can use most of the functionalities of `ali-oss` in browser with
@@ -277,6 +398,7 @@ for creating client.
   });
 </script>
 ```
+
 The full sample can be found [here][browser-sample].
 
 ### How to build
@@ -286,7 +408,6 @@ npm run build-dist
 ```
 
 And see the build artifacts under `dist/`.
-
 
 ## Data Regions
 
@@ -348,6 +469,7 @@ options:
 example:
 
 1. basic usage
+
 ```js
 const OSS = require('ali-oss');
 
@@ -358,9 +480,12 @@ const store = new OSS({
   region: 'oss-cn-hangzhou'
 });
 ```
+
 2. use accelerate endpoint
+
 - Global accelerate endpoint: oss-accelerate.aliyuncs.com
 - Accelerate endpoint of regions outside mainland China: oss-accelerate-overseas.aliyuncs.com
+
 ```js
 const OSS = require('ali-oss');
 
@@ -373,6 +498,7 @@ const store = new OSS({
 ```
 
 3. use custom domain
+
 ```js
 const OSS = require('ali-oss');
 
@@ -385,6 +511,7 @@ const store = new OSS({
 ```
 
 4. use STS and refreshSTSToken
+
 ```js
 const OSS = require('ali-oss');
 
@@ -405,6 +532,7 @@ const store = new OSS({
 ```
 
 5. retry request with stream
+
 ```js
 for (let i = 0; i <= store.options.retryMax; i++) {
   try {
@@ -436,10 +564,10 @@ Success will return buckets list on `buckets` properties.
 
 - buckets {Array<BucketMeta>} bucket meta info list
   Each `BucketMeta` will contains blow properties:
-    - name {String} bucket name
-    - region {String} bucket store data region, e.g.: `oss-cn-hangzhou-a`
-    - creationDate {String} bucket create GMT date, e.g.: `2015-02-19T08:39:44.000Z`
-    - storageClass {String} e.g.: `Standard`, `IA`, `Archive`
+  - name {String} bucket name
+  - region {String} bucket store data region, e.g.: `oss-cn-hangzhou-a`
+  - creationDate {String} bucket create GMT date, e.g.: `2015-02-19T08:39:44.000Z`
+  - storageClass {String} e.g.: `Standard`, `IA`, `Archive`
 - owner {Object} object owner, including `id` and `displayName`
 - isTruncated {Boolean} truncate or not
 - nextMarker {String} next marker string
@@ -857,12 +985,14 @@ parameters:
 - name {String} bucket name
 - allowEmpty {Boolean} allow empty request referer or not
 - referers {Array<String>} `Referer` white list, e.g.:
+
   ```js
   [
     'https://npm.taobao.org',
     'http://cnpmjs.org'
   ]
   ```
+
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
 
@@ -1302,6 +1432,7 @@ Success will return:
 - res {Object} response info
 
 example:
+
 ```js
 const policy = {
   Version: '1',
@@ -1317,6 +1448,7 @@ const policy = {
 const result = await store.putBucketPolicy(bucket, policy);
 console.log(result);
 ```
+
 ---
 
 ### .getBucketPolicy(name[, options])
@@ -1351,6 +1483,7 @@ Success will return:
 - res {Object} response info
 
 ---
+
 ### .getBucketVersioning(name[, options])
 
 Obtains the version status of an object
@@ -1384,7 +1517,6 @@ Success will return:
 - res {Object} response info
 
 ---
-
 
 ### .getBucketInventory(name, inventoryId[, options])
 
@@ -1457,6 +1589,7 @@ interface Inventory {
   };
 }
 ```
+
 ```js
 const inventory = {
   id: 'default',
@@ -1655,9 +1788,11 @@ parameters:
     - [contentType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.
     - [customValue] {Object} Custom parameters are a map of key-values<br>
          e.g.:
+
         ```js
            var customValue = {var1: 'value1', var2: 'value2'}
         ```
+
   - [headers] {Object} extra headers
     - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
@@ -1780,9 +1915,11 @@ parameters:
     - [contentType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.
     - [customValue] {Object} Custom parameters are a map of key-values<br>
          e.g.:
+
         ```js
            var customValue = {var1: 'value1', var2: 'value2'}
         ```
+
   - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
     - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
@@ -1886,7 +2023,7 @@ const cdnUrl = store.getObjectUrl('foo/bar.jpg', 'https://mycdn.domian.com');
 ### .generateObjectUrl(name[, baseUrl])
 
 Get the Object url.
-If provide `baseUrl`, will use `baseUrl` instead the default `bucket and endpoint `.
+If provide `baseUrl`, will use `baseUrl` instead the default `bucket and endpoint`.
 Suggest use generateObjectUrl instead of getObjectUrl.
 
 e.g.:
@@ -2360,13 +2497,13 @@ Success will return objects list on `objects` properties.
 
 - objects {Array<ObjectMeta>} object meta info list
   Each `ObjectMeta` will contains blow properties:
-    - name {String} object name on oss
-    - lastModified {String} object last modified GMT date, e.g.: `2015-02-19T08:39:44.000Z`
-    - etag {String} object etag contains `"`, e.g.: `"5B3C1A2E053D763E1B002CC607C5A0FE"`
-    - type {String} object type, e.g.: `Normal`
-    - size {Number} object size, e.g.: `344606`
-    - storageClass {String} storage class type, e.g.: `Standard`
-    - owner {Object} object owner, including `id` and `displayName`
+  - name {String} object name on oss
+  - lastModified {String} object last modified GMT date, e.g.: `2015-02-19T08:39:44.000Z`
+  - etag {String} object etag contains `"`, e.g.: `"5B3C1A2E053D763E1B002CC607C5A0FE"`
+  - type {String} object type, e.g.: `Normal`
+  - size {Number} object size, e.g.: `344606`
+  - storageClass {String} storage class type, e.g.: `Standard`
+  - owner {Object} object owner, including `id` and `displayName`
 - prefixes {Array<String>} prefix list
 - isTruncated {Boolean} truncate or not
 - nextMarker {String} next marker string
@@ -2503,20 +2640,20 @@ Success will return objects list on `objects` properties.
 
 - objects {Array<ObjectMeta>} object meta info list
   Each `ObjectMeta` will contains blow properties:
-    - name {String} object name on oss
-    - lastModified {String} object last modified GMT date, e.g.: `2015-02-19T08:39:44.000Z`
-    - etag {String} object etag contains `"`, e.g.: `"5B3C1A2E053D763E1B002CC607C5A0FE"`
-    - type {String} object type, e.g.: `Normal`
-    - size {Number} object size, e.g.: `344606`
-    - isLatest {Boolean}
-    - versionId {String} object versionId
-    - storageClass {String} storage class type, e.g.: `Standard`
-    - owner {Object} object owner, including `id` and `displayName`
+  - name {String} object name on oss
+  - lastModified {String} object last modified GMT date, e.g.: `2015-02-19T08:39:44.000Z`
+  - etag {String} object etag contains `"`, e.g.: `"5B3C1A2E053D763E1B002CC607C5A0FE"`
+  - type {String} object type, e.g.: `Normal`
+  - size {Number} object size, e.g.: `344606`
+  - isLatest {Boolean}
+  - versionId {String} object versionId
+  - storageClass {String} storage class type, e.g.: `Standard`
+  - owner {Object} object owner, including `id` and `displayName`
 - deleteMarker {Array<ObjectDeleteMarker>} object delete marker info list
   Each `ObjectDeleteMarker`
-    - name {String} object name on oss
-    - lastModified {String} object last modified GMT date, e.g.: `2015-02-19T08:39:44.000Z`
-    - versionId {String} object versionId
+  - name {String} object name on oss
+  - lastModified {String} object last modified GMT date, e.g.: `2015-02-19T08:39:44.000Z`
+  - versionId {String} object versionId
 - isTruncated {Boolean} truncate or not
 - nextKeyMarker (nextMarker) {String} next marker string
 - nextVersionIdMarker (NextVersionIdMarker) {String} next version ID marker string
@@ -2797,8 +2934,8 @@ parameters:
 - name {String} object name
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
-  - [versionId] {String} the version id of history object 
-  - [type] {String} the default type is Archive 
+  - [versionId] {String} the version id of history object
+  - [type] {String} the default type is Archive
 
 Success will return:
 
@@ -2823,7 +2960,6 @@ console.log(result.status);
 const result = await store.restore('ossdemo.txt',{type:'ColdArchive'});
 console.log(result.status);
 ```
-
 
 - Days for unfreezing Specifies the days for unfreezing
 
@@ -2874,6 +3010,7 @@ console.log(result.res)
 ```
 
 putSymlink multiversion
+
 ```js
 const options = {
   storageClass: 'IA',
@@ -2913,6 +3050,7 @@ console.log(result.targetName)
 ```
 
 for history object
+
 ```js
 const versionId = 'object versionId';
 const result = await store.getSymlink('ossdemo.txt', { versionId })
@@ -2920,6 +3058,7 @@ console.log(result.targetName)
 ```
 
 ### .initMultipartUpload(name[, options])
+
 Before transmitting data in the Multipart Upload mode,
 you must call the Initiate Multipart Upload interface to notify the OSS to initiate a Multipart Upload event.
 The Initiate Multipart Upload interface returns a globally unique Upload ID created by the OSS server to identify this Multipart Upload event.
@@ -2961,6 +3100,7 @@ example:
 ```
 
 ### .uploadPart(name, uploadId, partNo, file, start, end[, options])
+
 After initiating a Multipart Upload event, you can upload data in parts based on the specified object name and Upload ID.
 
 parameters:
@@ -3012,6 +3152,7 @@ example:
 ```
 
 ### .uploadPartCopy(name, uploadId, partNo, range, sourceData[, options])
+
 Using Upload Part Copy, you can copy data from an existing object and upload a part of the data.
 When copying a file larger than 1 GB, you must use the Upload Part Copy method. If you want to copy a file smaller than 1 GB, see Copy Object.
 
@@ -3094,6 +3235,7 @@ example:
 ```
 
 ### .completeMultipartUpload(name, uploadId, parts[, options])
+
 After uploading all data parts, you must call the Complete Multipart Upload API to complete Multipart Upload for the entire file.
 
 parameters:
@@ -3112,11 +3254,12 @@ parameters:
     - [contentType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.
     - [customValue] {Object} Custom parameters are a map of key-values<br>
          e.g.:
+
         ```js
            var customValue = {var1: 'value1', var2: 'value2'}
         ```
-  - [headers] {Object} extra headers, detail see [CompleteMultipartUpload](https://help.aliyun.com/document_detail/31995.html?#title-nan-5y3-rjd)
 
+  - [headers] {Object} extra headers, detail see [CompleteMultipartUpload](https://help.aliyun.com/document_detail/31995.html?#title-nan-5y3-rjd)
 
 Success will return:
 
@@ -3161,7 +3304,6 @@ example:
   console.log(completeData);
 ```
 
-
 ### .multipartUpload(name, file[, options])
 
 Upload file with [OSS multipart][oss-multipart].<br>
@@ -3188,8 +3330,8 @@ parameters:
     - partSize {Number} part size
     - uploadId {String} upload id
     - doneParts {Array} An array of pieces that have been completed, including the object structure as follows
-       - number {Number} part number
-       - etag {String} part etag
+      - number {Number} part number
+      - etag {String} part etag
   - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
   - [mime] {String} custom mime , will send with `Content-Type` entity header
   - [callback] {Object} The callback parameter is composed of a JSON string encoded in Base64,detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm)<br>
@@ -3199,9 +3341,11 @@ parameters:
     - [contentType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.
     - [customValue] {Object} Custom parameters are a map of key-values<br>
           e.g.:
+
          ```js
            var customValue = {var1: 'value1', var2: 'value2'}
          ```
+
   - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
     - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
@@ -3511,6 +3655,7 @@ try {
 store.cancel();
 
 ```
+
 - multipartUploadCopy with versionId
 
 ```js
@@ -3718,7 +3863,6 @@ object:
 
 - status {Number} response status
 - res {Object} response info
-
 
 ```js
 const sourceObject = 'a.png'
@@ -4054,6 +4198,7 @@ Each Image Service instance required `accessKeyId`, `accessKeySecret`, `bucket` 
 Create a Image service instance.
 
 options:
+
 - imageHost {String} your image service domain that binding to a OSS bucket
 - accessKeyId {String} access key you create on aliyun console website
 - accessKeySecret {String} access secret you create
@@ -4196,6 +4341,7 @@ result.stream.pipe(fs.createWriteStream('some demo.jpg'));
 Get a image exif info by image object name from the image channel.
 
 parameters:
+
 - name {String} image object name
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
@@ -4250,6 +4396,7 @@ const result = await imgClient.getExif('demo.jpg');
 Get a image info and exif info by image object name from the image channel.
 
 parameters:
+
 - name {String} image object name
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
@@ -4298,8 +4445,8 @@ const result = await imgClient.getInfo('demo.jpg');
 
 ```
 
-
 ### imgClient.putStyle(name, style[, options])
+
 // TODO
 
 ### imgClient.getStyle(name[, options])
@@ -4307,6 +4454,7 @@ const result = await imgClient.getInfo('demo.jpg');
 Get a style by name from the image channel.
 
 parameters:
+
 - name {String} image style name
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
@@ -4361,6 +4509,7 @@ const result = await imgClient.getStyle('400');
 Get all styles from the image channel.
 
 parameters:
+
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
 
@@ -4425,6 +4574,7 @@ const result = await imgClient.listStyle();
 ```
 
 ### imgClient.deleteStyle(name[, options])
+
 // TODO
 
 ### imgClient.signatureUrl(name)
@@ -4567,7 +4717,6 @@ RequestError | RequestError | -1 | network error | 网络出现中断或异常
 ConnectionTimeoutError | ConnectionTimeoutError | -2 | request connect timeout | 请求连接超时
 SecurityTokenExpiredError | SecurityTokenExpired | 403 | sts Security Token Expired | sts Security Token 超时失效
 
-[generator]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function*
 [oss-sts]: https://help.aliyun.com/document_detail/oss/practice/ram_guide.html
 [browser-sample]: https://github.com/rockuw/oss-in-browser
 [oss-multipart]: https://help.aliyun.com/document_detail/31992.html
