@@ -1,2 +1,0 @@
-ignore:
-  - "./lib/common/object/*AsyncFetch.js"

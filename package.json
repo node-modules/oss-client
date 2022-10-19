@@ -37,8 +37,6 @@
   },
   "homepage": "https://github.com/node-modules/oss-client",
   "devDependencies": {
-    "@types/node": "^14.0.12",
-    "dotenv": "^8.2.0",
     "egg-ci": "^2.1.0",
     "eslint": "^8.25.0",
     "eslint-config-egg": "^12.1.0",
@@ -46,16 +44,13 @@
     "should": "^11.0.0",
     "sinon": "^1.17.7",
     "stream-equal": "^1.1.0",
-    "timemachine": "^0.3.0",
-    "typescript": "^3.9.5"
+    "timemachine": "^0.3.0"
   },
   "dependencies": {
     "address": "^1.2.0",
     "agentkeepalive": "^3.4.1",
-    "bowser": "^1.6.0",
     "copy-to": "^2.0.1",
     "dateformat": "^2.0.0",
-    "debug": "^2.2.0",
     "destroy": "^1.0.4",
     "end-or-error": "^1.0.1",
     "get-ready": "^1.0.0",
