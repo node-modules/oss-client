@@ -7,13 +7,10 @@
     "lib"
   ],
   "scripts": {
-    "test": "npm run tsc && mocha -t 120000 -r should -r dotenv/config test/node/*.test.js test/node/**/*.test.js",
-    "test-cov": "npm run tsc && nyc --reporter=lcov node_modules/.bin/_mocha -t 120000 -r should test/node/*.test.js test/node/**/*.test.js",
-    "detect-secrets": "node task/detect-secrets",
-    "tsc": "npm run tsc:clean && npm run tsc:build",
-    "tsc:build": "tsc -b tsconfig.json tsconfig-cjs.json",
-    "tsc:watch": "tsc -b tsconfig.json tsconfig-cjs.json --watch",
-    "tsc:clean": "tsc -b tsconfig.json tsconfig-cjs.json --clean "
+    "lint": "eslint lib test",
+    "test": "egg-bin test",
+    "cov": "egg-bin cov",
+    "ci": "npm run lint && npm run cov"
   },
   "repository": {
     "type": "git",
@@ -37,6 +34,7 @@
   },
   "homepage": "https://github.com/node-modules/oss-client",
   "devDependencies": {
+    "egg-bin": "^5.2.0",
     "egg-ci": "^2.1.0",
     "eslint": "^8.25.0",
     "eslint-config-egg": "^12.1.0",
@@ -65,7 +63,7 @@
     "sdk-base": "^2.0.1",
     "stream-http": "2.8.2",
     "stream-wormhole": "^1.0.4",
-    "urllib": "^2.33.1",
+    "urllib": "^3.3.1",
     "utility": "^1.8.0",
     "xml2js": "^0.4.16"
   }
