@@ -20,7 +20,7 @@ describe('test/bucket.test.js', () => {
     store = oss(config);
     config.region = defaultRegion;
     store = oss(config);
-    bucket = `ali-oss-test-bucket-${prefix.replace(/[/.]/g, '-')}`;
+    bucket = `oss-client-test-bucket-${prefix.replace(/[/.]/g, '-')}`;
     bucket = bucket.substring(0, bucket.length - 1);
     bucketRegion = defaultRegion;
 
@@ -36,7 +36,7 @@ describe('test/bucket.test.js', () => {
   describe('setBucket()', () => {
     it('should check bucket name', async () => {
       try {
-        const name = 'ali-oss-test-bucket-/';
+        const name = 'oss-client-test-bucket-/';
         await store.setBucket(name);
         throw new Error('should not run');
       } catch (err) {
@@ -47,7 +47,7 @@ describe('test/bucket.test.js', () => {
 
   describe('getBucket()', () => {
     it('should get bucket name', async () => {
-      const name = 'ali-oss-test-bucket';
+      const name = 'oss-client-test-bucket';
       await store.setBucket(name);
       const res = store.getBucket();
       assert.equal(res, name);
@@ -58,10 +58,10 @@ describe('test/bucket.test.js', () => {
     let name;
     let archvieBucket;
     before(async () => {
-      name = `ali-oss-test-putbucket-${prefix.replace(/[/.]/g, '-')}`;
+      name = `oss-client-test-putbucket-${prefix.replace(/[/.]/g, '-')}`;
       name = name.substring(0, name.length - 1);
       // just for archive bucket test
-      archvieBucket = `ali-oss-archive-bucket-${prefix.replace(/[/.]/g, '-')}`;
+      archvieBucket = `oss-client-archive-bucket-${prefix.replace(/[/.]/g, '-')}`;
       archvieBucket = archvieBucket.substring(0, archvieBucket.length - 1);
       await store.putBucket(archvieBucket, { StorageClass: 'Archive', timeout });
     });
@@ -93,7 +93,7 @@ describe('test/bucket.test.js', () => {
 
     // todo resume
     // it('should create an ZRS bucket', async () => {
-    //   const ZRS_name = `ali-oss-zrs-${prefix.replace(/[/.]/g, '-').slice(0, -1)}`;
+    //   const ZRS_name = `oss-client-zrs-${prefix.replace(/[/.]/g, '-').slice(0, -1)}`;
     //   const ZRS_put_res = await store.putBucket(ZRS_name, {
     //     dataRedundancyType: 'ZRS'
     //   });
@@ -104,7 +104,7 @@ describe('test/bucket.test.js', () => {
     // });
 
     it('should create an public-read bucket', async () => {
-      const public_read_name = `ali-oss-zrs-${prefix.replace(/[/.]/g, '-').slice(0, -1)}`;
+      const public_read_name = `oss-client-zrs-${prefix.replace(/[/.]/g, '-').slice(0, -1)}`;
       const public_read_name_res = await store.putBucket(public_read_name, {
         acl: 'public-read',
       });
@@ -162,12 +162,12 @@ describe('test/bucket.test.js', () => {
 
     it('should delete not empty bucket throw BucketNotEmptyError', async () => {
       store.useBucket(bucket);
-      await store.put('ali-oss-test-bucket.txt', __filename);
+      await store.put('oss-client-test-bucket.txt', __filename);
       utils.sleep(ms(metaSyncTime));
       await utils.throws(async () => {
         await store.deleteBucket(bucket);
       }, 'BucketNotEmptyError');
-      await store.delete('ali-oss-test-bucket.txt');
+      await store.delete('oss-client-test-bucket.txt');
     });
   });
 
@@ -206,7 +206,7 @@ describe('test/bucket.test.js', () => {
     let listBucketsPrefix;
     before(async () => {
       // create 2 buckets
-      listBucketsPrefix = `ali-oss-list-buckets-${prefix.replace(/[/.]/g, '-')}`;
+      listBucketsPrefix = `oss-client-list-buckets-${prefix.replace(/[/.]/g, '-')}`;
       await Promise.all(
         Array(2)
           .fill(1)

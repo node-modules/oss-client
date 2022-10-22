@@ -10,7 +10,7 @@ describe('test/retry.test.js', () => {
   let store;
   const RETRY_MAX = 3;
   let testRetryCount = 0;
-  const bucket = `ali-oss-test-retry-bucket-${utils.prefix.replace(/[/.]/g, '-').replace(/-$/, '')}`;
+  const bucket = `oss-client-test-retry-bucket-${utils.prefix.replace(/[/.]/g, '-').replace(/-$/, '')}`;
   before(async () => {
     store = new OSS({
       ...config,
@@ -68,7 +68,7 @@ describe('test/retry.test.js', () => {
       headers: {},
     });
     try {
-      const name = `ali-oss-test-retry-file-${Date.now()}`;
+      const name = `oss-client-test-retry-file-${Date.now()}`;
       const fileName = await utils.createTempFile(name, 1 * 1024);
       await store.put(name, fileName);
       assert(false, 'should throw error');
@@ -78,7 +78,7 @@ describe('test/retry.test.js', () => {
   });
 
   it('should succeed when put with filename', async () => {
-    const name = `ali-oss-test-retry-file-${Date.now()}`;
+    const name = `oss-client-test-retry-file-${Date.now()}`;
     const fileName = await utils.createTempFile(name, 1 * 1024);
     const res = await store.put(name, fileName);
     assert.strictEqual(res.res.status, 200);
@@ -109,7 +109,7 @@ describe('test/retry.test.js', () => {
         return originRequest(url, params);
       }
     });
-    const name = `ali-oss-test-retry-file-${Date.now()}`;
+    const name = `oss-client-test-retry-file-${Date.now()}`;
     const fileName = await utils.createTempFile(name, 1.5 * 1024 * 1024);
     const res = await store.multipartUpload(name, fileName);
     assert.strictEqual(res.res.status, 200);
@@ -120,7 +120,7 @@ describe('test/retry.test.js', () => {
   });
 
   it('should fail when put with stream', async () => {
-    const name = `ali-oss-test-retry-file-${Date.now()}`;
+    const name = `oss-client-test-retry-file-${Date.now()}`;
     const fileName = await utils.createTempFile(name, 1 * 1024);
     try {
       await store.put(name, fs.createReadStream(fileName));

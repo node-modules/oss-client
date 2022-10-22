@@ -11,7 +11,7 @@
       "autoAttachChildProcesses": true,
       "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
       "program": "${workspaceRoot}/node_modules/.bin/egg-bin",
-      "args": ["test", "${relativeFile}"],
+      "args": ["test", "${relativeFile}", "--full-trace"],
       "smartStep": true,
       "console": "integratedTerminal"
     }

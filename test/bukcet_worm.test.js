@@ -13,7 +13,7 @@ describe('test/bucket.test.js', () => {
     store = oss(config);
     config.region = defaultRegion;
     store = oss(config);
-    bucket = `ali-oss-test-worm2-bucket-${prefix.replace(/[/.]/g, '-')}`;
+    bucket = `oss-client-test-worm2-bucket-${prefix.replace(/[/.]/g, '-')}`;
     bucket = bucket.substring(0, bucket.length - 1);
 
     const result = await store.putBucket(bucket, { timeout });

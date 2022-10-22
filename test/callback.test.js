@@ -15,7 +15,7 @@
 //
 //   before(async () => {
 //     store = oss(config);
-//     bucket = `ali-oss-test-callback-bucket-${prefix.replace(/[/.]/g, '-')}`;
+//     bucket = `oss-client-test-callback-bucket-${prefix.replace(/[/.]/g, '-')}`;
 //     bucket = bucket.substring(0, bucket.length - 1);
 //     bucketRegion = config.region;
 //
@@ -109,7 +109,7 @@
 //     });
 //
 //     it('should putStream parse response with callback', async () => {
-//       const name = `${prefix}ali-sdk/oss/putstream-callback.js`;
+//       const name = `${prefix}oss-client/oss/putstream-callback.js`;
 //       const result = await store.putStream(name, fs.createReadStream(__filename), {
 //         callback: {
 //           url: callbackServer,
@@ -128,7 +128,7 @@
 //     });
 //
 //     it('should put parse response with callback', async () => {
-//       const name = `${prefix}ali-sdk/oss/put-callback.js`;
+//       const name = `${prefix}oss-client/oss/put-callback.js`;
 //       const result = await store.put(name, __filename, {
 //         callback: {
 //           url: callbackServer,

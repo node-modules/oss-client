@@ -12,8 +12,8 @@ describe('test/cluster.test.js', () => {
 
   before(async function() {
     this.region = config.region;
-    this.bucket1 = `ali-oss-test-cluster1-${prefix.replace(/[/.]/g, '')}`;
-    this.bucket2 = `ali-oss-test-cluster2-${prefix.replace(/[/.]/g, '')}`;
+    this.bucket1 = `oss-client-test-cluster1-${prefix.replace(/[/.]/g, '')}`;
+    this.bucket2 = `oss-client-test-cluster2-${prefix.replace(/[/.]/g, '')}`;
     const client = oss(config);
     await client.putBucket(this.bucket1);
     await client.putBucket(this.bucket2);
@@ -76,7 +76,7 @@ describe('test/cluster.test.js', () => {
 
   describe('put()', () => {
     it('should add object with local file path', async function() {
-      const name = `${prefix}ali-sdk/oss/put-localfile.js`;
+      const name = `${prefix}oss-client/oss/put-localfile.js`;
       const object = await this.store.put(name, __filename);
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       assert.equal(typeof object.res.rt, 'number');
@@ -86,7 +86,7 @@ describe('test/cluster.test.js', () => {
 
     it('should error when any one is error', async function() {
       mm.error(this.store.clients[1], 'put', 'mock error');
-      const name = `${prefix}ali-sdk/oss/put-localfile.js`;
+      const name = `${prefix}oss-client/oss/put-localfile.js`;
       try {
         await this.store.put(name, __filename);
         throw new Error('should never exec');
@@ -97,7 +97,7 @@ describe('test/cluster.test.js', () => {
 
     it('should ignore when any one is error', async function() {
       mm.error(this.store.clients[1], 'put', 'mock error');
-      const name = `${prefix}ali-sdk/oss/put-localfile.js`;
+      const name = `${prefix}oss-client/oss/put-localfile.js`;
       try {
         await this.store.put(name, __filename);
         throw new Error('should never exec');
@@ -109,7 +109,7 @@ describe('test/cluster.test.js', () => {
 
   describe('putACL() and getACL()', () => {
     it('should add object with local file path', async function() {
-      const name = `${prefix}ali-sdk/oss/put-localfile.js`;
+      const name = `${prefix}oss-client/oss/put-localfile.js`;
       const object = await this.store.put(name, __filename);
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       assert.equal(typeof object.res.rt, 'number');
@@ -127,7 +127,7 @@ describe('test/cluster.test.js', () => {
 
   describe('get()', () => {
     before(async function() {
-      this.name = `${prefix}ali-sdk/oss/get-meta.js`;
+      this.name = `${prefix}oss-client/oss/get-meta.js`;
       const object = await this.store.put(this.name, __filename, {
         meta: {
           uid: 1,
@@ -334,7 +334,7 @@ describe('test/cluster.test.js', () => {
 
   describe('signatureUrl(), getObjectUrl()', () => {
     before(async function() {
-      this.name = `${prefix}ali-sdk/oss/get-meta.js`;
+      this.name = `${prefix}oss-client/oss/get-meta.js`;
       const object = await this.store.put(this.name, __filename, {
         meta: {
           uid: 1,

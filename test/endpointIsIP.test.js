@@ -22,7 +22,7 @@ describe('test/endpoint.test.js', () => {
   let bucket;
   before(async () => {
     store = oss(config);
-    bucket = `ali-oss-test-object-bucket-${prefix.replace(/[/.]/g, '-')}`;
+    bucket = `oss-client-test-object-bucket-${prefix.replace(/[/.]/g, '-')}`;
     bucket = bucket.substring(0, bucket.length - 1);
 
     await store.putBucket(bucket);
@@ -42,7 +42,7 @@ describe('test/endpoint.test.js', () => {
   describe('endpoint is ip', () => {
     it('should put and get', async () => {
       try {
-        const name = `${prefix}ali-sdk/oss/putWidhIP.js`;
+        const name = `${prefix}oss-client/oss/putWidhIP.js`;
         const object = await store.put(name, __filename);
         assert(object.name, name);
 

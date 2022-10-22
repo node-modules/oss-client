@@ -13,7 +13,7 @@ describe('test/rtmp.test.js', () => {
   let conf;
   before(async () => {
     store = oss(config);
-    bucket = `ali-oss-test-bucket-rtmp-${prefix.replace(/[/.]/g, '-')}`;
+    bucket = `oss-client-test-bucket-rtmp-${prefix.replace(/[/.]/g, '-')}`;
     bucket = bucket.substring(0, bucket.length - 1);
     store.useBucket(bucket);
 

@@ -87,7 +87,7 @@ describe('test/sts.test.js', () => {
         bucket: stsConfig.bucket,
       });
 
-      const name = `${prefix}ali-sdk/oss/sts-put1.js`;
+      const name = `${prefix}oss-client/oss/sts-put1.js`;
       result = await ossClient.put(name, __filename);
       assert.strictEqual(result.res.status, 200);
 
@@ -123,8 +123,8 @@ describe('test/sts.test.js', () => {
         bucket: stsConfig.bucket,
       });
 
-      const name1 = `${prefix}ali-sdk/oss/sts-put1.js`;
-      const name2 = `${prefix}ali-sdk/oss/sts-put2.js`;
+      const name1 = `${prefix}oss-client/oss/sts-put1.js`;
+      const name2 = `${prefix}oss-client/oss/sts-put2.js`;
       result = await ossClient.put(name1, __filename);
       assert.strictEqual(result.res.status, 200);
 

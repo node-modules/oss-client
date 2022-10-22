@@ -16,7 +16,7 @@ describe('test/multiversion.test.js', () => {
     // config.region = 'oss-cn-chengdu';
     store = oss(config);
 
-    bucket = `ali-oss-test-bucket-multiversion-${prefix.replace(/[/.]/g, '-')}`;
+    bucket = `oss-client-test-bucket-multiversion-${prefix.replace(/[/.]/g, '-')}`;
     bucket = bucket.substring(0, bucket.length - 1);
 
     const result = await store.putBucket(bucket);
@@ -412,7 +412,7 @@ describe('test/multiversion.test.js', () => {
   });
 
   describe('get()', () => {
-    const name = `${prefix}ali-sdk/oss/get-multiversion.js`;
+    const name = `${prefix}oss-client/oss/get-multiversion.js`;
     let putResult;
     let versionId;
     let delVersionId;
@@ -465,7 +465,7 @@ describe('test/multiversion.test.js', () => {
   });
 
   describe('delete()', () => {
-    const name = `${prefix}ali-sdk/oss/delete-multiversion.js`;
+    const name = `${prefix}oss-client/oss/delete-multiversion.js`;
     let versionId;
 
     before(async () => {
@@ -641,7 +641,7 @@ describe('test/multiversion.test.js', () => {
     let opt;
     before(async () => {
       await store.putBucketVersioning(bucket, enabled);
-      name = `${prefix}ali-sdk/oss/object-multiversion-meta.js`;
+      name = `${prefix}oss-client/oss/object-multiversion-meta.js`;
       const object = await store.put(name, __filename);
       fileSize = fs.statSync(__filename).size;
       resHeaders = object.res.headers;
@@ -669,18 +669,18 @@ describe('test/multiversion.test.js', () => {
     const versionIds = [];
     beforeEach(async () => {
       await store.putBucketVersioning(bucket, enabled);
-      let name = `${prefix}ali-sdk/oss/deleteMulti0.js`;
+      let name = `${prefix}oss-client/oss/deleteMulti0.js`;
       let result;
       result = await store.put(name, __filename);
       versionIds.push(result.res.headers['x-oss-version-id']);
       names.push(name);
 
-      name = `${prefix}ali-sdk/oss/deleteMulti1.js`;
+      name = `${prefix}oss-client/oss/deleteMulti1.js`;
       result = await store.put(name, __filename);
       versionIds.push(result.res.headers['x-oss-version-id']);
       names.push(name);
 
-      name = `${prefix}ali-sdk/oss/deleteMulti2.js`;
+      name = `${prefix}oss-client/oss/deleteMulti2.js`;
       result = await store.put(name, __filename);
       versionIds.push(result.res.headers['x-oss-version-id']);
       names.push(name);

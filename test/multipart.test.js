@@ -14,7 +14,7 @@ describe('test/multipart.test.js', () => {
   let bucketRegion;
   before(async () => {
     store = oss(config);
-    bucket = `ali-oss-test-multipart-bucket-${prefix.replace(/[/.]/g, '-')}`;
+    bucket = `oss-client-test-multipart-bucket-${prefix.replace(/[/.]/g, '-')}`;
     bucket = bucket.substring(0, bucket.length - 1);
     bucketRegion = config.region;
 

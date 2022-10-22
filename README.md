@@ -286,7 +286,8 @@ All operation use es7 async/await to implement. All api is async function.
 
 ### Compatibility
 
-- Node.js: >= 14.0.0
+- Node.js >= 14.0.0
+- urllib >= 3.0.0
 
 ### Basic usage
 
