@@ -8,6 +8,9 @@ const oss = require('..');
 const config = require('./config').oss;
 
 describe('test/multipart.test.js', () => {
+  // only run on v18
+  if (!process.version.startsWith('v18.')) return;
+
   const { prefix } = utils;
   const bucket = config.bucket;
   let store;
