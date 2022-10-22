@@ -2,8 +2,8 @@
 // const fs = require('fs');
 // const assert = require('assert');
 // const utils = require('./utils');
-// const oss = require('../..');
-// const config = require('../config').oss;
+// const oss = require('..');
+// const config = require('./config').oss;
 // const { callbackServer } = require('../const');
 // const mm = require('mm');
 //

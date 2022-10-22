@@ -1,9 +1,9 @@
 const assert = require('assert');
 const utils = require('./utils');
-const sts = require('../..').STS;
-const OSS = require('../..');
-const config = require('../config').oss;
-const stsConfig = require('../config').sts;
+const sts = require('..').STS;
+const OSS = require('..');
+const config = require('./config').oss;
+const stsConfig = require('./config').sts;
 const mm = require('mm');
 
 describe('test/sts.test.js', () => {
@@ -166,10 +166,10 @@ describe('test/sts.test.js', () => {
   });
 
   describe('refreshSTSToken()', () => {
-    const stsClient = sts(stsConfig);
-
+    let stsClient;
     let store;
     before(async () => {
+      stsClient = sts(stsConfig);
       const { credentials } = await stsClient.assumeRole(stsConfig.roleArn);
       const testRefreshSTSTokenConf = {
         region: config.region,

@@ -8,8 +8,8 @@
   ],
   "scripts": {
     "lint": "eslint lib test",
-    "test": "egg-bin test",
-    "cov": "egg-bin cov",
+    "test": "egg-bin test --full-trace",
+    "cov": "egg-bin cov --full-trace",
     "ci": "npm run lint && npm run cov"
   },
   "repository": {
@@ -33,17 +33,6 @@
     "version": "14, 16, 18"
   },
   "homepage": "https://github.com/node-modules/oss-client",
-  "devDependencies": {
-    "egg-bin": "^5.2.0",
-    "egg-ci": "^2.1.0",
-    "eslint": "^8.25.0",
-    "eslint-config-egg": "^12.1.0",
-    "mm": "^2.0.0",
-    "should": "^11.0.0",
-    "sinon": "^1.17.7",
-    "stream-equal": "^1.1.0",
-    "timemachine": "^0.3.0"
-  },
   "dependencies": {
     "address": "^1.2.0",
     "agentkeepalive": "^3.4.1",
@@ -58,7 +47,6 @@
     "jstoxml": "^2.0.0",
     "merge-descriptors": "^1.0.1",
     "mime": "^2.4.5",
-    "platform": "^1.3.1",
     "pump": "^3.0.0",
     "sdk-base": "^2.0.1",
     "stream-http": "2.8.2",
@@ -66,5 +54,16 @@
     "urllib": "^3.3.1",
     "utility": "^1.8.0",
     "xml2js": "^0.4.16"
+  },
+  "devDependencies": {
+    "egg-bin": "^5.2.0",
+    "egg-ci": "^2.1.0",
+    "eslint": "^8.25.0",
+    "eslint-config-egg": "^12.1.0",
+    "mm": "^2.0.0",
+    "should": "^11.0.0",
+    "sinon": "^1.17.7",
+    "stream-equal": "^1.1.0",
+    "timemachine": "^0.3.0"
   }
 }

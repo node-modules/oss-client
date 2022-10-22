@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { dataFix } = require('../../lib/common/utils/dataFix');
+const { dataFix } = require('../lib/common/utils/dataFix');
 const { sleep } = require('./utils');
 
 describe('dataFix()', () => {

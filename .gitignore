@@ -35,7 +35,6 @@ package-lock.json
 
 # Ide
 .idea/
-.vscode/
 
 #mac temp file
 .DS_Store

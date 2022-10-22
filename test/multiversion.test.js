@@ -1,10 +1,10 @@
 const assert = require('assert');
 const utils = require('./utils');
-const oss = require('../..');
-const config = require('../config').oss;
+const oss = require('..');
+const config = require('./config').oss;
 const fs = require('fs');
 const ms = require('humanize-ms');
-const { metaSyncTime } = require('../config');
+const { metaSyncTime } = require('./config');
 
 describe('test/multiversion.test.js', () => {
   const { prefix } = utils;

@@ -1,8 +1,8 @@
 const assert = require('assert');
 const utils = require('./utils');
 const is = require('is-type-of');
-const oss = require('../..');
-const config = require('../config').oss;
+const oss = require('..');
+const config = require('./config').oss;
 
 describe('test/rtmp.test.js', () => {
   const { prefix } = utils;

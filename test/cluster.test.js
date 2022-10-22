@@ -1,7 +1,7 @@
 
-const oss = require('../..');
-const cluster = require('../..').ClusterClient;
-const config = require('../config').oss;
+const oss = require('..');
+const cluster = require('..').ClusterClient;
+const config = require('./config').oss;
 const utils = require('./utils');
 const assert = require('assert');
 const mm = require('mm');

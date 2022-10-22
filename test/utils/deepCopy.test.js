@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { deepCopy, deepCopyWith } = require('../../../lib/common/utils/deepCopy');
+const { deepCopy, deepCopyWith } = require('../../lib/common/utils/deepCopy');
 
 describe('utils/deepCopy()', () => {
   it('should copy big Buffers correctly', () => {

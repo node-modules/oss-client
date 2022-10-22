@@ -1,11 +1,8 @@
-
 const assert = require('assert');
-const oss = require('../..');
-const config = require('../config').oss;
-const mm = require('mm');
-const pkg = require('../../package.json');
+const oss = require('..');
+const config = require('./config').oss;
 
-describe('test/client.test.js', () => {
+describe.only('test/client.test.js', () => {
   it('init stsTokenFreshTime', () => {
     const store = oss(config);
     const now = new Date();
@@ -299,38 +296,11 @@ describe('test/client.test.js', () => {
   });
 
   it('should set User-Agent', async () => {
-    after(mm.restore);
-
     const store = oss(config);
-    let header;
-    const req = store.urllib.request;
-    mm(store.urllib, 'request', (url, args) => {
-      header = args.headers;
-      return req(url, args);
-    });
-
-    const result = await store.listBuckets();
+    store.useBucket(config.bucket);
+    const result = await store.getBucketInfo();
     assert.equal(result.res.status, 200);
-    assert(header['User-Agent']);
-    assert(header['User-Agent'].startsWith(`aliyun-sdk-nodejs/${pkg.version} Node.js ${process.version.slice(1)}`));
-    // node 环境移除了x-oss-user-agent
-    // assert(header['x-oss-user-agent']);
-    // assert(header['x-oss-user-agent'].startsWith(`aliyun-sdk-nodejs/${pkg.version} Node.js ${process.version.slice(1)}`));
-  });
-
-  it('should check beta or alpha User-Agent', () => {
-    const store = oss(config);
-    const uaBeta = store._checkUserAgent('aliyun-sdk-nodejs/4.12.2 Node.js β-8.4.0 on darwin x64');
-    assert.equal(uaBeta, 'aliyun-sdk-nodejs/4.12.2 Node.js beta-8.4.0 on darwin x64');
-    const uaAlpha = store._checkUserAgent('aliyun-sdk-nodejs/4.12.2 Node.js α-8.4.0 on darwin x64');
-    assert.equal(uaAlpha, 'aliyun-sdk-nodejs/4.12.2 Node.js alpha-8.4.0 on darwin x64');
-  });
-
-  it('should check browser and version', () => {
-    const store = oss(config);
-    assert(store.checkBrowserAndVersion('', ''));
-    assert(!store.checkBrowserAndVersion('non-nodejs', ''));
-    assert(!store.checkBrowserAndVersion('', 'error-version'));
+    assert(result.bucket.Name === config.bucket);
   });
 
   it('should trim access id/key', () => {

@@ -1,6 +1,6 @@
 const utils = require('./utils');
-const config = require('../config').oss;
-const OSS = require('../..');
+const config = require('./config').oss;
+const OSS = require('..');
 
 const store = new OSS(config);
 const interval = new Date().getTime() - 24 * 60 * 60 * 1 * 1000;

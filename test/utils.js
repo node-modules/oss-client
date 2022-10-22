@@ -1,23 +1,9 @@
-/**
- * Copyright(c) ali-sdk and other contributors.
- * MIT Licensed
- *
- * Authors:
- *   fengmk2 <m@fengmk2.com> (http://fengmk2.com)
- */
-
-
-/**
- * Module dependencies.
- */
-
 const assert = require('assert');
 const fs = require('fs');
 const urlutil = require('url');
-const platform = require('platform');
-const { isObject } = require('../../lib/common/utils/isObject');
-const { isArray } = require('../../lib/common/utils/isArray');
-const OSS = require('../..');
+const { isObject } = require('../lib/common/utils/isObject');
+const { isArray } = require('../lib/common/utils/isArray');
+const OSS = require('..');
 
 exports.throws = async function(block, checkError) {
   try {
@@ -118,14 +104,7 @@ exports.cleanBucket = async function(store, bucket, multiversion) {
   await store.deleteBucket(bucket);
 };
 
-if (process && process.browser) {
-  exports.prefix = `${platform.name}-${platform.version}-${new Date().getTime()}/`;
-} else {
-  exports.prefix = `${process.platform}-${process.version}-${new Date().getTime()}/`;// unique prefix add time timestamp
-  if (process && process.execPath.indexOf('iojs') >= 0) {
-    exports.prefix = `iojs-${exports.prefix}`;
-  }
-}
+exports.prefix = `${process.platform}-${process.version}-${new Date().getTime()}/`;
 
 exports.createTempFile = async function createTempFile(name, size) {
   const tmpdir = '/tmp/.oss/';

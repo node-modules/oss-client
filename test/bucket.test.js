@@ -1,12 +1,9 @@
-/* eslint-disable no-loop-func */
-/* eslint-disable no-await-in-loop */
-
 const assert = require('assert');
 const utils = require('./utils');
-const oss = require('../..');
-const config = require('../config').oss;
+const oss = require('..');
+const config = require('./config').oss;
 const ms = require('humanize-ms');
-const { metaSyncTime, timeout } = require('../config');
+const { metaSyncTime, timeout } = require('./config');
 
 // only run on travis ci
 

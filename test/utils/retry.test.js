@@ -1,6 +1,6 @@
 const assert = require('assert');
-const OSS = require('../../..');
-const config = require('../../config').oss;
+const OSS = require('../..');
+const config = require('../config').oss;
 const utils = require('../utils');
 const { md5 } = require('utility');
 const mm = require('mm');

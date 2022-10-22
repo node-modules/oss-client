@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { omit } = require('../../../lib/common/utils/omit');
+const { omit } = require('../../lib/common/utils/omit');
 
 describe('omit test case', () => {
   const originObject = {

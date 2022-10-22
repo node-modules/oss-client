@@ -413,17 +413,6 @@ And see the build artifacts under `dist/`.
 
 [OSS current data regions](https://help.aliyun.com/document_detail/31837.html).
 
-region | country | city | endpoint | internal endpoint
----  | ---     | ---  | --- | ---
-oss-cn-hangzhou | China | HangZhou | oss-cn-hangzhou.aliyuncs.com | oss-cn-hangzhou-internal.aliyuncs.com
-oss-cn-shanghai | China | ShangHai | oss-cn-shanghai.aliyuncs.com | oss-cn-shanghai-internal.aliyuncs.com
-oss-cn-qingdao | China | QingDao | oss-cn-qingdao.aliyuncs.com | oss-cn-qingdao-internal.aliyuncs.com
-oss-cn-beijing | China | BeiJing | oss-cn-beijing.aliyuncs.com | oss-cn-beijing-internal.aliyuncs.com
-oss-cn-shenzhen | China | ShenZhen | oss-cn-shenzhen.aliyuncs.com | oss-cn-shenzhen-internal.aliyuncs.com
-oss-cn-hongkong | China | HongKong | oss-cn-hongkong.aliyuncs.com | oss-cn-hongkong-internal.aliyuncs.com
-oss-us-west-1 | US | Silicon Valley | oss-us-west-1.aliyuncs.com | oss-us-west-1-internal.aliyuncs.com
-oss-ap-southeast-1 | Singapore | Singapore | oss-ap-southeast-1.aliyuncs.com | oss-ap-southeast-1-internal.aliyuncs.com
-
 ## Create Account
 
 Go to [OSS website](http://www.aliyun.com/product/oss/?lang=en), create a new account for new user.

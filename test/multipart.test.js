@@ -1,8 +1,8 @@
 const fs = require('fs');
 const assert = require('assert');
 const utils = require('./utils');
-const oss = require('../..');
-const config = require('../config').oss;
+const oss = require('..');
+const config = require('./config').oss;
 const { md5 } = require('utility');
 const mm = require('mm');
 const sinon = require('sinon');
@@ -392,11 +392,6 @@ describe('test/multipart.test.js', () => {
       const name = `${prefix}multipart/upload-webfile-ie10`;
       const clientTmp = oss(config);
       clientTmp.useBucket(bucket, bucketRegion);
-      sinon.stub(
-        clientTmp,
-        'checkBrowserAndVersion',
-        (browser, version) => browser === 'Internet Explorer' && version === '10'
-      );
       const result = await clientTmp.multipartUpload(name, webFile, {
         partSize: 100 * 1024,
       });
@@ -767,29 +762,6 @@ describe('test/multipart.test.js', () => {
       );
 
       assert.equal(result.res.status, 200);
-    });
-
-    it('should multipart upload copy in IE10', async () => {
-      const copyName = `${prefix}multipart/upload-copy-in-ie10`;
-      const clientTmp = oss(config);
-      clientTmp.useBucket(bucket, bucketRegion);
-      const checkBrowserAndVersion = sinon.stub(
-        clientTmp,
-        'checkBrowserAndVersion',
-        (browser, version) => browser === 'Internet Explorer' && version === '10'
-      );
-      const result = await clientTmp.multipartUploadCopy(
-        copyName,
-        {
-          sourceKey: name,
-          sourceBucketName: bucket,
-        },
-        {
-          partSize: 100 * 1024,
-        }
-      );
-      assert.equal(result.res.status, 200);
-      checkBrowserAndVersion.restore();
     });
 
     it('should multipart upload copy with parallel = 1', async () => {

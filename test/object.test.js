@@ -3,21 +3,20 @@ const path = require('path');
 const assert = require('assert');
 const { Readable } = require('stream');
 const ms = require('humanize-ms');
-const { metaSyncTime } = require('../config');
+const { metaSyncTime } = require('./config');
 const AgentKeepalive = require('agentkeepalive');
 const HttpsAgentKeepalive = require('agentkeepalive').HttpsAgent;
 const utils = require('./utils');
-const oss = require('../..');
-const sts = require('../..').STS;
-const config = require('../config').oss;
-const stsConfig = require('../config').sts;
+const oss = require('..');
+const sts = require('..').STS;
+const config = require('./config').oss;
+const stsConfig = require('./config').sts;
 const urllib = require('urllib');
 const copy = require('copy-to');
 const mm = require('mm');
 const streamEqual = require('stream-equal');
 const crypto = require('crypto');
 const urlutil = require('url');
-const request = require('request');
 
 const tmpdir = path.join(__dirname, '.tmp');
 if (!fs.existsSync(tmpdir)) {
