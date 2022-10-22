@@ -5,7 +5,6 @@ const utils = require('../utils');
 const { md5 } = require('utility');
 const mm = require('mm');
 const fs = require('fs');
-const { after } = require('mocha');
 
 describe('test/retry.test.js', () => {
   let store;
