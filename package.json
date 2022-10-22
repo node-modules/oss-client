@@ -29,10 +29,6 @@
   "engines": {
     "node": ">= 14.17.0"
   },
-  "ci": {
-    "version": "14, 16, 18",
-    "os": "linux"
-  },
   "homepage": "https://github.com/node-modules/oss-client",
   "dependencies": {
     "address": "^1.2.0",
@@ -58,7 +54,6 @@
   },
   "devDependencies": {
     "egg-bin": "^5.2.0",
-    "egg-ci": "^2.1.0",
     "eslint": "^8.25.0",
     "eslint-config-egg": "^12.1.0",
     "mm": "^2.0.0",
