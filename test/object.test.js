@@ -14,7 +14,7 @@ const { metaSyncTime, oss: config } = require('./config');
 const utils = require('./utils');
 const oss = require('..');
 
-describe.only('test/object.test.js', () => {
+describe('test/object.test.js', () => {
   const tmpdir = os.tmpdir();
   const { prefix } = utils;
   const bucket = config.bucket;
@@ -2167,6 +2167,8 @@ describe.only('test/object.test.js', () => {
 
   describe('calculatePostSignature()', () => {
     it('should get signature for postObject', async () => {
+      // not work on Node.js 14 with undici
+      if (process.version.startsWith('v14.')) return;
       const name = 'calculatePostSignature.js';
       const url = store.generateObjectUrl(name).replace(name, '');
       const date = new Date();

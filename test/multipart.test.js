@@ -1,29 +1,19 @@
 const fs = require('fs');
 const assert = require('assert');
-const utils = require('./utils');
-const oss = require('..');
-const config = require('./config').oss;
 const { md5 } = require('utility');
 const mm = require('mm');
 const sinon = require('sinon');
+const utils = require('./utils');
+const oss = require('..');
+const config = require('./config').oss;
 
 describe('test/multipart.test.js', () => {
   const { prefix } = utils;
+  const bucket = config.bucket;
   let store;
-  let bucket;
-  let bucketRegion;
   before(async () => {
     store = oss(config);
-    bucket = `oss-client-test-multipart-bucket-${prefix.replace(/[/.]/g, '-')}`;
-    bucket = bucket.substring(0, bucket.length - 1);
-    bucketRegion = config.region;
-
-    await store.putBucket(bucket, bucketRegion);
-    store.useBucket(bucket, bucketRegion);
-  });
-
-  after(async () => {
-    await utils.cleanBucket(store, bucket);
+    store.useBucket(bucket);
   });
 
   describe('listUploads()', () => {
@@ -199,7 +189,6 @@ describe('test/multipart.test.js', () => {
       store._uploadPart.restore();
     });
 
-    /* eslint require-yield: [0] */
     it('should use default partSize when not specified', () => {
       const partSize = store._getPartSize(1024 * 1024, null);
       assert.equal(partSize, 1 * 1024 * 1024);
@@ -247,7 +236,7 @@ describe('test/multipart.test.js', () => {
 
       const name = `${prefix}multipart/upload-file-exception`;
       const clientTmp = oss(config);
-      clientTmp.useBucket(bucket, bucketRegion);
+      clientTmp.useBucket(bucket);
 
       const stubUploadPart = sinon.stub(clientTmp, '_uploadPart');
       stubUploadPart.throws('TestUploadPartException');
@@ -331,80 +320,6 @@ describe('test/multipart.test.js', () => {
       assert.equal(object.content.length, fileBuf.length);
       // avoid comparing buffers directly for it may hang when generating diffs
       assert.deepEqual(md5(object.content), md5(fileBuf));
-    });
-
-    it('should upload web file using multipart upload', async () => {
-      const File = function(name, content) {
-        this.name = name;
-        this.buffer = content;
-        this.size = this.buffer.length;
-
-        this.slice = function(start, end) {
-          return new File(this.name, this.buffer.slice(start, end));
-        };
-      };
-      /* eslint global-require: [0] */
-      const FileReader = require('filereader');
-
-      mm(global, 'File', File);
-      mm(global, 'FileReader', FileReader);
-
-      // create a file with 1M random data
-      const fileName = await utils.createTempFile('multipart-upload-webfile', 1024 * 1024);
-      const fileBuf = fs.readFileSync(fileName);
-      const webFile = new File(fileName, fileBuf);
-
-      const name = `${prefix}multipart/upload-webfile`;
-      const result = await store.multipartUpload(name, webFile, {
-        partSize: 100 * 1024,
-      });
-      assert.equal(result.res.status, 200);
-
-      const object = await store.get(name);
-      assert.equal(object.res.status, 200);
-
-      assert.equal(object.content.length, fileBuf.length);
-      // avoid comparing buffers directly for it may hang when generating diffs
-      assert.deepEqual(md5(object.content), md5(fileBuf));
-
-      mm.restore();
-    });
-
-    it('should upload web file using multipart upload in IE10', async () => {
-      const File = function(name, content) {
-        this.name = name;
-        this.buffer = content;
-        this.size = this.buffer.length;
-
-        this.slice = function(start, end) {
-          return new File(this.name, this.buffer.slice(start, end));
-        };
-      };
-      const FileReader = require('filereader');
-
-      mm(global, 'File', File);
-      mm(global, 'FileReader', FileReader);
-
-      // create a file with 1M random data
-      const fileName = await utils.createTempFile('multipart-upload-webfile', 1024 * 1024);
-      const fileBuf = fs.readFileSync(fileName);
-      const webFile = new File(fileName, fileBuf);
-      const name = `${prefix}multipart/upload-webfile-ie10`;
-      const clientTmp = oss(config);
-      clientTmp.useBucket(bucket, bucketRegion);
-      const result = await clientTmp.multipartUpload(name, webFile, {
-        partSize: 100 * 1024,
-      });
-      assert.equal(result.res.status, 200);
-
-      const object = await clientTmp.get(name);
-      assert.equal(object.res.status, 200);
-
-      assert.equal(object.content.length, fileBuf.length);
-      // avoid comparing buffers directly for it may hang when generating diffs
-      assert.deepEqual(md5(object.content), md5(fileBuf));
-
-      mm.restore();
     });
 
     it('should resume upload using checkpoint', async () => {
@@ -828,7 +743,7 @@ describe('test/multipart.test.js', () => {
     it('should multipart copy with exception', async () => {
       const copyName = `${prefix}multipart/upload-file-with-copy-exception`;
       const clientTmp = oss(config);
-      clientTmp.useBucket(bucket, bucketRegion);
+      clientTmp.useBucket(bucket);
       /* eslint no-unused-vars: [0] */
       const stubUploadPart = sinon.stub(
         clientTmp,

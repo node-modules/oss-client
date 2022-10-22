@@ -2,8 +2,6 @@ const assert = require('assert');
 const fs = require('fs');
 const urlutil = require('url');
 const { isObject } = require('../lib/common/utils/isObject');
-const { isArray } = require('../lib/common/utils/isArray');
-const OSS = require('..');
 
 exports.throws = async function(block, checkError) {
   try {
@@ -32,28 +30,6 @@ exports.sleep = function(ms) {
     }, ms);
   });
 };
-
-exports.cleanAllBucket = async function(store) {
-  const res = await store.listBuckets();
-  const bucketList = [];
-  for (let i = 0; i < res.buckets.length; i++) {
-    if (!res.buckets[i].name.indexOf('ali-oss')) {
-      bucketList.push({
-        bucket: res.buckets[i].name,
-        region: res.buckets[i].region,
-      });
-    }
-  }
-  for (const bucketListItem of bucketList) {
-    const client = new OSS({
-      ...store.options,
-      bucket: bucketListItem.bucket,
-      region: bucketListItem.region,
-    });
-    await this.cleanBucket(client, bucketListItem.bucket);
-  }
-};
-
 
 exports.cleanBucket = async function(store, bucket, multiversion) {
   store.useBucket(bucket);
@@ -161,8 +137,8 @@ exports.includesConf = function includesConf(data, conf) {
   }
 
   let valid = true;
-  if (isArray(conf)) {
-    if (!isArray(data)) return false;
+  if (Array.isArray(conf)) {
+    if (!Array.isArray(data)) return false;
     for (let i = 0; i < conf.length; i++) {
       let itemValid = false;
       for (let j = 0; j < data.length; j++) {
@@ -179,12 +155,12 @@ exports.includesConf = function includesConf(data, conf) {
   const keys = Object.keys(conf);
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
-    if (!isObject(conf[key]) && !isArray(conf[key])) {
+    if (!isObject(conf[key]) && !Array.isArray(conf[key])) {
       if (conf[key] !== data[key]) {
         valid = false;
         break;
       }
-    } else if (isObject(conf[key]) || isArray(conf[key])) {
+    } else if (isObject(conf[key]) || Array.isArray(conf[key])) {
       if (!includesConf(data[key], conf[key])) {
         valid = false;
         break;

@@ -1,24 +1,21 @@
 const assert = require('assert');
-const OSS = require('../..');
-const config = require('../config').oss;
-const utils = require('../utils');
 const { md5 } = require('utility');
 const mm = require('mm');
 const fs = require('fs');
+const OSS = require('../..');
+const config = require('../config').oss;
+const utils = require('../utils');
 
 describe('test/retry.test.js', () => {
   let store;
   const RETRY_MAX = 3;
   let testRetryCount = 0;
-  const bucket = `oss-client-test-retry-bucket-${utils.prefix.replace(/[/.]/g, '-').replace(/-$/, '')}`;
+  const bucket = config.bucket;
   before(async () => {
     store = new OSS({
       ...config,
       retryMax: RETRY_MAX,
     });
-    const result = await store.putBucket(bucket);
-    assert.strictEqual(result.bucket, bucket);
-    assert.strictEqual(result.res.status, 200);
     store.useBucket(bucket);
   });
   beforeEach(() => {
@@ -39,11 +36,8 @@ describe('test/retry.test.js', () => {
   afterEach(() => {
     mm.restore();
   });
-  after(async () => {
-    await utils.cleanBucket(store, bucket);
-  });
 
-  it('set retryMax to test request auto retry when networkError or timeout', async () => {
+  it.skip('set retryMax to test request auto retry when networkError or timeout', async () => {
     const res = await store.listBuckets();
     assert.strictEqual(res.res.status, 200);
     assert.strictEqual(testRetryCount, RETRY_MAX);
