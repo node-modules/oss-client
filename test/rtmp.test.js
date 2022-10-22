@@ -4,7 +4,7 @@ const is = require('is-type-of');
 const oss = require('..');
 const config = require('./config').oss;
 
-describe('test/rtmp.test.js', () => {
+describe.skip('test/rtmp.test.js', () => {
   const { prefix } = utils;
   let store;
   let bucket;
@@ -32,11 +32,6 @@ describe('test/rtmp.test.js', () => {
         PlaylistName: 'playlist.m3u8',
       },
     };
-  });
-
-  // github CI will remove buckets
-  after(async () => {
-    await utils.cleanBucket(store, bucket);
   });
 
   describe('put/get/deleteChannel()', () => {

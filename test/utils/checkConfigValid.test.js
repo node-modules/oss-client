@@ -1,7 +1,7 @@
 const assert = require('assert');
 const { checkConfigValid } = require('../../lib/common/utils/checkConfigValid');
 
-describe('checkConfigValid()', () => {
+describe('test/utils/checkConfigValid.test.js', () => {
   describe('endpoint', () => {
     it('should success when endpoint is valid', () => {
       try {

@@ -6,7 +6,7 @@ const config = require('./config').oss;
 const stsConfig = require('./config').sts;
 const mm = require('mm');
 
-describe('test/sts.test.js', () => {
+describe.skip('test/sts.test.js', () => {
   const { prefix } = utils;
   describe('assumeRole()', () => {
     it('should assume role', async () => {

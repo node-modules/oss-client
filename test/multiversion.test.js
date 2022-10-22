@@ -6,30 +6,17 @@ const fs = require('fs');
 const ms = require('humanize-ms');
 const { metaSyncTime } = require('./config');
 
-describe('test/multiversion.test.js', () => {
+describe.skip('test/multiversion.test.js', () => {
   const { prefix } = utils;
   const enabled = 'Enabled';
   const suspended = 'Suspended';
+  const bucket = config.bucket;
   let store;
-  let bucket;
   before(async () => {
-    // config.region = 'oss-cn-chengdu';
     store = oss(config);
-
-    bucket = `oss-client-test-bucket-multiversion-${prefix.replace(/[/.]/g, '-')}`;
-    bucket = bucket.substring(0, bucket.length - 1);
-
-    const result = await store.putBucket(bucket);
     store.useBucket(bucket);
-    assert.equal(result.bucket, bucket);
-    assert.equal(result.res.status, 200);
-
     // 用于产生versionId为null的版本
     await store.put('test-version-null', Buffer.from('test-version-null'));
-  });
-
-  after(async () => {
-    await utils.cleanBucket(store, bucket, true);
   });
 
   describe('putBucketVersioning() getBucketVersioning()', () => {

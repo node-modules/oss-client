@@ -1,12 +1,11 @@
 import { dataFix } from '../utils/dataFix';
 import { isObject } from '../utils/isObject';
-import { isArray } from '../utils/isArray';
 import { formatObjKey } from '../utils/formatObjKey';
 
 export function formatInventoryConfig(inventoryConfig, toArray = false) {
   if (toArray && isObject(inventoryConfig)) inventoryConfig = [inventoryConfig];
 
-  if (isArray(inventoryConfig)) {
+  if (Array.isArray(inventoryConfig)) {
     inventoryConfig = inventoryConfig.map(formatFn);
   } else {
     inventoryConfig = formatFn(inventoryConfig);
@@ -32,7 +31,7 @@ function formatFn(_) {
     conf.frequency = conf.Schedule.Frequency;
     delete conf.Schedule.Frequency;
     // optionalFields
-    if (conf?.OptionalFields?.Field && !isArray(conf.OptionalFields?.Field)) conf.OptionalFields.Field = [conf.OptionalFields.Field];
+    if (conf?.OptionalFields?.Field && !Array.isArray(conf.OptionalFields?.Field)) conf.OptionalFields.Field = [conf.OptionalFields.Field];
   });
   // firstLowerCase
   _ = formatObjKey(_, 'firstLowerCase', { exclude: ['OSSBucketDestination', 'SSE-OSS', 'SSE-KMS'] });

@@ -4,7 +4,7 @@ const oss = require('..');
 const config = require('./config').oss;
 const { timeout } = require('./config');
 
-describe('test/bucket.test.js', () => {
+describe.skip('test/bucket.test.js', () => {
   const { prefix } = utils;
   let store;
   let bucket;

@@ -1,4 +1,3 @@
-
 const oss = require('..');
 const cluster = require('..').ClusterClient;
 const config = require('./config').oss;
@@ -6,7 +5,7 @@ const utils = require('./utils');
 const assert = require('assert');
 const mm = require('mm');
 
-describe('test/cluster.test.js', () => {
+describe.skip('test/cluster.test.js', () => {
   const { prefix } = utils;
   afterEach(mm.restore);
 

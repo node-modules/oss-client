@@ -2,7 +2,7 @@ const assert = require('assert');
 const oss = require('..');
 const config = require('./config').oss;
 
-describe.only('test/client.test.js', () => {
+describe('test/client.test.js', () => {
   it('init stsTokenFreshTime', () => {
     const store = oss(config);
     const now = new Date();
