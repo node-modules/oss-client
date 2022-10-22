@@ -2080,31 +2080,31 @@ describe.only('test/object.test.js', () => {
       }
     });
 
-    it.skip('Should return 202 when restore is called first', async () => {
-      store.setBucket(archvieBucket);
-      const name = '/oss/restore.js';
-      await store.put(name, __filename);
+    // it.skip('Should return 202 when restore is called first', async () => {
+    //   store.setBucket(archvieBucket);
+    //   const name = '/oss/restore.js';
+    //   await store.put(name, __filename);
 
-      const info = await store.restore(name);
-      assert.equal(info.res.status, 202);
+    //   const info = await store.restore(name);
+    //   assert.equal(info.res.status, 202);
 
-      // in 1 minute verify RestoreAlreadyInProgressError
-      try {
-        await store.restore(name);
-      } catch (err) {
-        assert.equal(err.name, 'RestoreAlreadyInProgressError');
-      }
-    });
+    //   // in 1 minute verify RestoreAlreadyInProgressError
+    //   try {
+    //     await store.restore(name);
+    //   } catch (err) {
+    //     assert.equal(err.name, 'RestoreAlreadyInProgressError');
+    //   }
+    // });
 
-    it.skip('Category should be Archive', async () => {
-      const name = '/oss/restore.js';
-      try {
-        await store.restore(name, { type: 'ColdArchive' });
-      } catch (err) {
-        assert.equal(err.code, 'MalformedXML');
-      }
-      await store.useBucket(bucket, bucketRegion);
-    });
+    // it.skip('Category should be Archive', async () => {
+    //   const name = '/oss/restore.js';
+    //   try {
+    //     await store.restore(name, { type: 'ColdArchive' });
+    //   } catch (err) {
+    //     assert.equal(err.code, 'MalformedXML');
+    //   }
+    //   await store.useBucket(bucket);
+    // });
 
     it('ColdArchive choice Days', async () => {
       const name = '/oss/daysRestore.js';

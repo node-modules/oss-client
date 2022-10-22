@@ -43,7 +43,6 @@
     "jstoxml": "^2.0.0",
     "merge-descriptors": "^1.0.1",
     "mime": "^2.4.5",
-    "pump": "^3.0.0",
     "sdk-base": "^2.0.1",
     "stream-http": "2.8.2",
     "stream-wormhole": "^1.0.4",
