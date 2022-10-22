@@ -5,6 +5,10 @@ const OSS = require('..');
 const store = new OSS(config);
 const interval = new Date().getTime() - 24 * 60 * 60 * 1 * 1000;
 
+function calculateData(bucket) {
+  return parseInt(bucket.split('-').pop());
+}
+
 store.listBuckets().then(r => {
   const bucketList = [];
   r.buckets.forEach(i => {
@@ -30,7 +34,3 @@ store.listBuckets().then(r => {
     });
   }
 });
-
-const calculateData = bucket => {
-  return parseInt(bucket.split('-').pop());
-};

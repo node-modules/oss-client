@@ -8,9 +8,7 @@ const AgentKeepalive = require('agentkeepalive');
 const HttpsAgentKeepalive = require('agentkeepalive').HttpsAgent;
 const utils = require('./utils');
 const oss = require('..');
-const sts = require('..').STS;
 const config = require('./config').oss;
-const stsConfig = require('./config').sts;
 const urllib = require('urllib');
 const copy = require('copy-to');
 const mm = require('mm');
@@ -129,7 +127,9 @@ describe('test/object.test.js', () => {
         const imagepath = path.join(__dirname, 'nodejs-1024x768.png');
         await store.putStream(name, fs.createReadStream(imagepath), { mime: 'image/png' });
         const signUrl = await store.signatureUrl(name, { expires: 3600 });
-        const httpStream = request(signUrl);
+        const { res: httpStream } = await urllib.request(signUrl, {
+          dataType: 'stream',
+        });
         let result = await store.putStream(nameCpy, httpStream);
         assert.equal(result.res.status, 200);
         result = await store.get(nameCpy);
@@ -2315,7 +2315,6 @@ describe('test/object.test.js', () => {
         const params = store.calculatePostSignature(policy);
 
         const options = {
-          url,
           method: 'POST',
           formData: {
             ...params,
@@ -2330,15 +2329,7 @@ describe('test/object.test.js', () => {
           },
         };
 
-        const postFile = () =>
-          new Promise((resolve, reject) => {
-            request(options, (err, res) => {
-              if (err) reject(err);
-              if (res) resolve(res);
-            });
-          });
-
-        const result = await postFile();
+        const result = await urllib.request(url, options);
         assert(result.statusCode === 204);
         const headRes = await store.head(name);
         assert.equal(headRes.status, 200);

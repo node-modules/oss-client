@@ -1455,6 +1455,7 @@ describe('test/bucket.test.js', () => {
           // avoid Qps limit
           do {
             const list = inventoryList.splice(0, 10);
+            // eslint-disable-next-line no-loop-func
             await Promise.all(list.map(_ => store.deleteBucketInventory(bucket, _.id)));
             utils.sleep(400);
           } while (inventoryList.length);
