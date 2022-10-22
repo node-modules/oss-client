@@ -1,4 +1,10 @@
 
+1.0.1 / 2022-10-23
+==================
+
+**fixes**
+  * [[`e7b229f`](http://github.com/node-modules/oss-client/commit/e7b229f839925ff7a8069834b73fe34789e5e00f)] - 🐛 FIX: ClusterClient use class style (fengmk2 <<fengmk2@gmail.com>>)
+
 1.0.0 / 2022-10-23
 ==================
 
