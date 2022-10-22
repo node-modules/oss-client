@@ -13,14 +13,8 @@ Aliyun OSS(Object Storage Service) Node.js Client.
 ## Install
 
 ```bash
-npm install oss-client --save
+npm install oss-client
 ```
-
-## Compatibility
-
-### Node.js
-
-Node.js >= 14.0.0 required.
 
 ## License
 
@@ -36,21 +30,15 @@ All operation use es7 async/await to implement. All api is async function.
 
 - [oss-client](#oss-client)
   - [Install](#install)
-  - [Compatibility](#compatibility)
-    - [Node.js](#nodejs)
   - [License](#license)
 - [OSS Usage](#oss-usage)
   - [Summary](#summary)
-  - [Node Usage](#node-usage)
-    - [Compatibility](#compatibility-1)
+  - [Node.js Usage](#nodejs-usage)
+    - [Compatibility](#compatibility)
     - [Basic usage](#basic-usage)
-  - [Browser Usage](#browser-usage)
-    - [Compatibility](#compatibility-2)
     - [Setup](#setup)
       - [Bucket setup](#bucket-setup)
       - [STS setup](#sts-setup)
-    - [Basic usage](#basic-usage-1)
-    - [How to build](#how-to-build)
   - [Data Regions](#data-regions)
   - [Create Account](#create-account)
   - [Create A Bucket Instance](#create-a-bucket-instance)
@@ -169,21 +157,15 @@ All operation use es7 async/await to implement. All api is async function.
 
 - [oss-client](#oss-client)
   - [Install](#install)
-  - [Compatibility](#compatibility)
-    - [Node.js](#nodejs)
   - [License](#license)
 - [OSS Usage](#oss-usage)
   - [Summary](#summary)
-  - [Node Usage](#node-usage)
-    - [Compatibility](#compatibility-1)
+  - [Node.js Usage](#nodejs-usage)
+    - [Compatibility](#compatibility)
     - [Basic usage](#basic-usage)
-  - [Browser Usage](#browser-usage)
-    - [Compatibility](#compatibility-2)
     - [Setup](#setup)
       - [Bucket setup](#bucket-setup)
       - [STS setup](#sts-setup)
-    - [Basic usage](#basic-usage-1)
-    - [How to build](#how-to-build)
   - [Data Regions](#data-regions)
   - [Create Account](#create-account)
   - [Create A Bucket Instance](#create-a-bucket-instance)
@@ -300,52 +282,31 @@ All operation use es7 async/await to implement. All api is async function.
     - [Put Methods](#put-methods)
   - [Known Errors](#known-errors)
 
-## Node Usage
+## Node.js Usage
 
 ### Compatibility
 
-- Node: >= 8.0.0
+- Node.js: >= 14.0.0
 
 ### Basic usage
 
-1.install SDK using npm
+1. install SDK using npm
 
-```
-npm install ali-oss --save
+```bash
+npm install oss-client
 ```
 
-2.for example:
+2. for example:
 
 ```js
-const OSS = require('ali-oss');
-const store= new OSS({
+const OSSClient = require('oss-client');
+const store = new OSSClient({
   region: '<oss region>',
   accessKeyId: '<Your accessKeyId>',
   accessKeySecret: '<Your accessKeySecret>',
   bucket: '<Your bucket name>'
 });
 ```
-
-## Browser Usage
-
-You can use most of the functionalities of `ali-oss` in browser with
-some exceptions:
-
-- put object with streaming: no chunked encoding, we use multipart
-  upload instead
-- get object to local file: we cannot manipulate file system in
-  browser, we provide signed object url for downloading needs
-- bucket operations(listBuckets, putBucketLogging, etc) will fail: OSS
-  server currently do not support CORS requests for bucket operations
-  (will probably be fixed later)
-
-### Compatibility
-
-- IE >= 10 & Edge
-- Major versions of Chrome/Firefox/Safari
-- Major versions of Android/iOS/WP
-    >Note: Because some browsers do not support promises, you need to introduce promise compatible libraries.<br>
-    For example: IE10 and IE11 need to introduce a promise-polyfill.
 
 ### Setup
 
@@ -364,50 +325,6 @@ your bucket CORS rules to allow CORS operations:
 As we don't want to expose the accessKeyId/accessKeySecret in the
 browser, a [common practice][oss-sts] is to use STS to grant temporary
 access.
-
-### Basic usage
-
-Include the sdk lib in the `<script>` tag and you have `OSS` available
-for creating client.
-
-```html
- // x.x.x The specific version number represented
- // we recommend introducing offline resources, because the usability of online resources depends on the stability of the cdn server.
- <!-- Introducing online resources -->
- <script src="http://gosspublic.alicdn.com/aliyun-oss-sdk-x.x.x.min.js"></script>
- <!-- Introducing offline resources -->
- <script src="./aliyun-oss-sdk-x.x.x.min.js"></script>
-
-<script type="text/javascript">
-  const store = new OSS({
-    region: 'oss-cn-hangzhou',
-    accessKeyId: '<access-key-id>',
-    accessKeySecret: '<access-key-secret>',
-    bucket: '<bucket-name>',
-    stsToken: '<security-token>'
-  });
-
-  store.list().then((result) => {
-    console.log('objects: %j', result.objects);
-    return store.put('my-obj', new OSS.Buffer('hello world'));
-  }).then((result) => {
-    console.log('put result: %j', result);
-    return store.get('my-obj');
-  }).then((result) => {
-    console.log('get result: %j', result.content.toString());
-  });
-</script>
-```
-
-The full sample can be found [here][browser-sample].
-
-### How to build
-
-```bash
-npm run build-dist
-```
-
-And see the build artifacts under `dist/`.
 
 ## Data Regions
 
@@ -460,7 +377,7 @@ example:
 1. basic usage
 
 ```js
-const OSS = require('ali-oss');
+const OSS = require('oss-client');
 
 const store = new OSS({
   accessKeyId: 'your access key',
@@ -476,7 +393,7 @@ const store = new OSS({
 - Accelerate endpoint of regions outside mainland China: oss-accelerate-overseas.aliyuncs.com
 
 ```js
-const OSS = require('ali-oss');
+const OSS = require('oss-client');
 
 const store = new OSS({
   accessKeyId: 'your access key',
@@ -489,7 +406,7 @@ const store = new OSS({
 3. use custom domain
 
 ```js
-const OSS = require('ali-oss');
+const OSS = require('oss-client');
 
 const store = new OSS({
   accessKeyId: 'your access key',
@@ -502,7 +419,7 @@ const store = new OSS({
 4. use STS and refreshSTSToken
 
 ```js
-const OSS = require('ali-oss');
+const OSS = require('oss-client');
 
 const store = new OSS({
   accessKeyId: 'your STS key',
@@ -576,7 +493,6 @@ store.listBuckets({
 }).then((result) => {
   console.log(result);
 });
-
 ```
 
 ### .putBucket(name[, options])
@@ -4203,7 +4119,7 @@ options:
 example:
 
 ```js
-const oss = require('ali-oss');
+const oss = require('oss-client');
 
 const imgClient = oss.ImageClient({
   accessKeyId: 'your access key',
@@ -4592,7 +4508,7 @@ const url = imgClient.signatureUrl('
 Cluster mode now only support object operations.
 
 ```js
-const Cluster = require('ali-oss').ClusterClient;
+const Cluster = require('oss-client').ClusterClient;
 
 const client = Cluster({
   cluster: [{

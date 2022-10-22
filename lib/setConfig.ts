@@ -1,11 +1,6 @@
 import urllib from 'urllib';
-import AgentKeepalive from 'agentkeepalive';
 import { getUserAgent } from './common/utils/getUserAgent';
 import initOptions from './common/client/initOptions';
-
-const HttpsAgentKeepalive = AgentKeepalive.HttpsAgent;
-const globalHttpAgent = new AgentKeepalive();
-const globalHttpsAgent = new HttpsAgentKeepalive();
 
 class Client {
   public options;
@@ -36,8 +31,6 @@ class Client {
       this.urllib = this.options.urllib;
     } else {
       this.urllib = urllib;
-      this.agent = this.options.agent || globalHttpAgent;
-      this.httpsAgent = this.options.httpsAgent || globalHttpsAgent;
     }
     this.ctx = ctx;
     this.userAgent = getUserAgent();

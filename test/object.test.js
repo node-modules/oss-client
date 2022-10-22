@@ -4,8 +4,6 @@ const assert = require('assert');
 const { Readable } = require('stream');
 const ms = require('humanize-ms');
 const { metaSyncTime } = require('./config');
-const AgentKeepalive = require('agentkeepalive');
-const HttpsAgentKeepalive = require('agentkeepalive').HttpsAgent;
 const utils = require('./utils');
 const oss = require('..');
 const config = require('./config').oss;
@@ -1307,10 +1305,6 @@ describe('test/object.test.js', () => {
 
     if (!process.env.ONCI) {
       it('should throw error and consume the response stream', async () => {
-        store.agent = new AgentKeepalive({
-          keepAlive: true,
-        });
-        store.httpsAgent = new HttpsAgentKeepalive();
         try {
           await store.getStream(`${name}not-exists`);
           throw new Error('should not run this');
