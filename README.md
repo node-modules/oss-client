@@ -36,136 +36,7 @@ All operation use es7 async/await to implement. All api is async function.
   - [Node.js Usage](#nodejs-usage)
     - [Compatibility](#compatibility)
     - [Basic usage](#basic-usage)
-    - [Setup](#setup)
-      - [Bucket setup](#bucket-setup)
-      - [STS setup](#sts-setup)
-  - [Data Regions](#data-regions)
-  - [Create Account](#create-account)
-  - [Create A Bucket Instance](#create-a-bucket-instance)
-  - [oss(options)](#ossoptions)
-  - [Bucket Operations](#bucket-operations)
-    - [.listBuckets(query[, options])](#listbucketsquery-options)
-    - [.putBucket(name[, options])](#putbucketname-options)
-    - [.deleteBucket(name[, options])](#deletebucketname-options)
-    - [.useBucket(name)](#usebucketname)
-    - [.getBucketInfo(name)](#getbucketinfoname)
-    - [.getBucketStat(name)](#getbucketstatname)
-    - [.getBucketLocation(name)](#getbucketlocationname)
-    - [.putBucketACL(name, acl[, options])](#putbucketaclname-acl-options)
-    - [.getBucketACL(name[, options])](#getbucketaclname-options)
-    - [.putBucketLogging(name, prefix[, options])](#putbucketloggingname-prefix-options)
-    - [.getBucketLogging(name[, options])](#getbucketloggingname-options)
-    - [.deleteBucketLogging(name[, options])](#deletebucketloggingname-options)
-    - [.putBucketWebsite(name, config[, options])](#putbucketwebsitename-config-options)
-    - [.getBucketWebsite(name[, options])](#getbucketwebsitename-options)
-    - [.deleteBucketWebsite(name[, options])](#deletebucketwebsitename-options)
-    - [.putBucketReferer(name, allowEmpty, referers[, options])](#putbucketreferername-allowempty-referers-options)
-    - [.getBucketReferer(name[, options])](#getbucketreferername-options)
-    - [.deleteBucketReferer(name[, options])](#deletebucketreferername-options)
-    - [.putBucketLifecycle(name, rules[, options])](#putbucketlifecyclename-rules-options)
-    - [.getBucketLifecycle(name[, options])](#getbucketlifecyclename-options)
-    - [.deleteBucketLifecycle(name[, options])](#deletebucketlifecyclename-options)
-    - [.putBucketCORS(name, rules[, options])](#putbucketcorsname-rules-options)
-    - [.getBucketCORS(name[, options])](#getbucketcorsname-options)
-    - [.deleteBucketCORS(name[, options])](#deletebucketcorsname-options)
-    - [.getBucketRequestPayment(bucketName[, options])](#getbucketrequestpaymentbucketname-options)
-    - [.putBucketRequestPayment(bucketName, payer[, options])](#putbucketrequestpaymentbucketname-payer-options)
-    - [.putBucketEncryption(name, rules)](#putbucketencryptionname-rules)
-    - [.getBucketEncryption(name)](#getbucketencryptionname)
-    - [.deleteBucketEncryption(name)](#deletebucketencryptionname)
-    - [.putBucketTags(name, tag[, options])](#putbuckettagsname-tag-options)
-    - [.getBucketTags(name[, options])](#getbuckettagsname-options)
-    - [.deleteBucketTags(name[, options])](#deletebuckettagsname-options)
-    - [.putBucketPolicy(name, policy[, options])](#putbucketpolicyname-policy-options)
-    - [.getBucketPolicy(name[, options])](#getbucketpolicyname-options)
-    - [.deleteBucketPolicy(name[, options])](#deletebucketpolicyname-options)
-    - [.getBucketVersioning(name[, options])](#getbucketversioningname-options)
-    - [.putBucketVersioning(name, status[, options])](#putbucketversioningname-status-options)
-    - [.getBucketInventory(name, inventoryId[, options])](#getbucketinventoryname-inventoryid-options)
-    - [putBucketInventory(name, inventory[, options])](#putbucketinventoryname-inventory-options)
-    - [deleteBucketInventory(name, inventoryId[, options])](#deletebucketinventoryname-inventoryid-options)
-    - [listBucketInventory(name[, options])](#listbucketinventoryname-options)
-    - [.abortBucketWorm(name[, options])](#abortbucketwormname-options)
-    - [.completeBucketWorm(name, wormId[, options])](#completebucketwormname-wormid-options)
-    - [.extendBucketWorm(name, wormId, days[, options])](#extendbucketwormname-wormid-days-options)
-    - [.getBucketWorm(name[, options])](#getbucketwormname-options)
-    - [.initiateBucketWorm(name, days[, options])](#initiatebucketwormname-days-options)
-  - [Object Operations](#object-operations)
-    - [.put(name, file[, options])](#putname-file-options)
-    - [.putStream(name, stream[, options])](#putstreamname-stream-options)
-    - [.append(name, file[, options])](#appendname-file-options)
-    - [.getObjectUrl(name[, baseUrl])](#getobjecturlname-baseurl)
-    - [.generateObjectUrl(name[, baseUrl])](#generateobjecturlname-baseurl)
-    - [.head(name[, options])](#headname-options)
-    - [.getObjectMeta(name[, options])](#getobjectmetaname-options)
-    - [.get(name[, file, options])](#getname-file-options)
-    - [.getStream(name[, options])](#getstreamname-options)
-    - [.delete(name[, options])](#deletename-options)
-    - [.copy(name, sourceName[, sourceBucket, options])](#copyname-sourcename-sourcebucket-options)
-    - [.putMeta(name, meta[, options])](#putmetaname-meta-options)
-    - [.deleteMulti(names[, options])](#deletemultinames-options)
-    - [.list(query[, options])](#listquery-options)
-    - [.listV2(query[, options])](#listv2query-options)
-    - [.getBucketVersions(query[, options])](#getbucketversionsquery-options)
-    - [.signatureUrl(name[, options])](#signatureurlname-options)
-    - [.asyncSignatureUrl(name[, options])](#asyncsignatureurlname-options)
-    - [.putACL(name, acl[, options])](#putaclname-acl-options)
-    - [.getACL(name[, options])](#getaclname-options)
-    - [.restore(name[, options])](#restorename-options)
-    - [.putSymlink(name, targetName[, options])](#putsymlinkname-targetname-options)
-    - [.getSymlink(name[, options])](#getsymlinkname-options)
-    - [.initMultipartUpload(name[, options])](#initmultipartuploadname-options)
-    - [.uploadPart(name, uploadId, partNo, file, start, end[, options])](#uploadpartname-uploadid-partno-file-start-end-options)
-    - [.uploadPartCopy(name, uploadId, partNo, range, sourceData[, options])](#uploadpartcopyname-uploadid-partno-range-sourcedata-options)
-    - [.completeMultipartUpload(name, uploadId, parts[, options])](#completemultipartuploadname-uploadid-parts-options)
-    - [.multipartUpload(name, file[, options])](#multipartuploadname-file-options)
-    - [.multipartUploadCopy(name, sourceData[, options])](#multipartuploadcopyname-sourcedata-options)
-    - [.listParts(name, uploadId[, query, options])](#listpartsname-uploadid-query-options)
-    - [.listUploads(query[, options])](#listuploadsquery-options)
-    - [.abortMultipartUpload(name, uploadId[, options])](#abortmultipartuploadname-uploadid-options)
-    - [.calculatePostSignature(policy)](#calculatepostsignaturepolicy)
-    - [.getObjectTagging(name[, options])](#getobjecttaggingname-options)
-    - [.putObjectTagging(name, tag[, options])](#putobjecttaggingname-tag-options)
-    - [.deleteObjectTagging(name[, options])](#deleteobjecttaggingname-options)
-    - [.processObjectSave(sourceObject, targetObject, process[, targetBucket])](#processobjectsavesourceobject-targetobject-process-targetbucket)
-  - [RTMP Operations](#rtmp-operations)
-    - [.putChannel(id, conf[, options])](#putchannelid-conf-options)
-    - [.getChannel(id[, options])](#getchannelid-options)
-    - [.deleteChannel(id[, options])](#deletechannelid-options)
-    - [.putChannelStatus(id, status[, options])](#putchannelstatusid-status-options)
-    - [.getChannelStatus(id[, options])](#getchannelstatusid-options)
-    - [.listChannels(query[, options])](#listchannelsquery-options)
-    - [.getChannelHistory(id[, options])](#getchannelhistoryid-options)
-    - [.createVod(id, name, time[, options])](#createvodid-name-time-options)
-    - [.getRtmpUrl(channelId[, options])](#getrtmpurlchannelid-options)
-  - [Create A Image Service Instance](#create-a-image-service-instance)
-    - [oss.ImageClient(options)](#ossimageclientoptions)
-  - [Image Operations](#image-operations)
-    - [imgClient.get(name, file[, options])](#imgclientgetname-file-options)
-    - [imgClient.getStream(name[, options])](#imgclientgetstreamname-options)
-    - [imgClient.getExif(name[, options])](#imgclientgetexifname-options)
-    - [imgClient.getInfo(name[, options])](#imgclientgetinfoname-options)
-    - [imgClient.putStyle(name, style[, options])](#imgclientputstylename-style-options)
-    - [imgClient.getStyle(name[, options])](#imgclientgetstylename-options)
-    - [imgClient.listStyle([options])](#imgclientliststyleoptions)
-    - [imgClient.deleteStyle(name[, options])](#imgclientdeletestylename-options)
-    - [imgClient.signatureUrl(name)](#imgclientsignatureurlname)
-  - [Cluster Mode](#cluster-mode)
-    - [Get Methods](#get-methods)
-    - [Put Methods](#put-methods)
-  - [Known Errors](#known-errors)
-
-- [oss-client](#oss-client)
-  - [Install](#install)
-  - [License](#license)
-- [OSS Usage](#oss-usage)
-  - [Summary](#summary)
-  - [Node.js Usage](#nodejs-usage)
-    - [Compatibility](#compatibility)
-    - [Basic usage](#basic-usage)
-    - [Setup](#setup)
-      - [Bucket setup](#bucket-setup)
-      - [STS setup](#sts-setup)
+    - [STS setup](#sts-setup)
   - [Data Regions](#data-regions)
   - [Create Account](#create-account)
   - [Create A Bucket Instance](#create-a-bucket-instance)
@@ -309,19 +180,7 @@ const store = new OSSClient({
 });
 ```
 
-### Setup
-
-#### Bucket setup
-
-As browser-side javascript involves CORS operations. You need to setup
-your bucket CORS rules to allow CORS operations:
-
-- set allowed origins to '\*'
-- allowed methods to 'PUT, GET, POST, DELETE, HEAD'
-- set allowed headers to '\*'
-- expose 'ETag' in expose headers
-
-#### STS setup
+### STS setup
 
 As we don't want to expose the accessKeyId/accessKeySecret in the
 browser, a [common practice][oss-sts] is to use STS to grant temporary
@@ -366,12 +225,7 @@ options:
 - [cname] {Boolean}, default false, access oss with custom domain name. if true, you can fill `endpoint` field with your custom domain name,
 - [isRequestPay] {Boolean}, default false, whether request payer function of the bucket is open, if true, will send headers `'x-oss-request-payer': 'requester'` to oss server.
   the details you can see [requestPay](https://help.aliyun.com/document_detail/91337.htm)
-- [useFetch] {Boolean}, default false, it just work in Browser, if true,it means upload object with
-`fetch` mode ,else `XMLHttpRequest`
-- [enableProxy] {Boolean}, Enable proxy request, default is false.
-- [proxy] {String | Object}, proxy agent uri or options, default is null.
 - [retryMax] {Number}, used by auto retry send request count when request error is net error or timeout.  **_NOTE:_**  Not support `put` with stream, `putStream`, `append` with stream because the stream can only be consumed once
-- [maxSockets] {Number} Maximum number of sockets to allow per host. Default is infinity
 
 example:
 
@@ -1681,7 +1535,7 @@ Add an object to the bucket.
 parameters:
 
 - name {String} object name store on OSS
-- file {String|Buffer|ReadStream|File(only support Browser)|Blob(only support Browser)} object local path, content buffer or ReadStream content instance use in Node, Blob and html5 File
+- file {String|Buffer|ReadStream} object local path, content buffer or ReadStream content instance use in Node, Blob and html5 File
 - [options] {Object} optional parameters
   - [timeout] {Number} the operation timeout
   - [mime] {String} custom mime, will send with `Content-Type` entity header
@@ -1705,7 +1559,6 @@ parameters:
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
     - 'Expires' expires time for download, an absolute date and time. e.g.: `Tue, 08 Dec 2020 13:49:43 GMT`
     - See more: [PutObject](https://help.aliyun.com/document_detail/31978.html#title-yxe-96d-x61)
-  - [disabledMD5] {Boolean} default true, it just work in Browser. if false,it means that MD5 is automatically calculated for uploaded files. **_NOTE:_** Synchronous computing tasks will block the main process
 
 Success will return the object information.
 
@@ -2055,7 +1908,6 @@ parameters:
   - [timeout] {Number} the operation timeout
   - [process] {String} image process params, will send with `x-oss-process`
     e.g.: `{process: 'image/resize,w_200'}`
-  - [responseCacheControl] {String} default `no-cache`, (only support Browser). response-cache-control, will response with HTTP Header `Cache-Control`
   - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
     - 'Range' get specifying range bytes content, e.g.: `Range: bytes=0-9`
     - 'If-Modified-Since' object modified after this time will return 200 and object meta,
@@ -2982,8 +2834,7 @@ parameters:
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
     - 'Expires' expires time for download, an absolute date and time. e.g.: `Tue, 08 Dec 2020 13:49:43 GMT`
     - [x-oss-server-side-encryption]
-    Specify the server-side encryption algorithm used to upload each part of this object,Type: string, Valid value: AES256 `x-oss-server-side-encryption: AES256`<br>
-    if use in browser you should be set cors expose header x-oss-server-side-encryption
+    Specify the server-side encryption algorithm used to upload each part of this object,Type: string, Valid value: AES256 `x-oss-server-side-encryption: AES256`
     - See more: [InitiateMultipartUpload](https://help.aliyun.com/document_detail/31992.html?#title-wh0-a2h-rur)
 
 Success will return:
@@ -3014,9 +2865,8 @@ parameters:
 - name {String} object name
 - uploadId {String} get by initMultipartUpload api
 - partNo {Number} range is 1-10000, If this range is exceeded, OSS returns the InvalidArgument's error code.
-- file {File|String}  is File or FileName, the whole file<br>
- Multipart Upload requires that the size of any Part other than the last Part is greater than 100KB. <br>
- In Node you can use File or FileName, but in browser you only can use File.
+- file {String}  is FileName, the whole file<br>
+ Multipart Upload requires that the size of any Part other than the last Part is greater than 100KB.
 - start {Number} part start bytes  e.g: 102400
 - end {Number} part end bytes  e.g: 204800
 - [options] {Object} optional parameters
@@ -3220,7 +3070,7 @@ or give tips in your business code;
 parameters:
 
 - name {String} object name
-- file {String|File(only support Browser)|Blob(only support Browser)|Buffer} file path or HTML5 Web File or web Blob or content buffer
+- file {String)|Buffer} file path or content buffer
 - [options] {Object} optional args
   - [parallel] {Number} the number of parts to be uploaded in parallel
   - [partSize] {Number} the suggested size for each part, defalut `1024 * 1024`(1MB), minimum `100 * 1024`(100KB)
@@ -3257,9 +3107,7 @@ parameters:
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
     - 'Expires' expires time for download, an absolute date and time. e.g.: `Tue, 08 Dec 2020 13:49:43 GMT`
-    - **NOTE**: Some headers are [disabled in browser][disabled-browser-headers]
   - [timeout] {Number} Milliseconds before a request is considered to be timed out
-  - [disabledMD5] {Boolean} default true, it just work in Browser. if false,it means that MD5 is automatically calculated for uploaded files. **_NOTE:_** Synchronous computing tasks will block the main process
 
 Success will return:
 
@@ -3334,8 +3182,6 @@ const result2 = await store.multipartUpload('object', '/tmp/file', {
 
 - multipartUpload with abort
 
->tips: abort multipartUpload support on node and browser
-
 ```js
 
 //start upload
@@ -3360,8 +3206,6 @@ store.abortMultipartUpload(abortCheckpoint.name, abortCheckpoint.uploadId)
 ```
 
 - multipartUpload with cancel
-
->tips: cancel multipartUpload support on node and browser
 
 ```js
 
@@ -3437,7 +3281,6 @@ parameters:
     - 'Content-Disposition' object name for download, e.g.: `Content-Disposition: somename`
     - 'Content-Encoding' object content encoding for download, e.g.: `Content-Encoding: gzip`
     - 'Expires' expires time for download, an absolute date and time. e.g.: `Tue, 08 Dec 2020 13:49:43 GMT`
-    - **NOTE**: Some headers are [disabled in browser][disabled-browser-headers]
   - [copyheaders] {Object} only uploadPartCopy api used, detail [see](https://www.alibabacloud.com/help/doc-detail/31994.htm)
     - [x-oss-copy-source-if-match]  only uploadPartCopy api used, default none<br>
     If the ETAG value of the source object is equal to the ETAG value provided by the user, the system performs the Copy Object operation; otherwise, the system returns the 412 Precondition Failed message.
@@ -4624,6 +4467,4 @@ ConnectionTimeoutError | ConnectionTimeoutError | -2 | request connect timeout |
 SecurityTokenExpiredError | SecurityTokenExpired | 403 | sts Security Token Expired | sts Security Token 超时失效
 
 [oss-sts]: https://help.aliyun.com/document_detail/oss/practice/ram_guide.html
-[browser-sample]: https://github.com/rockuw/oss-in-browser
 [oss-multipart]: https://help.aliyun.com/document_detail/31992.html
-[disabled-browser-headers]: https://www.w3.org/TR/XMLHttpRequest/#the-setrequestheader%28%29-method
