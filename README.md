@@ -232,9 +232,9 @@ example:
 1. basic usage
 
 ```js
-const OSS = require('oss-client');
+const { Client } = require('oss-client');
 
-const store = new OSS({
+const store = new Client({
   accessKeyId: 'your access key',
   accessKeySecret: 'your access secret',
   bucket: 'your bucket name',
@@ -248,9 +248,9 @@ const store = new OSS({
 - Accelerate endpoint of regions outside mainland China: oss-accelerate-overseas.aliyuncs.com
 
 ```js
-const OSS = require('oss-client');
+const { Client } = require('oss-client');
 
-const store = new OSS({
+const store = new Client({
   accessKeyId: 'your access key',
   accessKeySecret: 'your access secret',
   bucket: 'your bucket name',
@@ -261,9 +261,9 @@ const store = new OSS({
 3. use custom domain
 
 ```js
-const OSS = require('oss-client');
+const { Client } = require('oss-client');
 
-const store = new OSS({
+const store = new Client({
   accessKeyId: 'your access key',
   accessKeySecret: 'your access secret',
   cname: true,
@@ -274,9 +274,9 @@ const store = new OSS({
 4. use STS and refreshSTSToken
 
 ```js
-const OSS = require('oss-client');
+const { Client } = require('oss-client');
 
-const store = new OSS({
+const store = new Client({
   accessKeyId: 'your STS key',
   accessKeySecret: 'your STS secret',
   stsToken: 'your STS token',
@@ -3963,7 +3963,7 @@ options:
 example:
 
 ```js
-const oss = require('oss-client');
+const { Client } = require('oss-client');
 
 const imgClient = oss.ImageClient({
   accessKeyId: 'your access key',
