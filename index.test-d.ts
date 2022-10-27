@@ -63,6 +63,8 @@ class SimpleClient implements IObjectSimple {
 
 const simpleClient = new SimpleClient();
 expectType<Promise<GetObjectResult>>(simpleClient.get('foo'));
+expectType<Promise<GetObjectResult>>(simpleClient.get('foo', { timeout: 10 }));
+expectType<Promise<GetObjectResult>>(simpleClient.get('foo', 'file.path'));
 
 const ossClient = {} as Client;
 expectType<Promise<GetObjectResult>>(ossClient.get('foo'));
