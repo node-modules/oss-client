@@ -16,6 +16,9 @@ import {
   GetStreamResult,
   CopyObjectOptions,
   CopyAndPutMetaResult,
+  Client,
+  ImageClient,
+  ClusterClient,
 } from '.';
 
 const getObjectOptions = {} as GetObjectOptions;
@@ -60,3 +63,12 @@ class SimpleClient implements IObjectSimple {
 
 const simpleClient = new SimpleClient();
 expectType<Promise<GetObjectResult>>(simpleClient.get('foo'));
+
+const ossClient = {} as Client;
+expectType<Promise<GetObjectResult>>(ossClient.get('foo'));
+
+const clusterClient = {} as ClusterClient;
+expectType<Promise<GetObjectResult>>(clusterClient.get('foo'));
+
+const imageClient = {} as ImageClient;
+expectType<Promise<{ content: any; res: NormalSuccessResponse }>>(imageClient.get('foo'));
