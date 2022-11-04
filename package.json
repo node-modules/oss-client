@@ -10,9 +10,9 @@
   ],
   "scripts": {
     "lint": "eslint lib test",
-    "test": "egg-bin test --full-trace",
+    "test": "egg-bin test --full-trace --parallel",
     "tsd": "tsd",
-    "cov": "egg-bin cov --full-trace",
+    "cov": "egg-bin cov --full-trace --parallel",
     "ci": "npm run lint && npm run tsd && npm run cov"
   },
   "repository": {
@@ -51,7 +51,7 @@
   "devDependencies": {
     "@eggjs/tsconfig": "^1.1.0",
     "@types/node": "^18.11.6",
-    "egg-bin": "^5.2.0",
+    "egg-bin": "^5.3.1",
     "eslint": "^8.25.0",
     "eslint-config-egg": "^12.1.0",
     "mm": "^3.2.0",
