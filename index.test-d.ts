@@ -66,7 +66,6 @@ expectType<Promise<GetObjectResult>>(simpleClient.get('foo'));
 expectType<Promise<GetObjectResult>>(simpleClient.get('foo', { timeout: 10 }));
 expectType<Promise<GetObjectResult>>(simpleClient.get('foo', 'file.path'));
 
-
 const ossClient = {} as Client;
 expectType<Promise<GetObjectResult>>(ossClient.get('foo'));
 expectType<Promise<ListObjectResult>>(ossClient.list({ 'max-keys': 100 }));
