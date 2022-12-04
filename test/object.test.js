@@ -266,6 +266,36 @@ describe('test/object.test.js', () => {
       assert.equal(object.name, name);
     });
 
+    it('should with options.ctx', async () => {
+      const name = `${prefix}oss-client/oss/put-localfile-options-ctx.js`;
+      let ctx = {
+        httpclient: {},
+      };
+      await assert.rejects(async () => {
+        await store.put(name, __filename, { ctx })
+      }, err => {
+        assert(err.message.includes('raw error: TypeError: urllib.request is not a function'));
+        return true;
+      });
+      ctx = {
+        httpclient: urllib,
+      };
+      let object = await store.put(name, __filename, { ctx });
+      assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
+      assert.equal(typeof object.res.rt, 'number');
+      assert.equal(object.res.size, 0);
+      assert.equal(object.name, name);
+
+      ctx = {
+        urllib,
+      };
+      object = await store.put(name, __filename, { ctx });
+      assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
+      assert.equal(typeof object.res.rt, 'number');
+      assert.equal(object.res.size, 0);
+      assert.equal(object.name, name);
+    });
+
     it('should add object with content buffer', async () => {
       const name = `${prefix}oss-client/oss/put-buffer`;
       const object = await store.put(`/${name}`, Buffer.from('foo content'));

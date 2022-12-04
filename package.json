@@ -11,6 +11,7 @@
   "scripts": {
     "lint": "eslint lib test",
     "test": "egg-bin test --full-trace --parallel",
+    "test-local": "egg-bin test --full-trace",
     "tsd": "tsd",
     "cov": "egg-bin cov --full-trace --parallel",
     "ci": "npm run lint && npm run tsd && npm run cov"
@@ -51,7 +52,7 @@
   },
   "devDependencies": {
     "@eggjs/tsconfig": "^1.1.0",
-    "@types/node": "^18.11.6",
+    "@types/node": "^14.18.34",
     "egg-bin": "^5.3.1",
     "eslint": "^8.25.0",
     "eslint-config-egg": "^12.1.0",
