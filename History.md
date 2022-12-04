@@ -1,4 +1,10 @@
 
+1.2.1 / 2022-12-04
+==================
+
+**fixes**
+  * [[`cc2cc06`](http://github.com/node-modules/oss-client/commit/cc2cc065ede44d5d40120b4877dfa85e25cd0199)] - 🐛 FIX: object.list type define (#7) (fengmk2 <<fengmk2@gmail.com>>)
+
 1.2.0 / 2022-12-04
 ==================
 
