@@ -272,7 +272,7 @@ describe('test/object.test.js', () => {
         httpclient: {},
       };
       await assert.rejects(async () => {
-        await store.put(name, __filename, { ctx })
+        await store.put(name, __filename, { ctx });
       }, err => {
         assert(err.message.includes('raw error: TypeError: urllib.request is not a function'));
         return true;
