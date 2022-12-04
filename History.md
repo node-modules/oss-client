@@ -1,4 +1,10 @@
 
+1.2.0 / 2022-12-04
+==================
+
+**features**
+  * [[`a9ad395`](http://github.com/node-modules/oss-client/commit/a9ad39539889f083e0d7671ca19ecc1b263eed74)] - 📦 NEW: Try to use ctx.httpclient first (#6) (fengmk2 <<fengmk2@gmail.com>>)
+
 1.1.1 / 2022-12-04
 ==================
 
