@@ -1,4 +1,13 @@
 
+1.1.1 / 2022-12-04
+==================
+
+**fixes**
+  * [[`38cebaa`](http://github.com/node-modules/oss-client/commit/38cebaa9f5868d67530cc34ef3cdb4023b9d3a1f)] - 🐛 FIX: Should add oss-interface to dependencies (#5) (fengmk2 <<fengmk2@gmail.com>>)
+
+**others**
+  * [[`301b0a2`](http://github.com/node-modules/oss-client/commit/301b0a2a3fa9af2ce85e093747f59c8f677dded1)] - 🤖 TEST: Test enable parallel (#4) (fengmk2 <<fengmk2@gmail.com>>)
+
 1.1.0 / 2022-10-27
 ==================
 
