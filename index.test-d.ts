@@ -68,6 +68,7 @@ expectType<Promise<GetObjectResult>>(simpleClient.get('foo', 'file.path'));
 
 const ossClient = {} as Client;
 expectType<Promise<GetObjectResult>>(ossClient.get('foo'));
+expectType<Promise<ListObjectResult>>(ossClient.list({ 'max-keys': 100 }));
 
 const clusterClient = {} as ClusterClient;
 expectType<Promise<GetObjectResult>>(clusterClient.get('foo'));

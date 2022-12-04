@@ -842,7 +842,7 @@ export class Client implements IObjectSimple {
   /**
    * List objects in the bucket.
    */
-  list(query: ListObjectsQuery | null, options: RequestOptions): Promise<ListObjectResult>;
+  list(query: ListObjectsQuery | null, options?: RequestOptions): Promise<ListObjectResult>;
 
   /**
    * Add an object to the bucket.
