@@ -42,6 +42,7 @@
     "jstoxml": "^2.0.0",
     "merge-descriptors": "^1.0.1",
     "mime": "^2.4.5",
+    "oss-interface": "^1.0.1",
     "sdk-base": "^3.6.0",
     "stream-wormhole": "^1.0.4",
     "urllib": "^3.3.1",
@@ -55,7 +56,6 @@
     "eslint": "^8.25.0",
     "eslint-config-egg": "^12.1.0",
     "mm": "^3.2.0",
-    "oss-interface": "^1.0.1",
     "sinon": "^1.17.7",
     "tsd": "^0.24.1",
     "typescript": "^4.8.4"
