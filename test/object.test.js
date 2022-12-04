@@ -313,6 +313,28 @@ describe('test/object.test.js', () => {
       assert.equal(object.name, name);
     });
 
+    it('should add object with Readable', async () => {
+      const name = `${prefix}oss-client/oss/put-Readable`;
+      async function* generate() {
+        yield 'Hello, ';
+        yield '你好 OSS';
+      }
+      // Using stream.Readable.from() method
+      const readable = Readable.from(generate());
+      const object = await store.put(name, readable, {
+        headers: {
+          'content-length': Buffer.byteLength('Hello, 你好 OSS', 'utf-8'),
+        },
+      });
+      assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
+      assert.equal(typeof object.res.rt, 'number');
+      assert.equal(typeof object.res.headers.etag, 'string');
+      assert.equal(object.name, name);
+      const result = await store.get(name);
+      console.log(result.content.toString());
+      assert.equal(result.content.toString(), 'Hello, 你好 OSS');
+    });
+
     it('should add object with meta', async () => {
       const name = `${prefix}oss-client/oss/put-meta.js`;
       const object = await store.put(name, __filename, {
