@@ -1,4 +1,10 @@
 
+1.2.2 / 2022-12-09
+==================
+
+**fixes**
+  * [[`fc2fb8f`](http://github.com/node-modules/oss-client/commit/fc2fb8f9d1b23d355cc8cf12f46d1df6182c6f6f)] - 🐛 FIX: try to use result code first (fengmk2 <<fengmk2@gmail.com>>)
+
 1.2.1 / 2022-12-04
 ==================
 
