@@ -3,6 +3,7 @@ import { Writable, Readable } from 'stream';
 import {
   GetObjectOptions,
   IObjectSimple,
+  SignatureUrlOptions,
   ListObjectsQuery,
   RequestOptions,
   ListObjectResult,
@@ -58,6 +59,11 @@ class SimpleClient implements IObjectSimple {
   async copy(name: string, sourceName: string, sourceBucket?: string | CopyObjectOptions, options?: CopyObjectOptions): Promise<CopyAndPutMetaResult> {
     console.log(name, sourceName, sourceBucket, options);
     return {} as any;
+  }
+
+  async asyncSignatureUrl(name: string, options?: SignatureUrlOptions) {
+    console.log(name, options);
+    return '';
   }
 }
 
