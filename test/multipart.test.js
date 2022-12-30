@@ -415,6 +415,10 @@ describe('test/multipart.test.js', () => {
 
       const result = await store.completeMultipartUpload(name, uploadId, dones);
       assert.equal(result.res.status, 200);
+      assert(result.data.Location.startsWith('https://'));
+      assert.equal(typeof result.data.Bucket, 'string');
+      assert.equal(result.data.Key, name);
+      assert.equal(typeof result.data.ETag, 'string');
     });
 
     it('should upload partSize be int number and greater then minPartSize', async () => {
