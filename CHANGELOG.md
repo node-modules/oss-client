@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.5](https://github.com/node-modules/oss-client/compare/v1.2.4...v1.2.5) (2023-01-08)
+
+
+### Bug Fixes
+
+* allow Uint8Array to put file ([#10](https://github.com/node-modules/oss-client/issues/10)) ([81af059](https://github.com/node-modules/oss-client/commit/81af059bcce52d54a8fa712ca6ca99a1dcc4aef6))
+
 ## [1.2.4](https://github.com/node-modules/oss-client/compare/v1.2.3...v1.2.4) (2022-12-30)
 
 
