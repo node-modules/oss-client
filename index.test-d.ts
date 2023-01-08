@@ -30,7 +30,7 @@ class SimpleClient implements IObjectSimple {
     console.log(query, options);
     return {} as any;
   }
-  async put(name: string, file: string | Buffer | Readable, options?: PutObjectOptions): Promise<PutObjectResult> {
+  async put(name: string, file: string | Buffer | Uint8Array | Readable, options?: PutObjectOptions): Promise<PutObjectResult> {
     console.log(name, file, options);
     return {} as any;
   }
@@ -81,3 +81,6 @@ expectType<Promise<GetObjectResult>>(clusterClient.get('foo'));
 
 const imageClient = {} as ImageClient;
 expectType<Promise<{ content: any; res: NormalSuccessResponse }>>(imageClient.get('foo'));
+
+const bytes = {} as Uint8Array;
+expectType<Promise<PutObjectResult>>(simpleClient.put('foo', bytes));

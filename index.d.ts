@@ -847,7 +847,7 @@ export class Client implements IObjectSimple {
   /**
    * Add an object to the bucket.
    */
-  put(name: string, file: string | Buffer | Readable, options?: PutObjectOptions): Promise<PutObjectResult>;
+  put(name: string, file: string | Buffer | Uint8Array | Readable, options?: PutObjectOptions): Promise<PutObjectResult>;
 
   /**
    * Add a stream object to the bucket.
