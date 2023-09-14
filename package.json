@@ -10,10 +10,10 @@
   ],
   "scripts": {
     "lint": "eslint lib test",
-    "test": "egg-bin test --full-trace --parallel",
-    "test-local": "egg-bin test --full-trace",
+    "test": "egg-bin test --parallel --ts false",
+    "test-local": "egg-bin test --ts false",
     "tsd": "tsd",
-    "cov": "egg-bin cov --full-trace --parallel",
+    "cov": "egg-bin cov --parallel --ts false",
     "ci": "npm run lint && npm run tsd && npm run cov"
   },
   "repository": {
@@ -31,7 +31,7 @@
     "url": "https://github.com/node-modules/oss-client/issues"
   },
   "engines": {
-    "node": ">= 14.17.0"
+    "node": ">= 14.18.0"
   },
   "homepage": "https://github.com/node-modules/oss-client",
   "dependencies": {
@@ -46,19 +46,19 @@
     "oss-interface": "^1.0.1",
     "sdk-base": "^3.6.0",
     "stream-wormhole": "^1.0.4",
-    "urllib": "^3.3.1",
+    "urllib": "^3.18.1",
     "utility": "^1.8.0",
     "xml2js": "^0.4.16"
   },
   "devDependencies": {
     "@eggjs/tsconfig": "^1.1.0",
-    "@types/node": "^14.18.34",
-    "egg-bin": "^5.3.1",
+    "@types/node": "^20.3.1",
+    "egg-bin": "^6.4.1",
     "eslint": "^8.25.0",
     "eslint-config-egg": "^12.1.0",
     "mm": "^3.2.0",
     "sinon": "^1.17.7",
-    "tsd": "^0.24.1",
-    "typescript": "^4.8.4"
+    "tsd": "^0.28.1",
+    "typescript": "^5.1.3"
   }
 }

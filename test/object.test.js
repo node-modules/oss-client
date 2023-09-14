@@ -331,7 +331,6 @@ describe('test/object.test.js', () => {
       assert.equal(typeof object.res.headers.etag, 'string');
       assert.equal(object.name, name);
       const result = await store.get(name);
-      console.log(result.content.toString());
       assert.equal(result.content.toString(), 'Hello, 你好 OSS');
     });
 
