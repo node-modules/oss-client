@@ -2268,7 +2268,7 @@ describe('test/object.test.js', () => {
   });
 
   describe('getObjectTagging() putObjectTagging() deleteObjectTagging()', () => {
-    const name = '/oss/tagging.js';
+    const name = `${prefix}oss/tagging.js`;
 
     before(async () => {
       await store.put(name, __filename);

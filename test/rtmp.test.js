@@ -1,6 +1,5 @@
 const assert = require('assert');
 const utils = require('./utils');
-const is = require('is-type-of');
 const oss = require('..');
 const config = require('./config').oss;
 
@@ -41,9 +40,9 @@ describe.skip('test/rtmp.test.js', () => {
 
       let result = await store.putChannel(tempCid, tempConf);
       assert.equal(result.res.status, 200);
-      assert(is.array(result.publishUrls));
+      assert(Array.isArray(result.publishUrls));
       assert(result.publishUrls.length > 0);
-      assert(is.array(result.playUrls));
+      assert(Array.isArray(result.playUrls));
       assert(result.playUrls.length > 0);
 
       result = await store.getChannel(tempCid);
@@ -144,7 +143,7 @@ describe.skip('test/rtmp.test.js', () => {
       const result = await store.getChannelHistory(historyCid);
 
       assert.equal(result.res.status, 200);
-      assert(is.array(result.records));
+      assert(Array.isArray(result.records));
       assert.equal(result.records.length, 0);
 
       // TODO: verify LiveRecord when history exists
