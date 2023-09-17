@@ -1,25 +1,24 @@
 import type { Readable, Writable } from 'node:stream';
+import type { IncomingHttpHeaders } from 'node:http';
 import { ListObjectsQuery } from 'oss-interface';
 
 export type RequestParameters = string | string[] | Record<string, string | number>;
 export type RequestQuery = Record<string, string> | ListObjectsQuery;
-export type RequestHeaders = Record<string, string>;
-export type RequestMeta = Record<string, string>;
 export type RequestMethod = 'GET' | 'HEAD' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
 export interface Request {
-  headers: RequestHeaders;
+  headers: IncomingHttpHeaders;
   parameters?: RequestParameters;
 }
 
 export interface OSSRequestParams {
   method: RequestMethod;
-  headers?: RequestHeaders;
+  headers?: IncomingHttpHeaders;
   bucket?: string;
   object?: string;
   query?: RequestQuery;
   mime?: string;
-  content?: string;
+  content?: Buffer;
   disabledMD5?: boolean;
   stream?: Readable;
   writeStream?: Writable;

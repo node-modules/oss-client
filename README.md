@@ -42,116 +42,117 @@ All operation use es7 async/await to implement. All api is async function.
   - [Create A Bucket Instance](#create-a-bucket-instance)
   - [oss(options)](#ossoptions)
   - [Bucket Operations](#bucket-operations)
-    - [.listBuckets(query[, options])](#listbucketsquery-options)
-    - [.putBucket(name[, options])](#putbucketname-options)
-    - [.deleteBucket(name[, options])](#deletebucketname-options)
+    - [.listBuckets(query\[, options\])](#listbucketsquery-options)
+    - [.putBucket(name\[, options\])](#putbucketname-options)
+    - [.deleteBucket(name\[, options\])](#deletebucketname-options)
     - [.useBucket(name)](#usebucketname)
     - [.getBucketInfo(name)](#getbucketinfoname)
     - [.getBucketStat(name)](#getbucketstatname)
     - [.getBucketLocation(name)](#getbucketlocationname)
-    - [.putBucketACL(name, acl[, options])](#putbucketaclname-acl-options)
-    - [.getBucketACL(name[, options])](#getbucketaclname-options)
-    - [.putBucketLogging(name, prefix[, options])](#putbucketloggingname-prefix-options)
-    - [.getBucketLogging(name[, options])](#getbucketloggingname-options)
-    - [.deleteBucketLogging(name[, options])](#deletebucketloggingname-options)
-    - [.putBucketWebsite(name, config[, options])](#putbucketwebsitename-config-options)
-    - [.getBucketWebsite(name[, options])](#getbucketwebsitename-options)
-    - [.deleteBucketWebsite(name[, options])](#deletebucketwebsitename-options)
-    - [.putBucketReferer(name, allowEmpty, referers[, options])](#putbucketreferername-allowempty-referers-options)
-    - [.getBucketReferer(name[, options])](#getbucketreferername-options)
-    - [.deleteBucketReferer(name[, options])](#deletebucketreferername-options)
-    - [.putBucketLifecycle(name, rules[, options])](#putbucketlifecyclename-rules-options)
-    - [.getBucketLifecycle(name[, options])](#getbucketlifecyclename-options)
-    - [.deleteBucketLifecycle(name[, options])](#deletebucketlifecyclename-options)
-    - [.putBucketCORS(name, rules[, options])](#putbucketcorsname-rules-options)
-    - [.getBucketCORS(name[, options])](#getbucketcorsname-options)
-    - [.deleteBucketCORS(name[, options])](#deletebucketcorsname-options)
-    - [.getBucketRequestPayment(bucketName[, options])](#getbucketrequestpaymentbucketname-options)
-    - [.putBucketRequestPayment(bucketName, payer[, options])](#putbucketrequestpaymentbucketname-payer-options)
+    - [.putBucketACL(name, acl\[, options\])](#putbucketaclname-acl-options)
+    - [.getBucketACL(name\[, options\])](#getbucketaclname-options)
+    - [.putBucketLogging(name, prefix\[, options\])](#putbucketloggingname-prefix-options)
+    - [.getBucketLogging(name\[, options\])](#getbucketloggingname-options)
+    - [.deleteBucketLogging(name\[, options\])](#deletebucketloggingname-options)
+    - [.putBucketWebsite(name, config\[, options\])](#putbucketwebsitename-config-options)
+    - [.getBucketWebsite(name\[, options\])](#getbucketwebsitename-options)
+    - [.deleteBucketWebsite(name\[, options\])](#deletebucketwebsitename-options)
+    - [.putBucketReferer(name, allowEmpty, referers\[, options\])](#putbucketreferername-allowempty-referers-options)
+    - [.getBucketReferer(name\[, options\])](#getbucketreferername-options)
+    - [.deleteBucketReferer(name\[, options\])](#deletebucketreferername-options)
+    - [.putBucketLifecycle(name, rules\[, options\])](#putbucketlifecyclename-rules-options)
+    - [.getBucketLifecycle(name\[, options\])](#getbucketlifecyclename-options)
+    - [.deleteBucketLifecycle(name\[, options\])](#deletebucketlifecyclename-options)
+    - [.putBucketCORS(name, rules\[, options\])](#putbucketcorsname-rules-options)
+    - [.getBucketCORS(name\[, options\])](#getbucketcorsname-options)
+    - [.deleteBucketCORS(name\[, options\])](#deletebucketcorsname-options)
+    - [.getBucketRequestPayment(bucketName\[, options\])](#getbucketrequestpaymentbucketname-options)
+    - [.putBucketRequestPayment(bucketName, payer\[, options\])](#putbucketrequestpaymentbucketname-payer-options)
     - [.putBucketEncryption(name, rules)](#putbucketencryptionname-rules)
     - [.getBucketEncryption(name)](#getbucketencryptionname)
     - [.deleteBucketEncryption(name)](#deletebucketencryptionname)
-    - [.putBucketTags(name, tag[, options])](#putbuckettagsname-tag-options)
-    - [.getBucketTags(name[, options])](#getbuckettagsname-options)
-    - [.deleteBucketTags(name[, options])](#deletebuckettagsname-options)
-    - [.putBucketPolicy(name, policy[, options])](#putbucketpolicyname-policy-options)
-    - [.getBucketPolicy(name[, options])](#getbucketpolicyname-options)
-    - [.deleteBucketPolicy(name[, options])](#deletebucketpolicyname-options)
-    - [.getBucketVersioning(name[, options])](#getbucketversioningname-options)
-    - [.putBucketVersioning(name, status[, options])](#putbucketversioningname-status-options)
-    - [.getBucketInventory(name, inventoryId[, options])](#getbucketinventoryname-inventoryid-options)
-    - [putBucketInventory(name, inventory[, options])](#putbucketinventoryname-inventory-options)
-    - [deleteBucketInventory(name, inventoryId[, options])](#deletebucketinventoryname-inventoryid-options)
-    - [listBucketInventory(name[, options])](#listbucketinventoryname-options)
-    - [.abortBucketWorm(name[, options])](#abortbucketwormname-options)
-    - [.completeBucketWorm(name, wormId[, options])](#completebucketwormname-wormid-options)
-    - [.extendBucketWorm(name, wormId, days[, options])](#extendbucketwormname-wormid-days-options)
-    - [.getBucketWorm(name[, options])](#getbucketwormname-options)
-    - [.initiateBucketWorm(name, days[, options])](#initiatebucketwormname-days-options)
+    - [.putBucketTags(name, tag\[, options\])](#putbuckettagsname-tag-options)
+    - [.getBucketTags(name\[, options\])](#getbuckettagsname-options)
+    - [.deleteBucketTags(name\[, options\])](#deletebuckettagsname-options)
+    - [.putBucketPolicy(name, policy\[, options\])](#putbucketpolicyname-policy-options)
+    - [.getBucketPolicy(name\[, options\])](#getbucketpolicyname-options)
+    - [.deleteBucketPolicy(name\[, options\])](#deletebucketpolicyname-options)
+    - [.getBucketVersioning(name\[, options\])](#getbucketversioningname-options)
+    - [.putBucketVersioning(name, status\[, options\])](#putbucketversioningname-status-options)
+    - [.getBucketInventory(name, inventoryId\[, options\])](#getbucketinventoryname-inventoryid-options)
+    - [putBucketInventory(name, inventory\[, options\])](#putbucketinventoryname-inventory-options)
+    - [deleteBucketInventory(name, inventoryId\[, options\])](#deletebucketinventoryname-inventoryid-options)
+    - [listBucketInventory(name\[, options\])](#listbucketinventoryname-options)
+    - [.abortBucketWorm(name\[, options\])](#abortbucketwormname-options)
+    - [.completeBucketWorm(name, wormId\[, options\])](#completebucketwormname-wormid-options)
+    - [.extendBucketWorm(name, wormId, days\[, options\])](#extendbucketwormname-wormid-days-options)
+    - [.getBucketWorm(name\[, options\])](#getbucketwormname-options)
+    - [.initiateBucketWorm(name, days\[, options\])](#initiatebucketwormname-days-options)
   - [Object Operations](#object-operations)
-    - [.put(name, file[, options])](#putname-file-options)
-    - [.putStream(name, stream[, options])](#putstreamname-stream-options)
-    - [.append(name, file[, options])](#appendname-file-options)
-    - [.getObjectUrl(name[, baseUrl])](#getobjecturlname-baseurl)
-    - [.generateObjectUrl(name[, baseUrl])](#generateobjecturlname-baseurl)
-    - [.head(name[, options])](#headname-options)
-    - [.getObjectMeta(name[, options])](#getobjectmetaname-options)
-    - [.get(name[, file, options])](#getname-file-options)
-    - [.getStream(name[, options])](#getstreamname-options)
-    - [.delete(name[, options])](#deletename-options)
-    - [.copy(name, sourceName[, sourceBucket, options])](#copyname-sourcename-sourcebucket-options)
-    - [.putMeta(name, meta[, options])](#putmetaname-meta-options)
-    - [.deleteMulti(names[, options])](#deletemultinames-options)
-    - [.list(query[, options])](#listquery-options)
-    - [.listV2(query[, options])](#listv2query-options)
-    - [.getBucketVersions(query[, options])](#getbucketversionsquery-options)
-    - [.signatureUrl(name[, options])](#signatureurlname-options)
-    - [.asyncSignatureUrl(name[, options])](#asyncsignatureurlname-options)
-    - [.putACL(name, acl[, options])](#putaclname-acl-options)
-    - [.getACL(name[, options])](#getaclname-options)
-    - [.restore(name[, options])](#restorename-options)
-    - [.putSymlink(name, targetName[, options])](#putsymlinkname-targetname-options)
-    - [.getSymlink(name[, options])](#getsymlinkname-options)
-    - [.initMultipartUpload(name[, options])](#initmultipartuploadname-options)
-    - [.uploadPart(name, uploadId, partNo, file, start, end[, options])](#uploadpartname-uploadid-partno-file-start-end-options)
-    - [.uploadPartCopy(name, uploadId, partNo, range, sourceData[, options])](#uploadpartcopyname-uploadid-partno-range-sourcedata-options)
-    - [.completeMultipartUpload(name, uploadId, parts[, options])](#completemultipartuploadname-uploadid-parts-options)
-    - [.multipartUpload(name, file[, options])](#multipartuploadname-file-options)
-    - [.multipartUploadCopy(name, sourceData[, options])](#multipartuploadcopyname-sourcedata-options)
-    - [.listParts(name, uploadId[, query, options])](#listpartsname-uploadid-query-options)
-    - [.listUploads(query[, options])](#listuploadsquery-options)
-    - [.abortMultipartUpload(name, uploadId[, options])](#abortmultipartuploadname-uploadid-options)
+    - [.put(name, file\[, options\])](#putname-file-options)
+    - [.putStream(name, stream\[, options\])](#putstreamname-stream-options)
+    - [.append(name, file\[, options\])](#appendname-file-options)
+    - [.getObjectUrl(name\[, baseUrl\])](#getobjecturlname-baseurl)
+    - [.generateObjectUrl(name\[, baseUrl\])](#generateobjecturlname-baseurl)
+    - [.head(name\[, options\])](#headname-options)
+    - [.getObjectMeta(name\[, options\])](#getobjectmetaname-options)
+    - [.get(name\[, file, options\])](#getname-file-options)
+    - [.getStream(name\[, options\])](#getstreamname-options)
+    - [.delete(name\[, options\])](#deletename-options)
+    - [.copy(name, sourceName\[, sourceBucket, options\])](#copyname-sourcename-sourcebucket-options)
+    - [.putMeta(name, meta\[, options\])](#putmetaname-meta-options)
+    - [.deleteMulti(names\[, options\])](#deletemultinames-options)
+    - [.list(query\[, options\])](#listquery-options)
+    - [.listV2(query\[, options\])](#listv2query-options)
+    - [.getBucketVersions(query\[, options\])](#getbucketversionsquery-options)
+    - [.signatureUrl(name\[, options\])](#signatureurlname-options)
+    - [.asyncSignatureUrl(name\[, options\])](#asyncsignatureurlname-options)
+    - [.putACL(name, acl\[, options\])](#putaclname-acl-options)
+    - [.getACL(name\[, options\])](#getaclname-options)
+    - [.restore(name\[, options\])](#restorename-options)
+    - [.putSymlink(name, targetName\[, options\])](#putsymlinkname-targetname-options)
+    - [.getSymlink(name\[, options\])](#getsymlinkname-options)
+    - [.initMultipartUpload(name\[, options\])](#initmultipartuploadname-options)
+    - [.uploadPart(name, uploadId, partNo, file, start, end\[, options\])](#uploadpartname-uploadid-partno-file-start-end-options)
+    - [.uploadPartCopy(name, uploadId, partNo, range, sourceData\[, options\])](#uploadpartcopyname-uploadid-partno-range-sourcedata-options)
+    - [.completeMultipartUpload(name, uploadId, parts\[, options\])](#completemultipartuploadname-uploadid-parts-options)
+    - [.multipartUpload(name, file\[, options\])](#multipartuploadname-file-options)
+    - [.multipartUploadCopy(name, sourceData\[, options\])](#multipartuploadcopyname-sourcedata-options)
+    - [.listParts(name, uploadId\[, query, options\])](#listpartsname-uploadid-query-options)
+    - [.listUploads(query\[, options\])](#listuploadsquery-options)
+    - [.abortMultipartUpload(name, uploadId\[, options\])](#abortmultipartuploadname-uploadid-options)
     - [.calculatePostSignature(policy)](#calculatepostsignaturepolicy)
-    - [.getObjectTagging(name[, options])](#getobjecttaggingname-options)
-    - [.putObjectTagging(name, tag[, options])](#putobjecttaggingname-tag-options)
-    - [.deleteObjectTagging(name[, options])](#deleteobjecttaggingname-options)
-    - [.processObjectSave(sourceObject, targetObject, process[, targetBucket])](#processobjectsavesourceobject-targetobject-process-targetbucket)
+    - [.getObjectTagging(name\[, options\])](#getobjecttaggingname-options)
+    - [.putObjectTagging(name, tag\[, options\])](#putobjecttaggingname-tag-options)
+    - [.deleteObjectTagging(name\[, options\])](#deleteobjecttaggingname-options)
+    - [.processObjectSave(sourceObject, targetObject, process\[, targetBucket\])](#processobjectsavesourceobject-targetobject-process-targetbucket)
   - [RTMP Operations](#rtmp-operations)
-    - [.putChannel(id, conf[, options])](#putchannelid-conf-options)
-    - [.getChannel(id[, options])](#getchannelid-options)
-    - [.deleteChannel(id[, options])](#deletechannelid-options)
-    - [.putChannelStatus(id, status[, options])](#putchannelstatusid-status-options)
-    - [.getChannelStatus(id[, options])](#getchannelstatusid-options)
-    - [.listChannels(query[, options])](#listchannelsquery-options)
-    - [.getChannelHistory(id[, options])](#getchannelhistoryid-options)
-    - [.createVod(id, name, time[, options])](#createvodid-name-time-options)
-    - [.getRtmpUrl(channelId[, options])](#getrtmpurlchannelid-options)
+    - [.putChannel(id, conf\[, options\])](#putchannelid-conf-options)
+    - [.getChannel(id\[, options\])](#getchannelid-options)
+    - [.deleteChannel(id\[, options\])](#deletechannelid-options)
+    - [.putChannelStatus(id, status\[, options\])](#putchannelstatusid-status-options)
+    - [.getChannelStatus(id\[, options\])](#getchannelstatusid-options)
+    - [.listChannels(query\[, options\])](#listchannelsquery-options)
+    - [.getChannelHistory(id\[, options\])](#getchannelhistoryid-options)
+    - [.createVod(id, name, time\[, options\])](#createvodid-name-time-options)
+    - [.getRtmpUrl(channelId\[, options\])](#getrtmpurlchannelid-options)
   - [Create A Image Service Instance](#create-a-image-service-instance)
     - [oss.ImageClient(options)](#ossimageclientoptions)
   - [Image Operations](#image-operations)
-    - [imgClient.get(name, file[, options])](#imgclientgetname-file-options)
-    - [imgClient.getStream(name[, options])](#imgclientgetstreamname-options)
-    - [imgClient.getExif(name[, options])](#imgclientgetexifname-options)
-    - [imgClient.getInfo(name[, options])](#imgclientgetinfoname-options)
-    - [imgClient.putStyle(name, style[, options])](#imgclientputstylename-style-options)
-    - [imgClient.getStyle(name[, options])](#imgclientgetstylename-options)
-    - [imgClient.listStyle([options])](#imgclientliststyleoptions)
-    - [imgClient.deleteStyle(name[, options])](#imgclientdeletestylename-options)
+    - [imgClient.get(name, file\[, options\])](#imgclientgetname-file-options)
+    - [imgClient.getStream(name\[, options\])](#imgclientgetstreamname-options)
+    - [imgClient.getExif(name\[, options\])](#imgclientgetexifname-options)
+    - [imgClient.getInfo(name\[, options\])](#imgclientgetinfoname-options)
+    - [imgClient.putStyle(name, style\[, options\])](#imgclientputstylename-style-options)
+    - [imgClient.getStyle(name\[, options\])](#imgclientgetstylename-options)
+    - [imgClient.listStyle(\[options\])](#imgclientliststyleoptions)
+    - [imgClient.deleteStyle(name\[, options\])](#imgclientdeletestylename-options)
     - [imgClient.signatureUrl(name)](#imgclientsignatureurlname)
   - [Cluster Mode](#cluster-mode)
     - [Get Methods](#get-methods)
     - [Put Methods](#put-methods)
   - [Known Errors](#known-errors)
+  - [Contributors](#contributors)
 
 ## Node.js Usage
 
@@ -4417,57 +4418,58 @@ The following table lists the OSS error codes:
 
 [More code info](https://help.aliyun.com/knowledge_detail/32005.html)
 
-name | code | status | message | message in Chinese
----  | ---  | --- | ---     | ---
-AccessDeniedError | AccessDenied | 403 | Access Denied | 拒绝访问
-BucketAlreadyExistsError | BucketAlreadyExists | 409 | Bucket already exists | Bucket 已经存在
-BucketNotEmptyError | BucketNotEmpty | 409 | Bucket is not empty | Bucket 不为空
-RestoreAlreadyInProgressError | RestoreAlreadyInProgress | 409 | The restore operation is in progress. | restore 操作正在进行中
-OperationNotSupportedError | OperationNotSupported | 400 | The operation is not supported for this resource | 该资源暂不支持restore操作
-EntityTooLargeError | EntityTooLarge | 400 | Entity too large | 实体过大
-EntityTooSmallError | EntityTooSmall | 400 | Entity too small | 实体过小
-FileGroupTooLargeError | FileGroupTooLarge | 400 | File group too large | 文件组过大
-InvalidLinkNameError | InvalidLinkName | 400 | Link name can't be the same as the object name | Object Link 与指向的 Object 同名
-LinkPartNotExistError | LinkPartNotExist | 400 | Can't link to not exists object | Object Link 中指向的 Object 不存在
-ObjectLinkTooLargeError | ObjectLinkTooLarge | 400 | Too many links to this object | Object Link 中 Object 个数过多
-FieldItemTooLongError | FieldItemTooLong | 400 | Post form fields items too large | Post 请求中表单域过大
-FilePartInterityError | FilePartInterity | 400 | File part has changed | 文件 Part 已改变
-FilePartNotExistError | FilePartNotExist | 400 | File part not exists | 文件 Part 不存在
-FilePartStaleError | FilePartStale| 400 | File part stale | 文件 Part 过时
-IncorrectNumberOfFilesInPOSTRequestError | IncorrectNumberOfFilesInPOSTRequest | 400 | Post request contains invalid number of files | Post 请求中文件个数非法
-InvalidArgumentError | InvalidArgument | 400 | Invalid format argument | 参数格式错误
-InvalidAccessKeyIdError | InvalidAccessKeyId | 400 | Access key id not exists | Access Key ID 不存在
-InvalidBucketNameError | InvalidBucketName | 400 | Invalid bucket name | 无效的 Bucket 名字
-InvalidDigestError | InvalidDigest | 400 | Invalid digest | 无效的摘要
-InvalidEncryptionAlgorithmError | InvalidEncryptionAlgorithm | 400 | Invalid encryption algorithm | 指定的熵编码加密算法错误
-InvalidObjectNameError | InvalidObjectName | 400 | Invalid object name | 无效的 Object 名字
-InvalidPartError | InvalidPart | 400 | Invalid part | 无效的 Part
-InvalidPartOrderError | InvalidPartOrder | 400 | Invalid part order | 无效的 part 顺序
-InvalidPolicyDocumentError | InvalidPolicyDocument | 400 | Invalid policy document | 无效的 Policy 文档
-InvalidTargetBucketForLoggingError | InvalidTargetBucketForLogging | 400 | Invalid bucket on logging operation | Logging 操作中有无效的目标 bucket
-InternalError | Internal | 500 | OSS server internal error | OSS 内部发生错误
-MalformedXMLError | MalformedXML | 400 | Malformed XML format | XML 格式非法
-MalformedPOSTRequestError | MalformedPOSTRequest | 400 | Invalid post body format | Post 请求的 body 格式非法
-MaxPOSTPreDataLengthExceededError | MaxPOSTPreDataLengthExceeded | 400 | Post extra data too large | Post 请求上传文件内容之外的 body 过大
-MethodNotAllowedError | MethodNotAllowed | 405 | Not allowed method | 不支持的方法
-MissingArgumentError | MissingArgument | 411 | Missing argument | 缺少参数
-MissingContentLengthError | MissingContentLength | 411 | Missing `Content-Length` header | 缺少内容长度
-NoSuchBucketError | NoSuchBucket | 404 | Bucket not exists | Bucket 不存在
-NoSuchKeyError | NoSuchKey | 404 | Object not exists | 文件不存在
-NoSuchUploadError | NoSuchUpload | 404 | Multipart upload id not exists | Multipart Upload ID 不存在
-NotImplementedError | NotImplemented | 501 | Not implemented | 无法处理的方法
-PreconditionFailedError | PreconditionFailed | 412 | Pre condition failed | 预处理错误
-RequestTimeTooSkewedError | RequestTimeTooSkewed | 403 | Request time exceeds 15 minutes to server time | 发起请求的时间和服务器时间超出 15 分钟
-RequestTimeoutError | RequestTimeout | 400 | Request timeout | 请求超时
-RequestIsNotMultiPartContentError | RequestIsNotMultiPartContent | 400 | Invalid post content-type | Post 请求 content-type 非法
-SignatureDoesNotMatchError | SignatureDoesNotMatch | 403 | Invalid signature | 签名错误
-TooManyBucketsError | TooManyBuckets | 400 | Too many buckets on this user | 用户的 Bucket 数目超过限制
-RequestError | RequestError | -1 | network error | 网络出现中断或异常
-ConnectionTimeoutError | ConnectionTimeoutError | -2 | request connect timeout | 请求连接超时
-SecurityTokenExpiredError | SecurityTokenExpired | 403 | sts Security Token Expired | sts Security Token 超时失效
+code | status | message | message in Chinese
+---  | --- | ---     | ---
+AccessDenied | 403 | Access Denied | 拒绝访问
+BucketAlreadyExists | 409 | Bucket already exists | Bucket 已经存在
+BucketNotEmpty | 409 | Bucket is not empty | Bucket 不为空
+RestoreAlreadyInProgress | 409 | The restore operation is in progress. | restore 操作正在进行中
+OperationNotSupported | 400 | The operation is not supported for this resource | 该资源暂不支持restore操作
+EntityTooLarge | 400 | Entity too large | 实体过大
+EntityTooSmall | 400 | Entity too small | 实体过小
+FileGroupTooLarge | 400 | File group too large | 文件组过大
+InvalidLinkName | 400 | Link name can't be the same as the object name | Object Link 与指向的 Object 同名
+LinkPartNotExist | 400 | Can't link to not exists object | Object Link 中指向的 Object 不存在
+ObjectLinkTooLarge | 400 | Too many links to this object | Object Link 中 Object 个数过多
+FieldItemTooLong | 400 | Post form fields items too large | Post 请求中表单域过大
+FilePartInterity | 400 | File part has changed | 文件 Part 已改变
+FilePartNotExist | 400 | File part not exists | 文件 Part 不存在
+FilePartStale| 400 | File part stale | 文件 Part 过时
+IncorrectNumberOfFilesInPOSTRequest | 400 | Post request contains invalid number of files | Post 请求中文件个数非法
+InvalidArgument | 400 | Invalid format argument | 参数格式错误
+InvalidAccessKeyId | 400 | Access key id not exists | Access Key ID 不存在
+InvalidBucketName | 400 | Invalid bucket name | 无效的 Bucket 名字
+InvalidDigest | 400 | Invalid digest | 无效的摘要
+InvalidEncryptionAlgorithm | 400 | Invalid encryption algorithm | 指定的熵编码加密算法错误
+InvalidObjectName | 400 | Invalid object name | 无效的 Object 名字
+InvalidPart | 400 | Invalid part | 无效的 Part
+InvalidPartOrder | 400 | Invalid part order | 无效的 part 顺序
+InvalidPolicyDocument | 400 | Invalid policy document | 无效的 Policy 文档
+InvalidTargetBucketForLogging | 400 | Invalid bucket on logging operation | Logging 操作中有无效的目标 bucket
+Internal | 500 | OSS server internal error | OSS 内部发生错误
+MalformedXML | 400 | Malformed XML format | XML 格式非法
+MalformedPOSTRequest | 400 | Invalid post body format | Post 请求的 body 格式非法
+MaxPOSTPreDataLengthExceeded | 400 | Post extra data too large | Post 请求上传文件内容之外的 body 过大
+MethodNotAllowed | 405 | Not allowed method | 不支持的方法
+MissingArgument | 411 | Missing argument | 缺少参数
+MissingContentLength | 411 | Missing `Content-Length` header | 缺少内容长度
+NoSuchBucket | 404 | Bucket not exists | Bucket 不存在
+NoSuchKey | 404 | Object not exists | 文件不存在
+NoSuchUpload | 404 | Multipart upload id not exists | Multipart Upload ID 不存在
+NotImplemented | 501 | Not implemented | 无法处理的方法
+PreconditionFailed | 412 | Pre condition failed | 预处理错误
+RequestTimeTooSkewed | 403 | Request time exceeds 15 minutes to server time | 发起请求的时间和服务器时间超出 15 分钟
+RequestTimeout | 400 | Request timeout | 请求超时
+RequestIsNotMultiPartContent | 400 | Invalid post content-type | Post 请求 content-type 非法
+SignatureDoesNotMatch | 403 | Invalid signature | 签名错误
+TooManyBuckets | 400 | Too many buckets on this user | 用户的 Bucket 数目超过限制
+RequestError | -1 | network error | 网络出现中断或异常
+ConnectionTimeoutError | -2 | request connect timeout | 请求连接超时
+SecurityTokenExpired | 403 | sts Security Token Expired | sts Security Token 超时失效
 
 [oss-sts]: https://help.aliyun.com/document_detail/oss/practice/ram_guide.html
 [oss-multipart]: https://help.aliyun.com/document_detail/31992.html
+
 <!-- GITCONTRIBUTOR_START -->
 
 ## Contributors

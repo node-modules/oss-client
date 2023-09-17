@@ -1,4 +1,9 @@
 import { Readable } from 'node:stream';
+import { createReadStream } from 'node:fs';
+import fs from 'node:fs/promises';
+import { IncomingHttpHeaders } from 'node:http';
+import mime from 'mime';
+import { isReadable } from 'is-type-of';
 import type {
   // IObjectSimple,
   // GetObjectOptions,
@@ -17,7 +22,7 @@ import type {
   // CopyAndPutMetaResult,
   // StorageType,
   // OwnerType,
-  // UserMeta,
+  UserMeta,
   // ObjectCallback,
 } from 'oss-interface';
 import {
@@ -26,9 +31,10 @@ import {
 } from './OSSBaseClient.js';
 import {
   OSSRequestParams,
-  // RequestHeaders, RequestMeta,
-  RequestMethod } from './type/index.js';
+  RequestMethod,
+} from './type/index.js';
 import { checkBucketName } from './util/index.js';
+import { encodeCallback } from './util/encodeCallback.js';
 
 export interface OSSObjectClientInitOptions extends OSSBaseClientInitOptions {
   bucket: string;
@@ -87,99 +93,71 @@ export class OSSObject extends OSSBaseClient {
    * @return {Object} result
    */
   async put(name: string, file: string | Buffer | Readable, options?: PutObjectOptions): Promise<PutObjectResult> {
-    let content;
     name = this.#objectName(name);
-    options = options || {};
-    if (Buffer.isBuffer(file)) {
-      content = file;
-    } else if (typeof file === 'string') {
-      const stats = fs.statSync(file);
+    options = options ?? {};
+    if (typeof file === 'string') {
+      const stats = await fs.stat(file);
       if (!stats.isFile()) {
         throw new Error(`${file} is not file`);
       }
-      options.mime = options.mime || mime.getType(path.extname(file));
-      options.contentLength = await this._getFileSize(file);
-      const getStream = () => fs.createReadStream(file);
-      const putStreamStb = (objectName, makeStream, configOption) => {
-        return this.putStream(objectName, makeStream(), configOption);
-      };
-      return await retry(putStreamStb, this.options.retryMax, {
-        errorHandler: err => {
-          const _errHandle = _err => {
-            const statusErr = [ -1, -2 ].includes(_err.status);
-            const requestErrorRetryHandle = this.options.requestErrorRetryHandle || (() => true);
-            return statusErr && requestErrorRetryHandle(_err);
-          };
-          if (_errHandle(err)) return true;
-          return false;
-        },
-      })(name, getStream, options);
+      if (!options.mime) {
+        const mimeFromFile = mime.getType(file);
+        if (mimeFromFile) {
+          options.mime = mimeFromFile;
+        }
+      }
+      // options.contentLength = stats.size;
+      return await this.putStream(name, createReadStream(file), options);
     } else if (isReadable(file)) {
       return await this.putStream(name, file, options);
-    } else {
-      throw new TypeError('Must provide String/Buffer/ReadableStream for put.');
+    } else if (Buffer.isBuffer(file)) {
+      // file is Buffer
+      return await this.#sendPutRequest(name, options, file);
     }
 
-    options.headers = options.headers || {};
-    this._convertMetaToHeaders(options.meta, options.headers);
-
-    const method = options.method || 'PUT';
-    const params = this._objectRequestParams(method, name, options);
-
-    callback.encodeCallback(params, options);
-
-    params.mime = options.mime;
-    params.content = content;
-    params.successStatuses = [ 200 ];
-
-    const result = await this.request(params);
-
-    const ret = {
-      name,
-      url: this._objectUrl(name),
-      res: result.res,
-    };
-
-    if (params.headers && params.headers['x-oss-callback']) {
-      ret.data = JSON.parse(result.data.toString());
-    }
-
-    return ret;
+    throw new TypeError('Must provide String/Buffer/ReadableStream for put.');
   }
 
-  // /**
-  //  * put an object from ReadableStream.
-  //  * @param {String} name the object key
-  //  * @param {Readable} stream the ReadableStream
-  //  * @param {Object} options options
-  //  * @return {Object} result
-  //  */
-  // proto.putStream = async function putStream(name, stream, options) {
-  //   options = options || {};
-  //   options.headers = options.headers || {};
-  //   name = this._objectName(name);
-  //   this._convertMetaToHeaders(options.meta, options.headers);
+  /**
+   * put an object from ReadableStream.
+   */
+  async putStream(name: string, stream: Readable, options?: PutObjectOptions): Promise<PutObjectResult> {
+    return await this.#sendPutRequest(name, options ?? {}, stream);
+  }
 
-  //   const method = options.method || 'PUT';
-  //   const params = this._objectRequestParams(method, name, options);
-  //   callback.encodeCallback(params, options);
-  //   params.mime = options.mime;
-  //   params.stream = stream;
-  //   params.successStatuses = [ 200 ];
+  async #sendPutRequest(name: string, options: PutObjectOptions, contentOrStream: Buffer | Readable) {
+    const method = 'PUT';
+    options.headers = options.headers ?? {};
+    name = this.#objectName(name);
+    this.#convertMetaToHeaders(options.meta, options.headers);
+    // don't override exists headers
+    if (options.callback && !options.headers['x-oss-callback']) {
+      const callbackHeaders = encodeCallback(options.callback);
+      Object.assign(options.headers, callbackHeaders);
+    }
+    const params = this.#objectRequestParams(method, name, options);
+    params.mime = options.mime;
+    if (Buffer.isBuffer(contentOrStream)) {
+      params.content = contentOrStream;
+    } else {
+      params.stream = contentOrStream;
+    }
+    params.successStatuses = [ 200 ];
 
-  //   const result = await this.request(params);
-  //   const ret = {
-  //     name,
-  //     url: this._objectUrl(name),
-  //     res: result.res,
-  //   };
+    const { res, data } = await this.request<Buffer>(params);
+    const putResult = {
+      name,
+      url: this.#objectUrl(name),
+      res,
+      data: {},
+    } satisfies PutObjectResult;
 
-  //   if (params.headers && params.headers['x-oss-callback']) {
-  //     ret.data = JSON.parse(result.data.toString());
-  //   }
+    if (params.headers?.['x-oss-callback']) {
+      putResult.data = JSON.parse(data.toString());
+    }
 
-  //   return ret;
-  // };
+    return putResult;
+  }
 
   // proto.getStream = async function getStream(name, options) {
   //   options = options || {};
@@ -382,13 +360,12 @@ export class OSSObject extends OSSBaseClient {
     return name.replace(/^\/+/, '');
   }
 
-  // #convertMetaToHeaders(meta: RequestMeta, headers: RequestHeaders) {
-  //   if (!meta) {
-  //     return;
-  //   }
-
-  //   for (const key in meta) {
-  //     headers[`x-oss-meta-${key}`] = meta[key];
-  //   }
-  // }
+  #convertMetaToHeaders(meta: UserMeta | undefined, headers: IncomingHttpHeaders) {
+    if (!meta) {
+      return;
+    }
+    for (const key in meta) {
+      headers[`x-oss-meta-${key}`] = `${meta[key]}`;
+    }
+  }
 }

@@ -2,6 +2,7 @@ import { debuglog } from 'node:util';
 import assert from 'node:assert';
 import { createHash } from 'node:crypto';
 import { extname } from 'node:path';
+import type { IncomingHttpHeaders } from 'node:http';
 import { sendToWormhole } from 'stream-wormhole';
 import { parseStringPromise } from 'xml2js';
 import utility from 'utility';
@@ -10,8 +11,8 @@ import { HttpClient, RequestOptions, HttpClientResponse } from 'urllib';
 import ms from 'ms';
 import pkg from '../package.json' assert { type: 'json' };
 import { authorization, buildCanonicalString, computeSignature } from './util/sign.js';
-import { OSSRequestParams, RequestHeaders, RequestParameters } from './type/Request.js';
-import { OSSClientException } from './exception/index.js';
+import { OSSRequestParams, RequestParameters } from './type/Request.js';
+import { OSSClientError } from './error/index.js';
 
 const debug = debuglog('oss-client:client');
 
@@ -75,7 +76,7 @@ export abstract class OSSBaseClient {
    *  + CanonicalizedOSSHeaders
    *  + CanonicalizedResource))
    */
-  protected authorization(method: string, resource: string, headers: RequestHeaders, subres?: RequestParameters) {
+  protected authorization(method: string, resource: string, headers: IncomingHttpHeaders, subres?: RequestParameters) {
     const stringToSign = buildCanonicalString(method.toUpperCase(), resource, {
       headers,
       parameters: subres,
@@ -133,7 +134,7 @@ export abstract class OSSBaseClient {
   }
 
   createHttpClientRequestParams(params: OSSRequestParams) {
-    const headers: Record<string, string> = {
+    const headers: IncomingHttpHeaders = {
       ...params.headers,
       // https://help.aliyun.com/zh/oss/developer-reference/include-signatures-in-the-authorization-header
       // 此次操作的时间，Date必须为GMT格式，且不能为空。该值取自请求头的Date字段或者x-oss-date字段。当这两个字段同时存在时，以x-oss-date为准。
@@ -265,17 +266,17 @@ export abstract class OSSBaseClient {
   }
 
   async #createClientException(result: HttpClientResponse<Buffer>) {
-    let err: OSSClientException;
+    let err: OSSClientError;
     let requestId = result.headers['x-oss-request-id'] as string ?? '';
     let hostId = '';
     if (!result.data || !result.data.length) {
       // HEAD not exists resource
       if (result.status === 404) {
-        err = new OSSClientException('NoSuchKey', 'Object not exists', requestId, hostId);
+        err = new OSSClientError('NoSuchKey', 'Object not exists', requestId, hostId);
       } else if (result.status === 412) {
-        err = new OSSClientException('PreconditionFailed', 'Pre condition failed', requestId, hostId);
+        err = new OSSClientError('PreconditionFailed', 'Pre condition failed', requestId, hostId);
       } else {
-        err = new OSSClientException('Unknown', `Unknow error, status=${result.status}, raw error=${result}`,
+        err = new OSSClientError('Unknown', `Unknown error, status=${result.status}, raw error=${result}`,
           requestId, hostId);
       }
     } else {
@@ -286,13 +287,13 @@ export abstract class OSSBaseClient {
       try {
         info = await this.#parseXML(xml);
       } catch (e: any) {
-        err = new OSSClientException('PreconditionFailed', `${e.message} (raw xml=${JSON.stringify(xml)})`, requestId, hostId);
+        err = new OSSClientError('PreconditionFailed', `${e.message} (raw xml=${JSON.stringify(xml)})`, requestId, hostId);
         return err;
       }
 
-      let msg = info?.Message ?? `unknow request error, status=${result.status}, raw xml=${JSON.stringify(xml)}`;
+      let message = info?.Message ?? `Unknown request error, status=${result.status}, raw xml=${JSON.stringify(xml)}`;
       if (info?.Condition) {
-        msg += ` (condition=${info.Condition})`;
+        message += ` (condition=${info.Condition})`;
       }
       if (info?.RequestId) {
         requestId = info.RequestId;
@@ -300,7 +301,7 @@ export abstract class OSSBaseClient {
       if (info?.HostId) {
         hostId = info.HostId;
       }
-      err = new OSSClientException(info?.Code ?? 'Unknown', msg, requestId, hostId);
+      err = new OSSClientError(info?.Code ?? 'Unknown', message, requestId, hostId);
     }
 
     debug('generate error %o', err);

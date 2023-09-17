@@ -1,6 +1,7 @@
 import { debuglog } from 'node:util';
 import crypto from 'node:crypto';
-import { Request, RequestHeaders, RequestParameters } from '../type/Request.js';
+import type { IncomingHttpHeaders } from 'node:http';
+import { Request, RequestParameters } from '../type/Request.js';
 
 const debug = debuglog('oss-client:sign');
 const OSS_PREFIX = 'x-oss-';
@@ -42,8 +43,8 @@ function buildCanonicalizedResource(resourcePath: string, parameters?: RequestPa
   return canonicalizedResource;
 }
 
-function lowercaseKeyHeader(headers: RequestHeaders) {
-  const lowercaseHeaders: RequestHeaders = {};
+function lowercaseKeyHeader(headers: IncomingHttpHeaders) {
+  const lowercaseHeaders: IncomingHttpHeaders = {};
   if (headers) {
     for (const name in headers) {
       lowercaseHeaders[name.toLowerCase()] = headers[name];
@@ -54,12 +55,12 @@ function lowercaseKeyHeader(headers: RequestHeaders) {
 
 export function buildCanonicalString(method: string, resourcePath: string, request: Request, expires?: string) {
   const headers = lowercaseKeyHeader(request.headers);
-  const headersToSign: RequestHeaders = {};
+  const headersToSign: IncomingHttpHeaders = {};
   const signContent: string[] = [
     method.toUpperCase(),
-    headers['content-md5'] || '',
-    headers['content-type'],
-    expires || headers['x-oss-date'],
+    headers['content-md5'] as string ?? '',
+    headers['content-type']!,
+    expires || headers['x-oss-date'] as string,
   ];
 
   Object.keys(headers).forEach(key => {
