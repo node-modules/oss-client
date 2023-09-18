@@ -197,6 +197,8 @@ describe('test/OSSObject.test.ts', () => {
       });
 
       // delete the new file
+      const result = await ossObject.delete(name);
+      assert.equal(result.res.status, 204);
     });
 
     // it('should with options.ctx', async () => {
@@ -425,6 +427,58 @@ describe('test/OSSObject.test.ts', () => {
     it('should delete not exists object', async () => {
       const info = await ossObject.delete(`not-exists-name-${randomUUID()}`);
       assert.equal(info.res.status, 204);
+    });
+  });
+
+  describe('deleteMulti()', () => {
+    const names: string[] = [];
+    beforeEach(async () => {
+      let name = `${prefix}oss-client/oss/deleteMulti0.js`;
+      names.push(name);
+      await ossObject.put(name, __filename);
+
+      name = `${prefix}oss-client/oss/deleteMulti1.js`;
+      names.push(name);
+      await ossObject.put(name, __filename);
+
+      name = `${prefix}oss-client/oss/deleteMulti2.js`;
+      names.push(name);
+      await ossObject.put(name, __filename);
+    });
+
+    it('should delete 3 exists objs', async () => {
+      const result = await ossObject.deleteMulti(names);
+      assert.deepEqual(
+        result.deleted.map(v => v.Key),
+        names,
+      );
+      assert.equal(result.res.status, 200);
+    });
+
+    it('should delete 2 exists and 2 not exists objs', async () => {
+      const result = await ossObject.deleteMulti(names.slice(0, 2).concat([ 'not-exist1', 'not-exist2' ]));
+      assert.deepEqual(
+        result.deleted.map(v => v.Key),
+        names.slice(0, 2).concat([ 'not-exist1', 'not-exist2' ]),
+      );
+      assert.equal(result.res.status, 200);
+    });
+
+    it('should delete 1 exists objs', async () => {
+      const result = await ossObject.deleteMulti(names.slice(0, 1));
+      assert.deepEqual(
+        result.deleted.map(v => v.Key),
+        names.slice(0, 1),
+      );
+      assert.equal(result.res.status, 200);
+    });
+
+    it('should delete in quiet mode', async () => {
+      const result = await ossObject.deleteMulti(names, {
+        quiet: true,
+      });
+      assert.equal(result.deleted.length, 0);
+      assert.equal(result.res.status, 200);
     });
   });
 });

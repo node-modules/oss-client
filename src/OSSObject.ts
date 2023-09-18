@@ -1,9 +1,11 @@
 import { Readable } from 'node:stream';
 import { createReadStream } from 'node:fs';
+import { strict as assert } from 'node:assert';
 import fs from 'node:fs/promises';
 import { IncomingHttpHeaders } from 'node:http';
 import mime from 'mime';
 import { isReadable } from 'is-type-of';
+
 import type {
   // IObjectSimple,
   // GetObjectOptions,
@@ -32,11 +34,16 @@ import {
   OSSBaseClient,
 } from './OSSBaseClient.js';
 import {
+  DeleteMultipleObject,
+  DeleteMultipleObjectOptions,
+  DeleteMultipleObjectResponse,
+  DeleteMultipleObjectXML,
   OSSRequestParams,
   RequestMethod,
 } from './type/index.js';
 import { checkBucketName } from './util/index.js';
 import { encodeCallback } from './util/encodeCallback.js';
+import { json2xml } from './util/json2xml.js';
 
 export interface OSSObjectClientInitOptions extends OSSBaseClientInitOptions {
   bucket: string;
@@ -325,6 +332,57 @@ export class OSSObject extends OSSBaseClient {
     };
   }
 
+  /**
+   * DeleteMultipleObjects
+   * @see https://help.aliyun.com/zh/oss/developer-reference/deletemultipleobjects
+   */
+  async deleteMulti(namesOrObjects: string[] | DeleteMultipleObject[], options?: DeleteMultipleObjectOptions): Promise<DeleteMultipleObjectResponse> {
+    const objects: DeleteMultipleObjectXML[] = [];
+    assert(namesOrObjects.length > 0, 'namesOrObjects is empty');
+    for (const nameOrObject of namesOrObjects) {
+      if (typeof nameOrObject === 'string') {
+        objects.push({ Key: this.#objectName(nameOrObject) });
+      } else {
+        assert(nameOrObject.key, 'key is empty');
+        objects.push({ Key: this.#objectName(nameOrObject.key), VersionId: nameOrObject.versionId });
+      }
+    }
+
+    const xml = json2xml({
+      Delete: {
+        Quiet: !!options?.quiet,
+        Object: objects,
+      },
+    }, { headers: true });
+
+    const requestOptions = {
+      timeout: options?.timeout,
+      // ?delete
+      subResource: { delete: '' } as Record<string, string>,
+    };
+    if (options?.versionId) {
+      requestOptions.subResource.versionId = options.versionId;
+    }
+
+    const params = this.#objectRequestParams('POST', '', requestOptions);
+    params.mime = 'xml';
+    params.content = Buffer.from(xml, 'utf-8');
+    params.xmlResponse = true;
+    params.successStatuses = [ 200 ];
+    const { data, res } = await this.request(params);
+    // quiet will return null
+    let deleted = data?.Deleted || [];
+    if (deleted) {
+      if (!Array.isArray(deleted)) {
+        deleted = [ deleted ];
+      }
+    }
+    return {
+      res,
+      deleted,
+    } satisfies DeleteMultipleObjectResponse;
+  }
+
   /** protected methods */
 
   protected getRequestEndpoint(): string {
@@ -334,7 +392,6 @@ export class OSSObject extends OSSBaseClient {
   /** private methods */
 
   async #sendPutRequest(name: string, options: PutObjectOptions, contentOrStream: Buffer | Readable) {
-    const method = 'PUT';
     options.headers = options.headers ?? {};
     name = this.#objectName(name);
     this.#convertMetaToHeaders(options.meta, options.headers);
@@ -343,7 +400,7 @@ export class OSSObject extends OSSBaseClient {
       const callbackHeaders = encodeCallback(options.callback);
       Object.assign(options.headers, callbackHeaders);
     }
-    const params = this.#objectRequestParams(method, name, options);
+    const params = this.#objectRequestParams('PUT', name, options);
     params.mime = options.mime;
     if (Buffer.isBuffer(contentOrStream)) {
       params.content = contentOrStream;

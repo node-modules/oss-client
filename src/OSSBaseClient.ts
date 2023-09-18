@@ -209,7 +209,7 @@ export abstract class OSSBaseClient {
 
     let data = result.data as T;
     if (params.xmlResponse) {
-      data = await this.#parseXML<T>(result.data);
+      data = await this.#xml2json<T>(result.data);
     }
     return {
       data,
@@ -255,11 +255,12 @@ export abstract class OSSBaseClient {
     return `${sdk} ${platform}`;
   }
 
-  async #parseXML<T = any>(content: string | Buffer) {
-    if (Buffer.isBuffer(content)) {
-      content = content.toString();
+  async #xml2json<T = any>(xml: string | Buffer) {
+    if (Buffer.isBuffer(xml)) {
+      xml = xml.toString();
     }
-    return await parseStringPromise(content, {
+    debug('xml2json %o', xml);
+    return await parseStringPromise(xml, {
       explicitRoot: false,
       explicitArray: false,
     }) as T;
@@ -285,7 +286,7 @@ export abstract class OSSBaseClient {
 
       let info;
       try {
-        info = await this.#parseXML(xml);
+        info = await this.#xml2json(xml);
       } catch (e: any) {
         err = new OSSClientError('PreconditionFailed', `${e.message} (raw xml=${JSON.stringify(xml)})`, requestId, hostId);
         return err;
