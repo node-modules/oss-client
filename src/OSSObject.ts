@@ -23,6 +23,8 @@ import type {
   // StorageType,
   // OwnerType,
   UserMeta,
+  DeleteObjectOptions,
+  DeleteObjectResult,
   // ObjectCallback,
 } from 'oss-interface';
 import {
@@ -53,6 +55,8 @@ export class OSSObject extends OSSBaseClient {
     urlObject.hostname = `${this.#bucket}.${urlObject.hostname}`;
     this.#bucketEndpoint = urlObject.toString();
   }
+
+  /** public methods */
 
   // /**
   //  * append an object from String(file path)/Buffer/ReadableStream
@@ -123,40 +127,6 @@ export class OSSObject extends OSSBaseClient {
    */
   async putStream(name: string, stream: Readable, options?: PutObjectOptions): Promise<PutObjectResult> {
     return await this.#sendPutRequest(name, options ?? {}, stream);
-  }
-
-  async #sendPutRequest(name: string, options: PutObjectOptions, contentOrStream: Buffer | Readable) {
-    const method = 'PUT';
-    options.headers = options.headers ?? {};
-    name = this.#objectName(name);
-    this.#convertMetaToHeaders(options.meta, options.headers);
-    // don't override exists headers
-    if (options.callback && !options.headers['x-oss-callback']) {
-      const callbackHeaders = encodeCallback(options.callback);
-      Object.assign(options.headers, callbackHeaders);
-    }
-    const params = this.#objectRequestParams(method, name, options);
-    params.mime = options.mime;
-    if (Buffer.isBuffer(contentOrStream)) {
-      params.content = contentOrStream;
-    } else {
-      params.stream = contentOrStream;
-    }
-    params.successStatuses = [ 200 ];
-
-    const { res, data } = await this.request<Buffer>(params);
-    const putResult = {
-      name,
-      url: this.#objectUrl(name),
-      res,
-      data: {},
-    } satisfies PutObjectResult;
-
-    if (params.headers?.['x-oss-callback']) {
-      putResult.data = JSON.parse(data.toString());
-    }
-
-    return putResult;
   }
 
   // proto.getStream = async function getStream(name, options) {
@@ -331,8 +301,70 @@ export class OSSObject extends OSSBaseClient {
   //   };
   // };
 
+  /**
+   * DeleteObject
+   * @see https://help.aliyun.com/zh/oss/developer-reference/deleteobject
+   */
+  async delete(name: string, options?: DeleteObjectOptions): Promise<DeleteObjectResult> {
+    const requestOptions = {
+      timeout: options?.timeout,
+      subResource: {} as Record<string, string>,
+    };
+    if (options?.versionId) {
+      requestOptions.subResource.versionId = options.versionId;
+    }
+    const params = this.#objectRequestParams('DELETE', name, requestOptions);
+    params.successStatuses = [ 204 ];
+    const { res } = await this.request(params);
+    return {
+      res,
+      status: res.status,
+      headers: res.headers,
+      size: res.size,
+      rt: res.rt,
+    };
+  }
+
+  /** protected methods */
+
   protected getRequestEndpoint(): string {
     return this.#bucketEndpoint;
+  }
+
+  /** private methods */
+
+  async #sendPutRequest(name: string, options: PutObjectOptions, contentOrStream: Buffer | Readable) {
+    const method = 'PUT';
+    options.headers = options.headers ?? {};
+    name = this.#objectName(name);
+    this.#convertMetaToHeaders(options.meta, options.headers);
+    // don't override exists headers
+    if (options.callback && !options.headers['x-oss-callback']) {
+      const callbackHeaders = encodeCallback(options.callback);
+      Object.assign(options.headers, callbackHeaders);
+    }
+    const params = this.#objectRequestParams(method, name, options);
+    params.mime = options.mime;
+    if (Buffer.isBuffer(contentOrStream)) {
+      params.content = contentOrStream;
+    } else {
+      params.stream = contentOrStream;
+    }
+    params.successStatuses = [ 200 ];
+
+    const { res, data } = await this.request<Buffer>(params);
+    const putResult = {
+      name,
+      url: this.#objectUrl(name),
+      res,
+      data: {},
+    } satisfies PutObjectResult;
+
+    if (params.headers?.['x-oss-callback']) {
+      putResult.data = JSON.parse(data.toString());
+    }
+
+    return putResult;
   }
 
   #objectUrl(name: string) {
@@ -343,14 +375,14 @@ export class OSSObject extends OSSBaseClient {
    * generator request params
    */
   #objectRequestParams(method: RequestMethod, name: string,
-    options?: Pick<OSSRequestParams, 'headers' | 'subres' | 'timeout'>) {
+    options?: Pick<OSSRequestParams, 'headers' | 'subResource' | 'timeout'>) {
     name = this.#objectName(name);
     const params: OSSRequestParams = {
       object: name,
       bucket: this.#bucket,
       method,
       headers: options?.headers,
-      subres: options?.subres,
+      subResource: options?.subResource,
       timeout: options?.timeout,
     };
     return params;

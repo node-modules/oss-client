@@ -23,7 +23,12 @@ export interface OSSRequestParams {
   stream?: Readable;
   writeStream?: Writable;
   timeout?: number;
-  subres?: RequestParameters;
+  /**
+   * set request query params
+   * e.g.:
+   *  - DELETE object `versionId`
+   */
+  subResource?: RequestParameters;
   xmlResponse?: boolean;
   streaming?: boolean;
   successStatuses?: number[];

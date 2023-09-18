@@ -407,4 +407,24 @@ describe('test/OSSObject.test.ts', () => {
       });
     });
   });
+
+  describe('delete()', () => {
+    it('should delete exists object', async () => {
+      const name = `${prefix}oss-client/oss/delete.js`;
+      await ossObject.put(name, __filename);
+
+      const info = await ossObject.delete(name);
+      assert.equal(info.res.status, 204);
+      assert.equal(info.status, 204);
+
+      // await utils.throws(async () => {
+      //   await store.head(name);
+      // }, 'NoSuchKeyError');
+    });
+
+    it('should delete not exists object', async () => {
+      const info = await ossObject.delete(`not-exists-name-${randomUUID()}`);
+      assert.equal(info.res.status, 204);
+    });
+  });
 });

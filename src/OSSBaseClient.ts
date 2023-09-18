@@ -76,10 +76,10 @@ export abstract class OSSBaseClient {
    *  + CanonicalizedOSSHeaders
    *  + CanonicalizedResource))
    */
-  protected authorization(method: string, resource: string, headers: IncomingHttpHeaders, subres?: RequestParameters) {
+  protected authorization(method: string, resource: string, headers: IncomingHttpHeaders, subResource?: RequestParameters) {
     const stringToSign = buildCanonicalString(method.toUpperCase(), resource, {
       headers,
-      parameters: subres,
+      parameters: subResource,
     });
     debug('stringToSign: %o', stringToSign);
     const auth = authorization(this.options.accessKeyId, this.options.accessKeySecret, stringToSign);
@@ -93,7 +93,7 @@ export abstract class OSSBaseClient {
 
   protected abstract getRequestEndpoint(): string;
 
-  protected getRequestURL(params: Pick<OSSRequestParams, 'object' | 'query' | 'subres'>) {
+  protected getRequestURL(params: Pick<OSSRequestParams, 'object' | 'query' | 'subResource'>) {
     let resourcePath = '/';
     if (params.object) {
       // Preserve '/' in result url
@@ -108,16 +108,16 @@ export abstract class OSSBaseClient {
         urlObject.searchParams.set(key, `${value}`);
       }
     }
-    if (params.subres) {
+    if (params.subResource) {
       let subresAsQuery: Record<string, string | number> = {};
-      if (typeof params.subres === 'string') {
-        subresAsQuery[params.subres] = '';
-      } else if (Array.isArray(params.subres)) {
-        params.subres.forEach(k => {
+      if (typeof params.subResource === 'string') {
+        subresAsQuery[params.subResource] = '';
+      } else if (Array.isArray(params.subResource)) {
+        params.subResource.forEach(k => {
           subresAsQuery[k] = '';
         });
       } else {
-        subresAsQuery = params.subres;
+        subresAsQuery = params.subResource;
       }
       for (const key in subresAsQuery) {
         urlObject.searchParams.set(key, `${subresAsQuery[key]}`);
@@ -171,7 +171,7 @@ export abstract class OSSBaseClient {
       }
     }
     const authResource = this.getResource(params);
-    headers.authorization = this.authorization(params.method, authResource, headers, params.subres);
+    headers.authorization = this.authorization(params.method, authResource, headers, params.subResource);
     const url = this.getRequestURL(params);
     debug('request %s %s, with headers %j, !!stream: %s', params.method, url, headers, !!params.stream);
     const timeout = params.timeout ?? this.options.timeout;

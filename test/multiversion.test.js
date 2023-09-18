@@ -715,7 +715,7 @@ describe.skip('test/multiversion.test.js', () => {
       await store.putBucketVersioning(bucket, enabled);
       fileName = await utils.createTempFile(
         'multipart-upload-file-copy',
-        2 * 1024 * 1024
+        2 * 1024 * 1024,
       );
       sourceName = `${prefix}multipart/upload-file-with-copy`;
       const res = await store.multipartUpload(sourceName, fileName);
