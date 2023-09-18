@@ -1,10 +1,10 @@
-import { Readable } from 'node:stream';
-import { createReadStream } from 'node:fs';
+import { Readable, Writable } from 'node:stream';
+import { createReadStream, createWriteStream } from 'node:fs';
 import { strict as assert } from 'node:assert';
 import fs from 'node:fs/promises';
 import { IncomingHttpHeaders } from 'node:http';
 import mime from 'mime';
-import { isReadable } from 'is-type-of';
+import { isReadable, isWritable } from 'is-type-of';
 
 import type {
   // IObjectSimple,
@@ -27,6 +27,8 @@ import type {
   UserMeta,
   DeleteObjectOptions,
   DeleteObjectResult,
+  GetObjectOptions,
+  GetObjectResult,
   // ObjectCallback,
 } from 'oss-interface';
 import {
@@ -39,6 +41,7 @@ import {
   DeleteMultipleObjectResponse,
   DeleteMultipleObjectXML,
   OSSRequestParams,
+  OSSResult,
   RequestMethod,
 } from './type/index.js';
 import { checkBucketName } from './util/index.js';
@@ -271,6 +274,68 @@ export class OSSObject extends OSSBaseClient {
   //     nextContinuationToken: result.data.NextContinuationToken || null,
   //   };
   // };
+
+  /**
+   * GetObject
+   * @see https://help.aliyun.com/zh/oss/developer-reference/getobject
+   */
+  async get(name: string, options?: GetObjectOptions): Promise<GetObjectResult>;
+  async get(name: string, file: string | Writable, options?: GetObjectOptions): Promise<GetObjectResult>;
+  async get(name: string, file?: string | Writable | GetObjectOptions, options?: GetObjectOptions): Promise<GetObjectResult> {
+    let writeStream: Writable | undefined;
+    let needDestroy = false;
+
+    if (isWritable(file)) {
+      writeStream = file;
+    } else if (typeof file === 'string') {
+      writeStream = createWriteStream(file);
+      needDestroy = true;
+    } else {
+      // get(name, options)
+      options = file;
+    }
+
+    options = options ?? {};
+    // 兼容老的 subres 参数
+    if (options.subres && !options.subResource) {
+      options.subResource = options.subres;
+    }
+    if (!options.subResource) {
+      options.subResource = {};
+    }
+
+    if (options.versionId) {
+      options.subResource.versionId = options.versionId;
+    }
+    if (options.process) {
+      options.subResource['x-oss-process'] = options.process;
+    }
+
+    let result: OSSResult<Buffer>;
+    try {
+      const params = this.#objectRequestParams('GET', name, options);
+      params.writeStream = writeStream;
+      params.successStatuses = [ 200, 206, 304 ];
+
+      result = await this.request<Buffer>(params);
+      if (needDestroy && writeStream) {
+        writeStream.destroy();
+      }
+    } catch (err) {
+      if (needDestroy && writeStream) {
+        writeStream.destroy();
+        // should delete the exists file before throw error
+        await fs.rm(file as string, { force: true });
+      }
+      throw err;
+    }
+
+    return {
+      res: result.res,
+      content: result.data,
+    };
+  };
+
 
   // /**
   //  * Restore Object

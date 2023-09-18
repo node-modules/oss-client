@@ -11,7 +11,7 @@ import { HttpClient, RequestOptions, HttpClientResponse } from 'urllib';
 import ms from 'ms';
 import pkg from '../package.json' assert { type: 'json' };
 import { authorization, buildCanonicalString, computeSignature } from './util/sign.js';
-import { OSSRequestParams, RequestParameters } from './type/Request.js';
+import { OSSRequestParams, OSSResult, RequestParameters } from './type/Request.js';
 import { OSSClientError } from './error/index.js';
 
 const debug = debuglog('oss-client:client');
@@ -193,7 +193,7 @@ export abstract class OSSBaseClient {
   /**
    * request oss server
    */
-  protected async request<T = any>(params: OSSRequestParams) {
+  protected async request<T = any>(params: OSSRequestParams): Promise<OSSResult<T>> {
     const { url, options } = this.createHttpClientRequestParams(params);
     const result = await this.#httpClient.request<Buffer>(url, options);
     debug('response %s %s, got %s, headers: %j', params.method, url, result.status, result.headers);
@@ -214,7 +214,7 @@ export abstract class OSSBaseClient {
     return {
       data,
       res: result.res,
-    };
+    } satisfies OSSResult<T>;
   }
 
 

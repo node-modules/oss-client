@@ -1,19 +1,22 @@
 import { strict as assert } from 'node:assert';
 import { fileURLToPath } from 'node:url';
 import { createReadStream } from 'node:fs';
-import { dirname } from 'node:path';
+import { readFile, writeFile, stat } from 'node:fs/promises';
+import path from 'node:path';
+import os from 'node:os';
 import { randomUUID } from 'node:crypto';
-// import { Readable } from 'node:stream';
 import { ObjectMeta } from 'oss-interface';
+import { RawResponseWithMeta } from 'urllib';
 import config from './config.js';
 import { OSSObject } from '../src/index.js';
 import { OSSClientError } from '../src/error/OSSClientError.js';
 
 describe('test/OSSObject.test.ts', () => {
+  const tmpdir = os.tmpdir();
   const prefix = config.prefix;
   const ossObject = new OSSObject(config.oss);
   const __filename = fileURLToPath(import.meta.url);
-  const __dirname = dirname(__filename);
+  const __dirname = path.dirname(__filename);
 
   describe('list()', () => {
     // oss.jpg
@@ -405,6 +408,116 @@ describe('test/OSSObject.test.ts', () => {
         await ossObject.put(name, file);
       }, (err: Error) => {
         assert.equal(`${__dirname} is not file`, err.message);
+        return true;
+      });
+    });
+  });
+
+  describe('putStream()', () => {
+    it('should add object with streaming way', async () => {
+      const name = `${prefix}oss-client/oss/putStream-localfile.js`;
+      const object = await ossObject.putStream(name, createReadStream(__filename));
+      assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
+      assert.equal(typeof object.res.rt, 'number');
+      assert.equal(object.res.size, 0);
+      assert.equal(object.name, name);
+      assert(object.url);
+
+      // check content
+      const r = await ossObject.get(name);
+      assert.equal(r.res.headers['content-type'], 'application/javascript');
+      const stats = await stat(__filename);
+      assert.equal(r.res.headers['content-length'], `${stats.size}`);
+      assert.equal(r.res.status, 200);
+      assert((r.res as RawResponseWithMeta).timing.contentDownload > 0);
+      assert(r.content);
+      assert.equal(r.content.toString(), await readFile(__filename, 'utf8'));
+    });
+
+    it('should add image with file streaming way', async () => {
+      const name = `${prefix}oss-client/oss/nodejs-1024x768.png`;
+      const imagePath = path.join(__dirname, 'nodejs-1024x768.png');
+      const object = await ossObject.putStream(name, createReadStream(imagePath), {
+        mime: 'image/png',
+      });
+      assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
+      assert.equal(typeof object.res.rt, 'number');
+      assert.equal(object.res.size, 0);
+      assert.equal(object.name, name);
+
+      // check content
+      const r = await ossObject.get(name);
+      // console.log(r.res.headers);
+      // {
+      //   server: 'AliyunOSS',
+      //   date: 'Sat, 22 Oct 2022 13:25:55 GMT',
+      //   'content-type': 'image/png',
+      //   'content-length': '502182',
+      //   connection: 'keep-alive',
+      //   'x-oss-request-id': '6353EF633DE20A809D8088EA',
+      //   'accept-ranges': 'bytes',
+      //   etag: '"39D12ED73B63BAAC31F980F555AE4FDE"',
+      //   'last-modified': 'Sat, 22 Oct 2022 13:25:55 GMT',
+      //   'x-oss-object-type': 'Normal',
+      //   'x-oss-hash-crc64ecma': '8835162692478804631',
+      //   'x-oss-storage-class': 'Standard',
+      //   'content-md5': 'OdEu1ztjuqwx+YD1Va5P3g==',
+      //   'x-oss-server-time': '14'
+      // }
+      assert.equal(r.res.status, 200);
+      assert.equal(r.res.headers['content-type'], 'image/png');
+      const buf = await readFile(imagePath);
+      assert.equal(r.res.headers['content-length'], `${buf.length}`);
+      assert(r.content);
+      assert.equal(r.content.length, buf.length);
+      assert.deepEqual(r.content, buf);
+    });
+
+    // it('should put object with http streaming way', async () => {
+    //   const name = `${prefix}oss-client/oss/nodejs-1024x768.png`;
+    //   const nameCpy = `${prefix}oss-client/oss/nodejs-1024x768`;
+    //   const imagepath = path.join(__dirname, 'nodejs-1024x768.png');
+    //   await ossObject.putStream(name, createReadStream(imagepath), { mime: 'image/png' });
+    //   const signUrl = await ossObject.signatureUrl(name, { expires: 3600 });
+    //   const { res: httpStream } = await urllib.request(signUrl, {
+    //     dataType: 'stream',
+    //   });
+    //   let result = await ossObject.putStream(nameCpy, httpStream);
+    //   assert.equal(result.res.status, 200);
+    //   result = await ossObject.get(nameCpy);
+    //   assert.equal(result.res.status, 200);
+    //   assert.equal(result.res.headers['content-type'], 'application/octet-stream');
+    //   assert.equal(result.res.headers['content-length'], httpStream.headers['content-length']);
+    // });
+
+    it('should add very big file: 4mb with streaming way', async () => {
+      const name = `${prefix}oss-client/oss/bigfile-4mb.bin`;
+      const bigFile = path.join(tmpdir, 'bigfile-4mb.bin');
+      await writeFile(bigFile, Buffer.alloc(4 * 1024 * 1024).fill('a\n'));
+      const object = await ossObject.putStream(name, createReadStream(bigFile));
+      assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
+      assert.equal(typeof object.res.rt, 'number');
+      assert.equal(object.res.size, 0);
+      assert.equal(object.name, name);
+
+      // check content
+      const r = await ossObject.get(name);
+      assert.equal(r.res.status, 200);
+      assert.equal(r.res.headers['content-type'], 'application/octet-stream');
+      assert.equal(r.res.size, 4 * 1024 * 1024);
+      const buf = await readFile(bigFile);
+      assert(r.content);
+      assert.equal(r.content.length, buf.length);
+      assert.deepEqual(r.content, buf);
+    });
+
+    it('should throw error with stream destroy', async () => {
+      const name = `${prefix}oss-client/oss/putStream-source-destroy.js`;
+      await assert.rejects(async () => {
+        const readerStream = createReadStream(`${__filename}.notexists.js`);
+        await ossObject.putStream(name, readerStream);
+      }, (err: any) => {
+        assert.strictEqual(err.status, -1);
         return true;
       });
     });
