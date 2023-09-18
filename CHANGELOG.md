@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.6](https://github.com/node-modules/oss-client/compare/v1.2.5...v1.2.6) (2023-09-18)
+
+
+### Bug Fixes
+
+* use stat instead of statSync ([#14](https://github.com/node-modules/oss-client/issues/14)) ([8380b87](https://github.com/node-modules/oss-client/commit/8380b870dfb18a8cc85a437f9cb47cd805402301))
+
 ## [1.2.5](https://github.com/node-modules/oss-client/compare/v1.2.4...v1.2.5) (2023-01-08)
 
 
