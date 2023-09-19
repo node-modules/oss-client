@@ -1,6 +1,6 @@
 import { strict as assert } from 'node:assert';
 import { fileURLToPath } from 'node:url';
-import { createReadStream, createWriteStream, existsSync } from 'node:fs';
+import { createReadStream, createWriteStream, existsSync, readFileSync } from 'node:fs';
 import { readFile, writeFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
@@ -1172,6 +1172,81 @@ describe('test/OSSObject.test.ts', () => {
     });
   });
 
+  describe('getStream()', () => {
+    let name: string;
+    before(async () => {
+      name = `${prefix}oss-client/oss/get-stream.js`;
+      await ossObject.put(name, __filename, {
+        meta: {
+          uid: 1,
+          pid: '123',
+          slus: 'test.html',
+        },
+      });
+    });
+
+    after(async () => {
+      await ossObject.delete(name);
+    });
+
+    it('should get exists object stream', async () => {
+      const result = await ossObject.getStream(name);
+      assert.equal(result.res.status, 200);
+      assert(result.stream instanceof Readable);
+      const tmpfile = path.join(tmpdir, 'get-stream.js');
+      const tmpStream = createWriteStream(tmpfile);
+
+      function finish() {
+        return new Promise<void>(resolve => {
+          tmpStream.on('finish', () => {
+            resolve();
+          });
+        });
+      }
+
+      result.stream.pipe(tmpStream);
+      await finish();
+      assert.equal(readFileSync(tmpfile, 'utf8'), readFileSync(__filename, 'utf8'));
+    });
+
+    /**
+     * Image processing uses different compression algorithms,
+     * and the performance may be inconsistent
+     * between different regions
+     */
+    it('should get image stream with image process', async () => {
+      const imageName = `${prefix}oss-client/oss/nodejs-test-getstream-image-1024x768.png`;
+      const originImagePath = path.join(__dirname, 'nodejs-1024x768.png');
+      await ossObject.put(imageName, originImagePath, {
+        mime: 'image/png',
+      });
+
+      let result = await ossObject.getStream(imageName, { process: 'image/resize,w_200' });
+      let result2 = await ossObject.getStream(imageName, { process: 'image/resize,w_200' });
+      assert.equal(result.res.status, 200);
+      assert.equal(result2.res.status, 200);
+      result = await ossObject.getStream(imageName, {
+        process: 'image/resize,w_200',
+        subres: { 'x-oss-process': 'image/resize,w_100' },
+      });
+      result2 = await ossObject.getStream(imageName, {
+        process: 'image/resize,w_200',
+        subres: { 'x-oss-process': 'image/resize,w_100' },
+      });
+      assert.equal(result.res.status, 200);
+      assert.equal(result2.res.status, 200);
+    });
+
+    it('should throw error when object not exists', async () => {
+      await assert.rejects(async () => {
+        await ossObject.getStream(`${name}not-exists`);
+      }, (err: OSSClientError) => {
+        assert.equal(err.code, 'NoSuchKey');
+        return true;
+      });
+    });
+  });
+
   describe('getObjectMeta()', () => {
     let name: string;
     let resHeaders: IncomingHttpHeaders;
@@ -1206,6 +1281,332 @@ describe('test/OSSObject.test.ts', () => {
       assert.equal(info.res.headers['content-length'], fileSize.toString());
       // no versionId won't return this header
       assert(!info.res.headers['x-oss-last-access-time']);
+    });
+  });
+
+  describe('copy()', () => {
+    let name: string;
+    let resHeaders: IncomingHttpHeaders;
+    let otherBucket: string;
+    let otherBucketObject: string;
+    before(async () => {
+      name = `${prefix}oss-client/oss/copy-meta.js`;
+      const object = await ossObject.put(name, __filename, {
+        meta: {
+          uid: 1,
+          pid: '123',
+          slus: 'test-copy.html',
+        },
+      });
+      assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
+      resHeaders = object.res.headers;
+
+      // otherBucket = `oss-client-copy-source-bucket-${prefix.replace(/[/.]/g, '-')}`;
+      // otherBucket = otherBucket.substring(0, otherBucket.length - 1);
+      // await store.putBucket(otherBucket);
+      // store.useBucket(otherBucket);
+      // otherBucketObject = `${prefix}oss-client/oss/copy-source.js`;
+      // await store.put(otherBucketObject, __filename);
+      // store.useBucket(bucket);
+    });
+
+    after(async () => {
+      await ossObject.delete(name);
+    });
+
+    it('should copy object from same bucket', async () => {
+      const targetName = `${prefix}oss-client/oss/copy-new.js`;
+      const result = await ossObject.copy(targetName, name);
+      assert.equal(result.res.status, 200);
+      assert.equal(typeof result.data?.etag, 'string');
+      assert.equal(typeof result.data?.lastModified, 'string');
+
+      const info = await ossObject.head(targetName);
+      assert.equal(info.meta.uid, '1');
+      assert.equal(info.meta.pid, '123');
+      assert.equal(info.meta.slus, 'test-copy.html');
+      assert.equal(info.status, 200);
+      assert.equal(info.res.headers.etag, resHeaders.etag);
+    });
+
+    it('should copy object from same bucket and set content-disposition', async () => {
+      const targetName = `${prefix}oss-client/oss/copy-content-disposition.js`;
+      const disposition = 'attachment; filename=test';
+      const result = await ossObject.copy(targetName, name, {
+        headers: {
+          'Content-Disposition': disposition,
+        },
+      });
+      assert.strictEqual(result.res.status, 200);
+      const { res } = await ossObject.get(targetName);
+      assert.strictEqual(res.headers['content-disposition'], disposition);
+    });
+
+    it.skip('should copy object from other bucket, sourceBucket in copySource', async () => {
+      const copySource = `/${otherBucket}/${otherBucketObject}`;
+      const copyTarget = `${prefix}oss-client/oss/copy-target.js`;
+      const result = await ossObject.copy(copyTarget, copySource);
+      assert.equal(result.res.status, 200);
+
+      const info = await ossObject.head(copyTarget);
+      assert.equal(info.status, 200);
+    });
+
+    it.skip('should copy object from other bucket, sourceBucket is a separate parameter', async () => {
+      const copySource = otherBucketObject;
+      const copyTarget = `${prefix}oss-client/oss/has-bucket-name-copy-target.js`;
+      const result = await ossObject.copy(copyTarget, copySource, otherBucket);
+      assert.equal(result.res.status, 200);
+
+      const info = await ossObject.head(copyTarget);
+      assert.equal(info.status, 200);
+    });
+
+    it('should copy object with non-english name', async () => {
+      const sourceName = `${prefix}oss-client/oss/copy-meta_测试.js`;
+      await ossObject.put(sourceName, __filename, {
+        meta: {
+          uid: 2,
+          pid: '1234',
+          slus: 'test1.html',
+        },
+      });
+      const targetName = `${prefix}oss-client/oss/copy-new_测试.js`;
+      const result = await ossObject.copy(targetName, sourceName);
+      assert.equal(result.res.status, 200);
+      assert.equal(typeof result.data?.etag, 'string');
+      assert.equal(typeof result.data?.lastModified, 'string');
+
+      const info = await ossObject.head(targetName);
+      assert.equal(info.meta.uid, '2');
+      assert.equal(info.meta.pid, '1234');
+      assert.equal(info.meta.slus, 'test1.html');
+      assert.equal(info.status, 200);
+    });
+
+    it.skip('should copy object with non-english name and bucket', async () => {
+      // let sourceName = `${prefix}oss-client/oss/copy-meta_测试2.js`;
+      // let result = await ossObject.put(sourceName, __filename, {
+      //   meta: {
+      //     uid: 3,
+      //     pid: '12345',
+      //     slus: 'test2.html',
+      //   },
+      // });
+
+      // let info = await ossObject.head(sourceName);
+      // assert.equal(info.meta.uid, '3');
+      // assert.equal(info.meta.pid, '12345');
+      // assert.equal(info.meta.slus, 'test2.html');
+      // assert.equal(info.status, 200);
+
+      // sourceName = `/${bucket}/${sourceName}`;
+      // const originname = `${prefix}oss-client/oss/copy-new_测试2.js`;
+      // result = await ossObject.copy(originname, sourceName);
+      // assert.equal(result.res.status, 200);
+      // assert.equal(typeof result.data.etag, 'string');
+      // assert.equal(typeof result.data.lastModified, 'string');
+
+      // info = await ossObject.head(originname);
+      // assert.equal(info.meta.uid, '3');
+      // assert.equal(info.meta.pid, '12345');
+      // assert.equal(info.meta.slus, 'test2.html');
+      // assert.equal(info.status, 200);
+    });
+
+    it('should copy object and set other meta', async () => {
+      const targetName = `${prefix}oss-client/oss/copy-new-2.js`;
+      const result = await ossObject.copy(targetName, name, {
+        meta: {
+          uid: '2',
+        },
+      });
+      assert.equal(result.res.status, 200);
+      assert.equal(typeof result.data?.etag, 'string');
+      assert.equal(typeof result.data?.lastModified, 'string');
+
+      const info = await ossObject.head(targetName);
+      assert.equal(info.meta.uid, '2');
+      assert(!info.meta.pid);
+      assert(!info.meta.slus);
+      assert.equal(info.status, 200);
+    });
+
+    it('should copy object with special characters such as ;,/?:@&=+$#', async () => {
+      const sourceName = `${prefix}oss-client/oss/copy-a;,/?:@&=+$#b.js`;
+      await ossObject.put(sourceName, Buffer.alloc(1024 * 1024));
+      await ossObject.copy(`${prefix}oss-client/oss/copy-a.js`, sourceName);
+      await ossObject.copy(`${prefix}oss-client/oss/copy-a+b.js`, sourceName);
+    });
+
+    it('should use copy to change exists object headers', async () => {
+      const targetName = `${prefix}oss-client/oss/copy-new-3.js`;
+      let result = await ossObject.copy(targetName, name);
+      assert.equal(result.res.status, 200);
+      assert.equal(typeof result.data?.etag, 'string');
+      assert.equal(typeof result.data?.lastModified, 'string');
+      let info = await ossObject.head(targetName);
+      assert(!info.res.headers['cache-control']);
+
+      // add Cache-Control header to a exists object
+      result = await ossObject.copy(targetName, targetName, {
+        headers: {
+          'Cache-Control': 'max-age=0, s-maxage=86400',
+        },
+      });
+      assert.equal(result.res.status, 200);
+      assert.equal(typeof result.data?.etag, 'string');
+      assert.equal(typeof result.data?.lastModified, 'string');
+      info = await ossObject.head(targetName);
+      assert.equal(info.res.headers['cache-control'], 'max-age=0, s-maxage=86400');
+    });
+
+    it('should throw NoSuchKeyError when source object not exists', async () => {
+      await assert.rejects(async () => {
+        await ossObject.copy('new-object', 'not-exists-object');
+      }, (err: OSSClientError) => {
+        assert.equal(err.code, 'NoSuchKey');
+        assert.match(err.message, /The specified key does not exist\./);
+        assert.equal(err.status, 404);
+        return true;
+      });
+    });
+
+    describe('If-Match header', () => {
+      it('should throw PreconditionFailedError when If-Match not equal source object etag', async () => {
+        await assert.rejects(async () => {
+          await ossObject.copy('new-name', name, {
+            headers: {
+              'If-Match': 'foo-bar',
+            },
+          });
+        }, (err: OSSClientError) => {
+          assert.equal(err.code, 'PreconditionFailed');
+          assert.match(
+            err.message,
+            /At least one of the pre-conditions you specified did not hold. \(condition=If-Match\)/,
+          );
+          assert.equal(err.status, 412);
+          return true;
+        });
+      });
+
+      it('should copy object when If-Match equal source object etag', async () => {
+        const targetName = `${prefix}oss-client/oss/copy-new-If-Match.js`;
+        const result = await ossObject.copy(targetName, name, {
+          headers: {
+            'If-Match': resHeaders.etag,
+          },
+        });
+        assert.equal(result.res.status, 200);
+        assert.equal(typeof result.data?.etag, 'string');
+        assert.equal(typeof result.data?.lastModified, 'string');
+      });
+    });
+
+    describe('If-None-Match header', () => {
+      it('should return 304 when If-None-Match equal source object etag', async () => {
+        const result = await ossObject.copy('new-name', name, {
+          headers: {
+            'If-None-Match': resHeaders.etag,
+          },
+        });
+        assert.equal(result.res.status, 304);
+        assert.equal(result.data, null);
+      });
+
+      it('should copy object when If-None-Match not equal source object etag', async () => {
+        const targetName = `${prefix}oss-client/oss/copy-new-If-None-Match.js`;
+        const result = await ossObject.copy(targetName, name, {
+          headers: {
+            'If-None-Match': 'foo-bar',
+          },
+        });
+        assert.equal(result.res.status, 200);
+        assert.equal(typeof result.data?.etag, 'string');
+        assert.equal(typeof result.data?.lastModified, 'string');
+      });
+    });
+
+    describe('If-Modified-Since header', () => {
+      it('should 304 when If-Modified-Since > source object modified time', async () => {
+        const targetName = `${prefix}oss-client/oss/copy-new-If-Modified-Since.js`;
+        const nextYear = new Date(resHeaders.date!);
+        nextYear.setFullYear(nextYear.getFullYear() + 1);
+        const result = await ossObject.copy(targetName, name, {
+          headers: {
+            'If-Modified-Since': nextYear.toUTCString(),
+          },
+        });
+        assert.equal(result.res.status, 304);
+      });
+
+      it('should 304 when If-Modified-Since >= source object modified time', async () => {
+        const targetName = `${prefix}oss-client/oss/copy-new-If-Modified-Since.js`;
+        const result = await ossObject.copy(targetName, name, {
+          headers: {
+            'If-Modified-Since': resHeaders.date,
+          },
+        });
+        assert.equal(result.res.status, 304);
+      });
+
+      it('should 200 when If-Modified-Since < source object modified time', async () => {
+        const targetName = `${prefix}oss-client/oss/copy-new-If-Modified-Since.js`;
+        const lastYear = new Date(resHeaders.date!);
+        lastYear.setFullYear(lastYear.getFullYear() - 1);
+        const result = await ossObject.copy(targetName, name, {
+          headers: {
+            'If-Modified-Since': lastYear.toUTCString(),
+          },
+        });
+        assert.equal(result.res.status, 200);
+      });
+    });
+
+    describe('If-Unmodified-Since header', () => {
+      it('should 200 when If-Unmodified-Since > source object modified time', async () => {
+        const targetName = `${prefix}oss-client/oss/copy-new-If-Unmodified-Since.js`;
+        const nextYear = new Date(resHeaders.date!);
+        nextYear.setFullYear(nextYear.getFullYear() + 1);
+        const result = await ossObject.copy(targetName, name, {
+          headers: {
+            'If-Unmodified-Since': nextYear.toUTCString(),
+          },
+        });
+        assert.equal(result.res.status, 200);
+      });
+
+      it('should 200 when If-Unmodified-Since >= source object modified time', async () => {
+        const targetName = `${prefix}oss-client/oss/copy-new-If-Unmodified-Since.js`;
+        const result = await ossObject.copy(targetName, name, {
+          headers: {
+            'If-Unmodified-Since': resHeaders.date,
+          },
+        });
+        assert.equal(result.res.status, 200);
+      });
+
+      it('should throw PreconditionFailedError when If-Unmodified-Since < source object modified time', async () => {
+        const targetName = `${prefix}oss-client/oss/copy-new-If-Unmodified-Since.js`;
+        const lastYear = new Date(resHeaders.date!);
+        lastYear.setFullYear(lastYear.getFullYear() - 1);
+        await assert.rejects(async () => {
+          await ossObject.copy(targetName, name, {
+            headers: {
+              'If-Unmodified-Since': lastYear.toUTCString(),
+            },
+          });
+        }, (err: OSSClientError) => {
+          assert.equal(err.code, 'PreconditionFailed');
+          assert.match(
+            err.message,
+            /At least one of the pre-conditions you specified did not hold. \(condition=If-Unmodified-Since\)/,
+          );
+          assert.equal(err.status, 412);
+          return true;
+        });
+      });
     });
   });
 });

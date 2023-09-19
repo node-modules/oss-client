@@ -6,32 +6,24 @@ import mime from 'mime';
 import { isReadable, isWritable } from 'is-type-of';
 import type { IncomingHttpHeaders } from 'urllib';
 import type {
-  // IObjectSimple,
-  // GetObjectOptions,
   ListObjectsQuery,
   RequestOptions,
   ListObjectResult,
   PutObjectOptions,
   PutObjectResult,
-  // NormalSuccessResponse,
-  // HeadObjectOptions,
-  // HeadObjectResult,
-  // GetObjectResult,
-  // GetStreamOptions,
-  // GetStreamResult,
-  // CopyObjectOptions,
-  // CopyAndPutMetaResult,
-  // StorageType,
-  // OwnerType,
   UserMeta,
   DeleteObjectOptions,
   DeleteObjectResult,
   GetObjectOptions,
   GetObjectResult,
-  // ObjectCallback,
   SignatureUrlOptions,
   HeadObjectOptions,
   HeadObjectResult,
+  IObjectSimple,
+  GetStreamOptions,
+  GetStreamResult,
+  CopyObjectOptions,
+  CopyAndPutMetaResult,
 } from 'oss-interface';
 import {
   OSSBaseClientInitOptions,
@@ -54,8 +46,7 @@ export interface OSSObjectClientInitOptions extends OSSBaseClientInitOptions {
   bucket: string;
 }
 
-export class OSSObject extends OSSBaseClient {
-// export class OSSObject extends OSSBaseClient implements IObjectSimple {
+export class OSSObject extends OSSBaseClient implements IObjectSimple {
   #bucket: string;
   #bucketEndpoint: string;
 
@@ -297,22 +288,7 @@ export class OSSObject extends OSSBaseClient {
       options = file;
     }
 
-    options = options ?? {};
-    // 兼容老的 subres 参数
-    if (options.subres && !options.subResource) {
-      options.subResource = options.subres;
-    }
-    if (!options.subResource) {
-      options.subResource = {};
-    }
-
-    if (options.versionId) {
-      options.subResource.versionId = options.versionId;
-    }
-    if (options.process) {
-      options.subResource['x-oss-process'] = options.process;
-    }
-
+    options = this.#formatGetOptions(options);
     let result: OSSResult<Buffer>;
     try {
       const params = this.#objectRequestParams('GET', name, options);
@@ -336,6 +312,18 @@ export class OSSObject extends OSSBaseClient {
       res: result.res,
       content: result.data,
     };
+  }
+
+  async getStream(name: string, options?: GetStreamOptions): Promise<GetStreamResult> {
+    options = this.#formatGetOptions(options);
+    const params = this.#objectRequestParams('GET', name, options);
+    params.streaming = true;
+    params.successStatuses = [ 200, 206, 304 ];
+    const { res } = await this.request(params);
+    return {
+      stream: res,
+      res,
+    } satisfies GetStreamResult;
   }
 
   // /**
@@ -541,6 +529,72 @@ export class OSSObject extends OSSBaseClient {
     return this.signatureUrl(name, options);
   }
 
+  /**
+   * Copy an object from sourceName to name.
+   */
+  async copy(name: string, sourceName: string, options?: CopyObjectOptions): Promise<CopyAndPutMetaResult>;
+  async copy(name: string, sourceName: string, sourceBucket: string, options?: CopyObjectOptions): Promise<CopyAndPutMetaResult>;
+  async copy(name: string, sourceName: string, sourceBucket?: string | CopyObjectOptions, options?: CopyObjectOptions): Promise<CopyAndPutMetaResult> {
+    if (typeof sourceBucket === 'object') {
+      options = sourceBucket; // 兼容旧版本，旧版本第三个参数为options
+      sourceBucket = undefined;
+    }
+    options = options ?? {};
+    options.headers = options.headers ?? {};
+    let hasMetadata = !!options.meta;
+    const REPLACE_HEADERS = [
+      'content-type',
+      'content-encoding',
+      'content-language',
+      'content-disposition',
+      'cache-control',
+      'expires',
+    ];
+    for (const key in options.headers) {
+      const lowerCaseKey = key.toLowerCase();
+      options.headers[`x-oss-copy-source-${lowerCaseKey}`] = options.headers[key];
+      if (REPLACE_HEADERS.includes(lowerCaseKey)) {
+        hasMetadata = true;
+      }
+    }
+    if (hasMetadata) {
+      options.headers['x-oss-metadata-directive'] = 'REPLACE';
+    }
+    this.#convertMetaToHeaders(options.meta, options.headers);
+
+    sourceName = this.#getCopySourceName(sourceName, sourceBucket);
+    if (options.versionId) {
+      sourceName = `${sourceName}?versionId=${options.versionId}`;
+    }
+    options.headers['x-oss-copy-source'] = sourceName;
+    const params = this.#objectRequestParams('PUT', name, options);
+    params.xmlResponse = true;
+    params.successStatuses = [ 200, 304 ];
+    const { data, res } = await this.request(params);
+    return {
+      data: data ? {
+        etag: data.ETag ?? '',
+        lastModified: data.LastModified ?? '',
+      } : null,
+      res,
+    } satisfies CopyAndPutMetaResult;
+  }
+
+  #getCopySourceName(sourceName: string, bucketName?: string) {
+    if (typeof bucketName === 'string') {
+      sourceName = this.#objectName(sourceName);
+    } else if (sourceName[0] !== '/') {
+      bucketName = this.#bucket;
+    } else {
+      bucketName = sourceName.replace(/\/(.+?)(\/.*)/, '$1');
+      sourceName = sourceName.replace(/(\/.+?\/)(.*)/, '$2');
+    }
+    checkBucketName(bucketName);
+    sourceName = encodeURIComponent(sourceName);
+    sourceName = `/${bucketName}/${sourceName}`;
+    return sourceName;
+  }
+
   /** protected methods */
 
   protected getRequestEndpoint(): string {
@@ -591,6 +645,25 @@ export class OSSObject extends OSSBaseClient {
 
   #objectUrl(name: string) {
     return this.getRequestURL({ object: name });
+  }
+
+  #formatGetOptions(options?: GetObjectOptions) {
+    options = options ?? {};
+    // 兼容老的 subres 参数
+    if (options.subres && !options.subResource) {
+      options.subResource = options.subres;
+    }
+    if (!options.subResource) {
+      options.subResource = {};
+    }
+
+    if (options.versionId) {
+      options.subResource.versionId = options.versionId;
+    }
+    if (options.process) {
+      options.subResource['x-oss-process'] = options.process;
+    }
+    return options;
   }
 
   /**
