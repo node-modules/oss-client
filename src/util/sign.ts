@@ -112,6 +112,9 @@ export function signatureForURL(accessKeySecret: string, options: SignatureUrlOp
   if (options['Content-MD5'] && !options['content-md5']) {
     options['content-md5'] = options['Content-MD5'];
   }
+  if (options['Content-Md5'] && !options['content-md5']) {
+    options['content-md5'] = options['Content-Md5'];
+  }
   if (options['content-md5']) {
     headers['content-md5'] = options['content-md5'];
   }

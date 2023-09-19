@@ -4,11 +4,13 @@ const RESPONSE_HOST_KEY = 'response-host';
 
 export class OSSClientError extends Error {
   code: string;
+  status: number;
   requestId?: string;
   hostId?: string;
 
-  constructor(code: string, message: string, requestId?: string, hostId?: string) {
+  constructor(status: number, code: string, message: string, requestId?: string, hostId?: string) {
     super(`[${REQUEST_ID_KEY}=${requestId}, ${RESPONSE_CODE_KEY}=${code}, ${RESPONSE_HOST_KEY}=${hostId}] ${message}`);
+    this.status = status;
     this.code = code;
     this.name = 'OSSClientError';
     this.requestId = requestId;

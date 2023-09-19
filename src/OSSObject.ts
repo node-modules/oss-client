@@ -30,6 +30,8 @@ import type {
   GetObjectResult,
   // ObjectCallback,
   SignatureUrlOptions,
+  HeadObjectOptions,
+  HeadObjectResult,
 } from 'oss-interface';
 import {
   OSSBaseClientInitOptions,
@@ -448,6 +450,65 @@ export class OSSObject extends OSSBaseClient {
   }
 
   /**
+   * HeadObject
+   * @see https://help.aliyun.com/zh/oss/developer-reference/headobject
+   */
+  async head(name: string, options?: HeadObjectOptions): Promise<HeadObjectResult> {
+    options = options ?? {};
+    if (options.subres && !options.subResource) {
+      options.subResource = options.subres;
+    }
+    if (options.versionId) {
+      if (!options.subResource) {
+        options.subResource = {};
+      }
+      options.subResource.versionId = options.versionId;
+    }
+    const params = this.#objectRequestParams('HEAD', name, options);
+    params.successStatuses = [ 200, 304 ];
+    const { res } = await this.request(params);
+    const meta: UserMeta = {};
+    const result = {
+      meta,
+      res,
+      status: res.status,
+    } satisfies HeadObjectResult;
+    for (const k in res.headers) {
+      if (k.startsWith('x-oss-meta-')) {
+        const key = k.substring(11);
+        meta[key] = res.headers[k] as string;
+      }
+    }
+    return result;
+  }
+
+  /**
+   * GetObjectMeta
+   * @see https://help.aliyun.com/zh/oss/developer-reference/getobjectmeta
+   */
+  async getObjectMeta(name: string, options?: HeadObjectOptions) {
+    options = options ?? {};
+    name = this.#objectName(name);
+    if (options.subres && !options.subResource) {
+      options.subResource = options.subres;
+    }
+    if (!options.subResource) {
+      options.subResource = {};
+    }
+    if (options.versionId) {
+      options.subResource.versionId = options.versionId;
+    }
+    options.subResource.objectMeta = '';
+    const params = this.#objectRequestParams('HEAD', name, options);
+    params.successStatuses = [ 200 ];
+    const { res } = await this.request(params);
+    return {
+      status: res.status,
+      res,
+    };
+  }
+
+  /**
    * signatureUrl URL签名
    * @see https://help.aliyun.com/zh/oss/developer-reference/signed-urls
    */
@@ -476,6 +537,9 @@ export class OSSObject extends OSSBaseClient {
     return url;
   }
 
+  async asyncSignatureUrl(name: string, options?: SignatureUrlOptions) {
+    return this.signatureUrl(name, options);
+  }
 
   /** protected methods */
 
@@ -487,6 +551,10 @@ export class OSSObject extends OSSBaseClient {
 
   async #sendPutRequest(name: string, options: PutObjectOptions, contentOrStream: Buffer | Readable) {
     options.headers = options.headers ?? {};
+    if (options.headers['Content-Type'] && !options.headers['content-type']) {
+      options.headers['content-type'] = options.headers['Content-Type'] as string;
+      delete options.headers['Content-Type'];
+    }
     name = this.#objectName(name);
     this.#convertMetaToHeaders(options.meta, options.headers);
     // don't override exists headers

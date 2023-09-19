@@ -271,14 +271,15 @@ export abstract class OSSBaseClient {
     let err: OSSClientError;
     let requestId = result.headers['x-oss-request-id'] as string ?? '';
     let hostId = '';
+    const status = result.status;
     if (!result.data || !result.data.length) {
       // HEAD not exists resource
-      if (result.status === 404) {
-        err = new OSSClientError('NoSuchKey', 'Object not exists', requestId, hostId);
-      } else if (result.status === 412) {
-        err = new OSSClientError('PreconditionFailed', 'Pre condition failed', requestId, hostId);
+      if (status === 404) {
+        err = new OSSClientError(status, 'NoSuchKey', 'Object not exists', requestId, hostId);
+      } else if (status === 412) {
+        err = new OSSClientError(status, 'PreconditionFailed', 'Pre condition failed', requestId, hostId);
       } else {
-        err = new OSSClientError('Unknown', `Unknown error, status=${result.status}, raw error=${result}`,
+        err = new OSSClientError(status, 'Unknown', `Unknown error, status=${status}, raw error=${result}`,
           requestId, hostId);
       }
     } else {
@@ -289,7 +290,7 @@ export abstract class OSSBaseClient {
       try {
         info = await this.#xml2json(xml);
       } catch (e: any) {
-        err = new OSSClientError('PreconditionFailed', `${e.message} (raw xml=${JSON.stringify(xml)})`, requestId, hostId);
+        err = new OSSClientError(status, 'PreconditionFailed', `${e.message} (raw xml=${JSON.stringify(xml)})`, requestId, hostId);
         return err;
       }
 
@@ -303,7 +304,7 @@ export abstract class OSSBaseClient {
       if (info?.HostId) {
         hostId = info.HostId;
       }
-      err = new OSSClientError(info?.Code ?? 'Unknown', message, requestId, hostId);
+      err = new OSSClientError(status, info?.Code ?? 'Unknown', message, requestId, hostId);
     }
 
     debug('generate error %o', err);
