@@ -234,46 +234,6 @@ describe('test/object.test.js', () => {
     });
   });
 
-  describe('putMeta()', () => {
-    let name;
-    before(async () => {
-      name = `${prefix}oss-client/oss/putMeta.js`;
-      const object = await store.put(name, __filename, {
-        meta: {
-          uid: 1,
-          pid: '123',
-          slus: 'test.html',
-        },
-      });
-      assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
-    });
-
-    it('should update exists object meta', async () => {
-      await store.putMeta(name, {
-        uid: '2',
-      });
-      const info = await store.head(name);
-      assert.equal(info.meta.uid, '2');
-      assert(!info.meta.pid);
-      assert(!info.meta.slus);
-    });
-
-    it('should throw NoSuchKeyError when update not exists object meta', async () => {
-      await assert.rejects(
-        async () => {
-          await store.putMeta(`${name}not-exists`, {
-            uid: '2',
-          });
-        },
-        err => {
-          assert.equal(err.name, 'NoSuchKeyError');
-          assert.equal(err.status, 404);
-          return true;
-        }
-      );
-    });
-  });
-
   describe('listV2()', () => {
     let listPrefix;
     before(async () => {
@@ -434,29 +394,6 @@ describe('test/object.test.js', () => {
         nextContinuationToken = result.nextContinuationToken;
       } while (nextContinuationToken);
       assert.strictEqual(keyCount, 6);
-    });
-  });
-
-  describe('putACL(), getACL()', () => {
-    it('should put and get object ACL', async () => {
-      const name = `${prefix}object/acl`;
-      let result = await store.put(name, Buffer.from('hello world'));
-      assert.equal(result.res.status, 200);
-
-      result = await store.getACL(name);
-      assert.equal(result.res.status, 200);
-      assert.equal(result.acl, 'default');
-
-      result = await store.putACL(name, 'public-read');
-      assert.equal(result.res.status, 200);
-
-      result = await store.getACL(name);
-      assert.equal(result.res.status, 200);
-      assert.equal(result.acl, 'public-read');
-
-      result = await store.get(name);
-      assert.equal(result.res.status, 200);
-      assert.deepEqual(result.content, Buffer.from('hello world'));
     });
   });
 

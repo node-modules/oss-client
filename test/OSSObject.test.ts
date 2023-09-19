@@ -508,6 +508,78 @@ describe('test/OSSObject.test.ts', () => {
     });
   });
 
+  describe('putMeta()', () => {
+    let name: string;
+    before(async () => {
+      name = `${prefix}oss-client/oss/putMeta.js`;
+      const object = await ossObject.put(name, __filename, {
+        meta: {
+          uid: 1,
+          pid: '123',
+          slus: 'test.html',
+        },
+      });
+      assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
+    });
+
+    after(async () => {
+      await ossObject.delete(name);
+    });
+
+    it('should update exists object meta', async () => {
+      await ossObject.putMeta(name, {
+        uid: '2',
+      });
+      const info = await ossObject.head(name);
+      assert.equal(info.meta.uid, '2');
+      assert(!info.meta.pid);
+      assert(!info.meta.slus);
+    });
+
+    it('should throw NoSuchKeyError when update not exists object meta', async () => {
+      await assert.rejects(async () => {
+        await ossObject.putMeta(`${name}not-exists`, {
+          uid: '2',
+        });
+      }, (err: OSSClientError) => {
+        assert.equal(err.code, 'NoSuchKey');
+        assert.equal(err.status, 404);
+        return true;
+      });
+    });
+  });
+
+  describe('putACL(), getACL()', () => {
+    let name: string;
+    after(async () => {
+      await ossObject.delete(name);
+    });
+
+    it('should put and get object ACL', async () => {
+      name = `${prefix}object/acl`;
+      const r1 = await ossObject.put(name, Buffer.from('hello world'));
+      assert.equal(r1.res.status, 200);
+
+      const r2 = await ossObject.getACL(name);
+      assert.equal(r2.res.status, 200);
+      assert.equal(r2.acl, 'default');
+      assert(r2.owner);
+      assert(r2.owner.displayName);
+      assert(r2.owner.id);
+
+      const r3 = await ossObject.putACL(name, 'public-read');
+      assert.equal(r3.res.status, 200);
+
+      const r4 = await ossObject.getACL(name);
+      assert.equal(r4.res.status, 200);
+      assert.equal(r4.acl, 'public-read');
+
+      const r5 = await ossObject.get(name);
+      assert.equal(r5.res.status, 200);
+      assert.deepEqual(r5.content, Buffer.from('hello world'));
+    });
+  });
+
   describe('delete()', () => {
     it('should delete exists object', async () => {
       const name = `${prefix}oss-client/oss/delete.js`;

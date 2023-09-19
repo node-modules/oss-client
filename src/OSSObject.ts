@@ -30,12 +30,17 @@ import {
   OSSBaseClient,
 } from './OSSBaseClient.js';
 import {
+  ACLType,
   DeleteMultipleObject,
   DeleteMultipleObjectOptions,
   DeleteMultipleObjectResponse,
   DeleteMultipleObjectXML,
+  GetACLOptions,
+  GetACLResult,
   OSSRequestParams,
   OSSResult,
+  PutACLOptions,
+  PutACLResult,
   RequestMethod,
 } from './type/index.js';
 import {
@@ -155,13 +160,12 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
   //   };
   // };
 
-  // proto.putMeta = async function putMeta(name, meta, options) {
-  //   return await this.copy(name, name, {
-  //     meta: meta || {},
-  //     timeout: options && options.timeout,
-  //     ctx: options && options.ctx,
-  //   });
-  // };
+  async putMeta(name: string, meta: UserMeta, options?: Omit<CopyObjectOptions, 'meta'>) {
+    return await this.copy(name, name, {
+      meta,
+      ...options,
+    });
+  }
 
   async list(query?: ListObjectsQuery, options?: RequestOptions): Promise<ListObjectResult> {
     // prefix, marker, max-keys, delimiter
@@ -324,6 +328,64 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
       stream: res,
       res,
     } satisfies GetStreamResult;
+  }
+
+  async putACL(name: string, acl: ACLType, options?: PutACLOptions): Promise<PutACLResult> {
+    options = options ?? {};
+    if (options.subres && !options.subResource) {
+      options.subResource = options.subres;
+      delete options.subres;
+    }
+    if (!options.subResource) {
+      options.subResource = {};
+    }
+    options.subResource.acl = '';
+    if (options.versionId) {
+      options.subResource.versionId = options.versionId;
+    }
+    options.headers = options.headers ?? {};
+    options.headers['x-oss-object-acl'] = acl;
+    name = this.#objectName(name);
+    const params = this.#objectRequestParams('PUT', name, options);
+    params.successStatuses = [ 200 ];
+    const { res } = await this.request(params);
+    return {
+      res,
+    } satisfies PutACLResult;
+  }
+
+  /**
+  * GetObjectACL
+  * @see https://help.aliyun.com/zh/oss/developer-reference/getobjectacl
+  */
+  async getACL(name: string, options?: GetACLOptions): Promise<GetACLResult> {
+    options = options ?? {};
+    if (options.subres && !options.subResource) {
+      options.subResource = options.subres;
+      delete options.subres;
+    }
+    if (!options.subResource) {
+      options.subResource = {};
+    }
+    options.subResource.acl = '';
+    if (options.versionId) {
+      options.subResource.versionId = options.versionId;
+    }
+    name = this.#objectName(name);
+
+    const params = this.#objectRequestParams('GET', name, options);
+    params.successStatuses = [ 200 ];
+    params.xmlResponse = true;
+
+    const { data, res } = await this.request(params);
+    return {
+      acl: data.AccessControlList.Grant,
+      owner: {
+        id: data.Owner.ID,
+        displayName: data.Owner.DisplayName,
+      },
+      res,
+    } satisfies GetACLResult;
   }
 
   // /**
