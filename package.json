@@ -64,7 +64,7 @@
     "oss-interface": "^1.2.2",
     "sdk-base": "^4.2.1",
     "stream-wormhole": "^2.0.0",
-    "urllib": "^3.18.1",
+    "urllib": "^3.19.2",
     "utility": "^1.18.0",
     "xml2js": "^0.6.2"
   },

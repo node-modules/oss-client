@@ -6,7 +6,7 @@ import path from 'node:path';
 import os from 'node:os';
 import { randomUUID } from 'node:crypto';
 import { ObjectMeta } from 'oss-interface';
-import { RawResponseWithMeta } from 'urllib';
+import urllib, { RawResponseWithMeta } from 'urllib';
 import config from './config.js';
 import { OSSObject } from '../src/index.js';
 import { OSSClientError } from '../src/error/OSSClientError.js';
@@ -473,22 +473,27 @@ describe('test/OSSObject.test.ts', () => {
       assert.deepEqual(r.content, buf);
     });
 
-    // it('should put object with http streaming way', async () => {
-    //   const name = `${prefix}oss-client/oss/nodejs-1024x768.png`;
-    //   const nameCpy = `${prefix}oss-client/oss/nodejs-1024x768`;
-    //   const imagepath = path.join(__dirname, 'nodejs-1024x768.png');
-    //   await ossObject.putStream(name, createReadStream(imagepath), { mime: 'image/png' });
-    //   const signUrl = await ossObject.signatureUrl(name, { expires: 3600 });
-    //   const { res: httpStream } = await urllib.request(signUrl, {
-    //     dataType: 'stream',
-    //   });
-    //   let result = await ossObject.putStream(nameCpy, httpStream);
-    //   assert.equal(result.res.status, 200);
-    //   result = await ossObject.get(nameCpy);
-    //   assert.equal(result.res.status, 200);
-    //   assert.equal(result.res.headers['content-type'], 'application/octet-stream');
-    //   assert.equal(result.res.headers['content-length'], httpStream.headers['content-length']);
-    // });
+    it('should put object with http streaming way', async () => {
+      const name = `${prefix}oss-client/oss/nodejs-1024x768.png`;
+      const nameCpy = `${prefix}oss-client/oss/nodejs-1024x768`;
+      const imagePath = path.join(__dirname, 'nodejs-1024x768.png');
+      await ossObject.putStream(name, createReadStream(imagePath), { mime: 'image/png' });
+      const signUrl = ossObject.signatureUrl(name, { expires: 3600 });
+      const { res: httpStream, status } = await urllib.request(signUrl, {
+        dataType: 'stream',
+      });
+      assert.equal(httpStream.headers['content-type'], 'image/png');
+      assert.equal(httpStream.headers['content-length'], '502182');
+      assert.equal(status, 200);
+      const putResult = await ossObject.putStream(nameCpy, httpStream);
+      assert.equal(putResult.res.status, 200);
+      const getResult = await ossObject.get(nameCpy);
+      assert.equal(getResult.res.status, 200);
+      assert.equal(getResult.res.headers['content-type'], 'application/octet-stream');
+      assert.equal(getResult.res.headers['content-length'], httpStream.headers['content-length']);
+      assert.equal(getResult.res.headers.etag, putResult.res.headers.etag);
+      assert.equal(getResult.res.headers.etag, httpStream.headers.etag);
+    });
 
     it('should add very big file: 4mb with streaming way', async () => {
       const name = `${prefix}oss-client/oss/bigfile-4mb.bin`;

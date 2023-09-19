@@ -1,5 +1,5 @@
 import assert from 'node:assert';
-import { isIP } from '../../src/util/isIP.js';
+import { isIP } from '../../src/util/index.js';
 
 describe('test/util/isIP.test.ts', () => {
   it('ipv4 test', () => {

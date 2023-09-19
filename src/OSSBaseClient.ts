@@ -2,15 +2,16 @@ import { debuglog } from 'node:util';
 import assert from 'node:assert';
 import { createHash } from 'node:crypto';
 import { extname } from 'node:path';
-import type { IncomingHttpHeaders } from 'node:http';
 import { sendToWormhole } from 'stream-wormhole';
 import { parseStringPromise } from 'xml2js';
 import utility from 'utility';
 import mime from 'mime';
-import { HttpClient, RequestOptions, HttpClientResponse } from 'urllib';
+import {
+  HttpClient, RequestOptions, HttpClientResponse, IncomingHttpHeaders,
+} from 'urllib';
 import ms from 'ms';
 import pkg from '../package.json' assert { type: 'json' };
-import { authorization, buildCanonicalString, computeSignature } from './util/sign.js';
+import { authorization, buildCanonicalString, computeSignature } from './util/index.js';
 import { OSSRequestParams, OSSResult, RequestParameters } from './type/Request.js';
 import { OSSClientError } from './error/index.js';
 

@@ -1,7 +1,6 @@
 import type { Readable, Writable } from 'node:stream';
-import type { IncomingHttpHeaders } from 'node:http';
 import type { ListObjectsQuery } from 'oss-interface';
-import type { RawResponseWithMeta } from 'urllib';
+import type { RawResponseWithMeta, IncomingHttpHeaders } from 'urllib';
 
 export type RequestParameters = string | string[] | Record<string, string | number>;
 export type RequestQuery = Record<string, string> | ListObjectsQuery;

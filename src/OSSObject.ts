@@ -2,10 +2,9 @@ import { Readable, Writable } from 'node:stream';
 import { createReadStream, createWriteStream } from 'node:fs';
 import { strict as assert } from 'node:assert';
 import fs from 'node:fs/promises';
-import { IncomingHttpHeaders } from 'node:http';
 import mime from 'mime';
 import { isReadable, isWritable } from 'is-type-of';
-
+import type { IncomingHttpHeaders } from 'urllib';
 import type {
   // IObjectSimple,
   // GetObjectOptions,
@@ -30,6 +29,7 @@ import type {
   GetObjectOptions,
   GetObjectResult,
   // ObjectCallback,
+  SignatureUrlOptions,
 } from 'oss-interface';
 import {
   OSSBaseClientInitOptions,
@@ -44,9 +44,9 @@ import {
   OSSResult,
   RequestMethod,
 } from './type/index.js';
-import { checkBucketName } from './util/index.js';
-import { encodeCallback } from './util/encodeCallback.js';
-import { json2xml } from './util/json2xml.js';
+import {
+  checkBucketName, signatureForURL, encodeCallback, json2xml, timestamp,
+} from './util/index.js';
 
 export interface OSSObjectClientInitOptions extends OSSBaseClientInitOptions {
   bucket: string;
@@ -334,8 +334,7 @@ export class OSSObject extends OSSBaseClient {
       res: result.res,
       content: result.data,
     };
-  };
-
+  }
 
   // /**
   //  * Restore Object
@@ -448,6 +447,36 @@ export class OSSObject extends OSSBaseClient {
     } satisfies DeleteMultipleObjectResponse;
   }
 
+  /**
+   * signatureUrl URL签名
+   * @see https://help.aliyun.com/zh/oss/developer-reference/signed-urls
+   */
+  signatureUrl(name: string, options?: SignatureUrlOptions) {
+    options = options ?? {};
+    name = this.#objectName(name);
+    options.method = options.method ?? 'GET';
+    const expires = options.expires ?? 1800;
+    const expiresTimestamp = timestamp() + expires;
+    const params = {
+      bucket: this.#bucket,
+      object: name,
+    };
+    const resource = this.getResource(params);
+    const signRes = signatureForURL(this.options.accessKeySecret, options, resource, expiresTimestamp);
+
+    const url = this.getRequestURL({
+      object: name,
+      subResource: {
+        OSSAccessKeyId: this.options.accessKeyId,
+        Expires: expiresTimestamp,
+        Signature: signRes.Signature,
+        ...signRes.subResource,
+      },
+    });
+    return url;
+  }
+
+
   /** protected methods */
 
   protected getRequestEndpoint(): string {
@@ -462,8 +491,11 @@ export class OSSObject extends OSSBaseClient {
     this.#convertMetaToHeaders(options.meta, options.headers);
     // don't override exists headers
     if (options.callback && !options.headers['x-oss-callback']) {
-      const callbackHeaders = encodeCallback(options.callback);
-      Object.assign(options.headers, callbackHeaders);
+      const callbackOptions = encodeCallback(options.callback);
+      options.headers['x-oss-callback'] = callbackOptions.callback;
+      if (callbackOptions.callbackVar) {
+        options.headers['x-oss-callback-var'] = callbackOptions.callbackVar;
+      }
     }
     const params = this.#objectRequestParams('PUT', name, options);
     params.mime = options.mime;

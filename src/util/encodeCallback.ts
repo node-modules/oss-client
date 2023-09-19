@@ -1,8 +1,8 @@
 import type { ObjectCallback } from 'oss-interface';
 
-export interface CallbackHeaders {
-  'x-oss-callback': string;
-  'x-oss-callback-var'?: string;
+export interface CallbackOptions {
+  callback: string;
+  callbackVar?: string;
 }
 
 export function encodeCallback(objectCallback: ObjectCallback) {
@@ -18,8 +18,8 @@ export function encodeCallback(objectCallback: ObjectCallback) {
     data.callbackBodyType = objectCallback.contentType;
   }
   const callbackHeaderValue = Buffer.from(JSON.stringify(data)).toString('base64');
-  const headers: CallbackHeaders = {
-    'x-oss-callback': callbackHeaderValue,
+  const options: CallbackOptions = {
+    callback: callbackHeaderValue,
   };
 
   if (objectCallback.customValue) {
@@ -27,7 +27,7 @@ export function encodeCallback(objectCallback: ObjectCallback) {
     for (const key in objectCallback.customValue) {
       callbackVar[`x:${key}`] = objectCallback.customValue[key].toString();
     }
-    headers['x-oss-callback-var'] = Buffer.from(JSON.stringify(callbackVar)).toString('base64');
+    options.callbackVar = Buffer.from(JSON.stringify(callbackVar)).toString('base64');
   }
-  return headers;
+  return options;
 }

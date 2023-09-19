@@ -1,7 +1,9 @@
 import { debuglog } from 'node:util';
 import crypto from 'node:crypto';
-import type { IncomingHttpHeaders } from 'node:http';
-import { Request, RequestParameters } from '../type/Request.js';
+import type { IncomingHttpHeaders } from 'urllib';
+import type { SignatureUrlOptions } from 'oss-interface';
+import type { Request, RequestParameters } from '../type/Request.js';
+import { encodeCallback } from './encodeCallback.js';
 
 const debug = debuglog('oss-client:sign');
 const OSS_PREFIX = 'x-oss-';
@@ -53,14 +55,14 @@ function lowercaseKeyHeader(headers: IncomingHttpHeaders) {
   return lowercaseHeaders;
 }
 
-export function buildCanonicalString(method: string, resourcePath: string, request: Request, expires?: string) {
+export function buildCanonicalString(method: string, resourcePath: string, request: Request, expiresTimestamp?: string) {
   const headers = lowercaseKeyHeader(request.headers);
   const headersToSign: IncomingHttpHeaders = {};
   const signContent: string[] = [
     method.toUpperCase(),
     headers['content-md5'] as string ?? '',
     headers['content-type']!,
-    expires || headers['x-oss-date'] as string,
+    expiresTimestamp || headers['x-oss-date'] as string,
   ];
 
   Object.keys(headers).forEach(key => {
@@ -87,72 +89,62 @@ export function authorization(accessKeyId: string, accessKeySecret: string, cano
   return `OSS ${accessKeyId}:${computeSignature(accessKeySecret, canonicalString)}`;
 }
 
-// export function signatureForURL(accessKeySecret: string, options = {}, resource: string, expires: string) {
-//   const headers = {};
-//   const { subResource = {} } = options;
+export function signatureForURL(accessKeySecret: string, options: SignatureUrlOptions,
+  resource: string, expiresTimestamp: number) {
+  const headers: Record<string, string> = {};
+  const subResource = options.subResource ?? {};
 
-//   if (options.process) {
-//     const processKeyword = 'x-oss-process';
-//     subResource[processKeyword] = options.process;
-//   }
+  if (options.process) {
+    subResource['x-oss-process'] = options.process;
+  }
 
-//   if (options.trafficLimit) {
-//     const trafficLimitKey = 'x-oss-traffic-limit';
-//     subResource[trafficLimitKey] = options.trafficLimit;
-//   }
+  if (options.trafficLimit) {
+    subResource['x-oss-traffic-limit'] = `${options.trafficLimit}`;
+  }
 
-//   if (options.response) {
-//     Object.keys(options.response).forEach(k => {
-//       const key = `response-${k.toLowerCase()}`;
-//       subResource[key] = options.response[k];
-//     });
-//   }
+  if (options.response) {
+    const customResponseHeaders = options.response as Record<string, string>;
+    for (const k in customResponseHeaders) {
+      subResource[`response-${k.toLowerCase()}`] = customResponseHeaders[k];
+    }
+  }
 
-//   Object.keys(options).forEach(key => {
-//     const lowerKey = key.toLowerCase();
-//     const value = options[key];
-//     if (lowerKey.indexOf('x-oss-') === 0) {
-//       headers[lowerKey] = value;
-//     } else if (lowerKey.indexOf('content-md5') === 0) {
-//       headers[key] = value;
-//     } else if (lowerKey.indexOf('content-type') === 0) {
-//       headers[key] = value;
-//     }
-//   });
+  if (options['Content-MD5'] && !options['content-md5']) {
+    options['content-md5'] = options['Content-MD5'];
+  }
+  if (options['content-md5']) {
+    headers['content-md5'] = options['content-md5'];
+  }
+  if (options['Content-Type'] && !options['content-type']) {
+    options['content-type'] = options['Content-Type'];
+  }
+  if (options['content-type']) {
+    headers['content-type'] = options['content-type'];
+  }
 
-//   if (Object.prototype.hasOwnProperty.call(options, 'security-token')) {
-//     subResource['security-token'] = options['security-token'];
-//   }
+  // copy other x-oss-* headers
+  for (const key in options) {
+    const lowerKey = key.toLowerCase();
+    if (lowerKey.startsWith('x-oss-')) {
+      headers[lowerKey] = options[key];
+    }
+  }
 
-//   if (Object.prototype.hasOwnProperty.call(options, 'callback')) {
-//     const json = {
-//       callbackUrl: encodeURI(options.callback.url),
-//       callbackBody: options.callback.body,
-//     };
-//     if (options.callback.host) {
-//       json.callbackHost = options.callback.host;
-//     }
-//     if (options.callback.contentType) {
-//       json.callbackBodyType = options.callback.contentType;
-//     }
-//     subResource.callback = Buffer.from(JSON.stringify(json)).toString('base64');
+  if (options.callback) {
+    const callbackOptions = encodeCallback(options.callback);
+    subResource.callback = callbackOptions.callback;
+    if (callbackOptions.callbackVar) {
+      subResource['callback-var'] = callbackOptions.callbackVar;
+    }
+  }
 
-//     if (options.callback.customValue) {
-//       const callbackVar = {};
-//       Object.keys(options.callback.customValue).forEach(key => {
-//         callbackVar[`x:${key}`] = options.callback.customValue[key];
-//       });
-//       subResource['callback-var'] = Buffer.from(JSON.stringify(callbackVar)).toString('base64');
-//     }
-//   }
+  const canonicalString = buildCanonicalString(options.method!, resource, {
+    headers,
+    parameters: subResource,
+  }, `${expiresTimestamp}`);
 
-//   const canonicalString = buildCanonicalString(options.method, resource, {
-//     headers,
-//     parameters: subResource,
-//   }, expires.toString());
-
-//   return {
-//     Signature: this.computeSignature(accessKeySecret, canonicalString, headerEncoding),
-//     subResource,
-//   };
-// };
+  return {
+    Signature: computeSignature(accessKeySecret, canonicalString),
+    subResource,
+  };
+}
