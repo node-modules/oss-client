@@ -10,7 +10,6 @@ import {
   HttpClient, RequestOptions, HttpClientResponse, IncomingHttpHeaders,
 } from 'urllib';
 import ms from 'ms';
-import pkg from '../package.json' assert { type: 'json' };
 import { authorization, buildCanonicalString, computeSignature } from './util/index.js';
 import { OSSRequestParams, OSSResult, RequestParameters } from './type/Request.js';
 import { OSSClientError } from './error/index.js';
@@ -248,10 +247,11 @@ export abstract class OSSBaseClient {
   /**
    * Get User-Agent for Node.js
    * @example
-   *   oss-client/1.0.0 Node.js/5.3.0 (darwin; arm64)
+   *   oss-client/2.0.0 Node.js/5.3.0 (darwin; arm64)
    */
   #getUserAgent() {
-    const sdk = `${pkg.name}/${pkg.version}`;
+    // TODO: should read version from package.json
+    const sdk = 'oss-client/2.0.0';
     const platform = `Node.js/${process.version.slice(1)} (${process.platform}; ${process.arch})`;
     return `${sdk} ${platform}`;
   }
