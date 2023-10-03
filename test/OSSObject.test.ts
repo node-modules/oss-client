@@ -164,6 +164,99 @@ describe('test/OSSObject.test.ts', () => {
     });
   });
 
+  describe('append()', () => {
+    const name = `/${prefix}oss-client/oss/append${Date.now()}`;
+    afterEach(async () => {
+      await ossObject.delete(name);
+    });
+
+    it('should append object with content buffer', async () => {
+      let object = await ossObject.append(name, Buffer.from('foo'));
+      assert.equal(object.res.status, 200);
+      assert.equal(object.nextAppendPosition, '3');
+      assert.equal(object.res.headers['x-oss-next-append-position'], '3');
+      assert(object.url);
+      assert(object.name);
+
+      let res = await ossObject.get(name);
+      assert.equal(res.content.toString(), 'foo');
+      assert.equal(res.res.headers['x-oss-next-append-position'], '3');
+
+      object = await ossObject.append(name, Buffer.from('bar'), {
+        position: 3,
+      });
+      assert.equal(object.res.status, 200);
+      assert.equal(object.nextAppendPosition, '6');
+      assert.equal(object.res.headers['x-oss-next-append-position'], '6');
+
+      res = await ossObject.get(name);
+      assert.equal(res.content.toString(), 'foobar');
+      assert.equal(res.res.headers['x-oss-next-append-position'], '6');
+
+      object = await ossObject.append(name, Buffer.from(', ok'), {
+        position: '6',
+      });
+      assert.equal(object.res.status, 200);
+      assert.equal(object.nextAppendPosition, '10');
+      assert.equal(object.res.headers['x-oss-next-append-position'], '10');
+
+      res = await ossObject.get(name);
+      assert.equal(res.content.toString(), 'foobar, ok');
+      assert.equal(res.res.headers['x-oss-next-append-position'], '10');
+    });
+
+    it('should append object with local file path', async () => {
+      const file = path.join(__dirname, 'fixtures/foo.js');
+      let object = await ossObject.append(name, file);
+      assert.equal(object.nextAppendPosition, '16');
+
+      object = await ossObject.append(name, file, { position: 16 });
+      assert.equal(object.nextAppendPosition, '32');
+    });
+
+    it('should append object with readstream', async () => {
+      const file = path.join(__dirname, 'fixtures/foo.js');
+      let object = await ossObject.append(name, createReadStream(file));
+      assert.equal(object.nextAppendPosition, '16');
+
+      object = await ossObject.append(name, createReadStream(file), {
+        position: 16,
+      });
+      assert.equal(object.nextAppendPosition, '32');
+    });
+
+    it('should error when position not match', async () => {
+      await ossObject.append(name, Buffer.from('foo'));
+      await assert.rejects(async () => {
+        await ossObject.append(name, Buffer.from('foo'));
+      }, (err: OSSClientError) => {
+        assert.equal(err.name, 'OSSClientError');
+        assert.equal(err.code, 'PositionNotEqualToLength');
+        assert.equal(err.status, 409);
+        assert.match(err.message, /Position is not equal to file length/);
+        return true;
+      });
+    });
+
+    it('should use nextAppendPosition to append next', async () => {
+      let object = await ossObject.append(name, Buffer.from('foo'));
+      assert.equal(object.nextAppendPosition, '3');
+
+      object = await ossObject.append(name, Buffer.from('bar'), {
+        position: object.nextAppendPosition,
+      });
+
+      object = await ossObject.append(name, Buffer.from(', baz'), {
+        position: object.nextAppendPosition,
+      });
+      assert.equal(object.nextAppendPosition, '11');
+
+      const res = await ossObject.get(name);
+      assert.equal(res.content.toString(), 'foobar, baz');
+      assert.equal(res.res.headers['x-oss-next-append-position'], '11');
+    });
+  });
+
   describe('put()', () => {
     let name: string;
     afterEach(async () => {

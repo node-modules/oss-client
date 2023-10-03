@@ -31,6 +31,8 @@ import {
 } from './OSSBaseClient.js';
 import {
   ACLType,
+  AppendObjectOptions,
+  AppendObjectResult,
   DeleteMultipleObject,
   DeleteMultipleObjectOptions,
   DeleteMultipleObjectResponse,
@@ -66,26 +68,24 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
 
   /** public methods */
 
-  // /**
-  //  * append an object from String(file path)/Buffer/ReadableStream
-  //  * @param {String} name the object key
-  //  * @param {Mixed} file String(file path)/Buffer/ReadableStream
-  //  * @param {Object} options options
-  //  * @return {Object} result
-  //  */
-  // proto.append = async function append(name, file, options) {
-  //   options = options || {};
-  //   if (options.position === undefined) options.position = '0';
-  //   options.subres = {
-  //     append: '',
-  //     position: options.position,
-  //   };
-  //   options.method = 'POST';
-
-  //   const result = await this.put(name, file, options);
-  //   result.nextAppendPosition = result.res.headers['x-oss-next-append-position'];
-  //   return result;
-  // };
+  /**
+   * AppendObject
+   * @see https://help.aliyun.com/zh/oss/developer-reference/appendobject
+   */
+  async append(name: string, file: string | Buffer | Readable, options?: AppendObjectOptions): Promise<AppendObjectResult> {
+    const position = options?.position ?? '0';
+    const result = await this.#sendPutRequest(name, {
+      ...options,
+      subResource: {
+        append: '',
+        position: `${position}`,
+      },
+    }, file, 'POST');
+    return {
+      ...result,
+      nextAppendPosition: result.res.headers['x-oss-next-append-position'] as string,
+    };
+  }
 
   /**
    * put an object from String(file path)/Buffer/Readable
@@ -105,28 +105,9 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
    * @return {Object} result
    */
   async put(name: string, file: string | Buffer | Readable, options?: PutObjectOptions): Promise<PutObjectResult> {
-    name = this.#objectName(name);
-    options = options ?? {};
-    if (typeof file === 'string') {
-      const stats = await fs.stat(file);
-      if (!stats.isFile()) {
-        throw new Error(`${file} is not file`);
-      }
-      if (!options.mime) {
-        const mimeFromFile = mime.getType(file);
-        if (mimeFromFile) {
-          options.mime = mimeFromFile;
-        }
-      }
-      // options.contentLength = stats.size;
-      return await this.putStream(name, createReadStream(file), options);
-    } else if (isReadable(file)) {
-      return await this.putStream(name, file, options);
-    } else if (Buffer.isBuffer(file)) {
-      // file is Buffer
-      return await this.#sendPutRequest(name, options, file);
+    if (typeof file === 'string' || isReadable(file) || Buffer.isBuffer(file)) {
+      return await this.#sendPutRequest(name, options ?? {}, file);
     }
-
     throw new TypeError('Must provide String/Buffer/ReadableStream for put.');
   }
 
@@ -330,6 +311,10 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
     } satisfies GetStreamResult;
   }
 
+  /**
+   * PutObjectACL
+   * @see https://help.aliyun.com/zh/oss/developer-reference/putobjectacl
+   */
   async putACL(name: string, acl: ACLType, options?: PutACLOptions): Promise<PutACLResult> {
     options = options ?? {};
     if (options.subres && !options.subResource) {
@@ -665,7 +650,8 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
 
   /** private methods */
 
-  async #sendPutRequest(name: string, options: PutObjectOptions, contentOrStream: Buffer | Readable) {
+  async #sendPutRequest(name: string, options: PutObjectOptions & { subResource?: Record<string, string> },
+    fileOrBufferOrStream: string | Buffer | Readable, method: RequestMethod = 'PUT') {
     options.headers = options.headers ?? {};
     if (options.headers['Content-Type'] && !options.headers['content-type']) {
       options.headers['content-type'] = options.headers['Content-Type'] as string;
@@ -681,13 +667,25 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
         options.headers['x-oss-callback-var'] = callbackOptions.callbackVar;
       }
     }
-    const params = this.#objectRequestParams('PUT', name, options);
-    params.mime = options.mime;
-    if (Buffer.isBuffer(contentOrStream)) {
-      params.content = contentOrStream;
+    const params = this.#objectRequestParams(method, name, options);
+    if (typeof fileOrBufferOrStream === 'string') {
+      const stats = await fs.stat(fileOrBufferOrStream);
+      if (!stats.isFile()) {
+        throw new TypeError(`${fileOrBufferOrStream} is not file`);
+      }
+      if (!options.mime) {
+        const mimeFromFile = mime.getType(fileOrBufferOrStream);
+        if (mimeFromFile) {
+          options.mime = mimeFromFile;
+        }
+      }
+      params.stream = createReadStream(fileOrBufferOrStream);
+    } else if (Buffer.isBuffer(fileOrBufferOrStream)) {
+      params.content = fileOrBufferOrStream;
     } else {
-      params.stream = contentOrStream;
+      params.stream = fileOrBufferOrStream;
     }
+    params.mime = options.mime;
     params.successStatuses = [ 200 ];
 
     const { res, data } = await this.request<Buffer>(params);

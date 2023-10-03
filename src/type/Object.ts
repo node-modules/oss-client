@@ -1,5 +1,5 @@
 import type {
-  DeleteObjectOptions, NormalSuccessResponse, OwnerType, RequestOptions,
+  DeleteObjectOptions, NormalSuccessResponse, OwnerType, RequestOptions, UserMeta,
 } from 'oss-interface';
 import type { IncomingHttpHeaders } from 'urllib';
 
@@ -62,4 +62,24 @@ export interface GetACLResult {
   acl: ACLType;
   owner: OwnerType;
   res: NormalSuccessResponse;
+}
+
+export interface AppendObjectOptions {
+  /** specify the position which is the content length of the latest object */
+  position?: string | number;
+  /** the operation timeout */
+  timeout?: number;
+  /** custom mime, will send with Content-Type entity header */
+  mime?: string;
+  meta?: UserMeta;
+  headers?: IncomingHttpHeaders;
+}
+
+export interface AppendObjectResult {
+  name: string;
+  /** the url of oss */
+  url: string;
+  res: NormalSuccessResponse;
+  /** the next position */
+  nextAppendPosition: string;
 }
