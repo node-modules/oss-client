@@ -53,7 +53,7 @@ describe('test/OSSObject.test.ts', () => {
       result.objects.map(checkObjectProperties);
       assert.equal(typeof result.nextMarker, 'string');
       assert(result.isTruncated);
-      assert.equal(result.prefixes, null);
+      assert.deepEqual(result.prefixes, []);
       assert(result.res.headers.date);
       const obj = result.objects[0];
       assert.match(obj.url, /^https:\/\//);
@@ -80,7 +80,7 @@ describe('test/OSSObject.test.ts', () => {
       result.objects.map(checkObjectProperties);
       assert.equal(typeof result.nextMarker, 'string');
       assert(result.isTruncated);
-      assert.equal(result.prefixes, null);
+      assert.deepEqual(result.prefixes, []);
       assert(result.res.headers.date);
       const obj = result.objects[0];
       assert.match(obj.url, /^https:\/\//);
@@ -97,7 +97,7 @@ describe('test/OSSObject.test.ts', () => {
       result.objects.map(checkObjectProperties);
       assert.equal(typeof result.nextMarker, 'string');
       assert(result.isTruncated);
-      assert.equal(result.prefixes, null);
+      assert.deepEqual(result.prefixes, []);
 
       // next 2
       const result2 = await ossObject.list({
@@ -108,7 +108,7 @@ describe('test/OSSObject.test.ts', () => {
       result.objects.map(checkObjectProperties);
       assert.equal(typeof result2.nextMarker, 'string');
       assert(result2.isTruncated);
-      assert.equal(result2.prefixes, null);
+      assert.deepEqual(result2.prefixes, []);
     });
 
     it('should list with prefix', async () => {
@@ -119,7 +119,7 @@ describe('test/OSSObject.test.ts', () => {
       result.objects.map(checkObjectProperties);
       assert.equal(result.nextMarker, null);
       assert(!result.isTruncated);
-      assert.equal(result.prefixes, null);
+      assert.deepEqual(result.prefixes, []);
 
       result = await ossObject.list({
         prefix: `${listPrefix}fun/movie`,
@@ -128,7 +128,7 @@ describe('test/OSSObject.test.ts', () => {
       result.objects.map(checkObjectProperties);
       assert.equal(result.nextMarker, null);
       assert(!result.isTruncated);
-      assert.equal(result.prefixes, null);
+      assert.deepEqual(result.prefixes, []);
     });
 
     it('should list current dir files only', async () => {
@@ -160,7 +160,175 @@ describe('test/OSSObject.test.ts', () => {
       result.objects.map(checkObjectProperties);
       assert.equal(result.nextMarker, null);
       assert(!result.isTruncated);
-      assert.equal(result.prefixes, null);
+      assert.deepEqual(result.prefixes, []);
+    });
+  });
+
+  describe('listV2()', () => {
+    const listPrefix = `${prefix}oss-client/listV2/`;
+    before(async () => {
+      await ossObject.put(`${listPrefix}oss.jpg`, Buffer.from('oss.jpg'));
+      await ossObject.put(`${listPrefix}fun/test.jpg`, Buffer.from('fun/test.jpg'));
+      await ossObject.put(`${listPrefix}fun/movie/001.avi`, Buffer.from('fun/movie/001.avi'));
+      await ossObject.put(`${listPrefix}fun/movie/007.avi`, Buffer.from('fun/movie/007.avi'));
+      await ossObject.put(`${listPrefix}other/movie/007.avi`, Buffer.from('other/movie/007.avi'));
+      await ossObject.put(`${listPrefix}other/movie/008.avi`, Buffer.from('other/movie/008.avi'));
+    });
+
+    function checkObjectProperties(obj: ObjectMeta, options?: { owner: boolean }) {
+      assert.equal(typeof obj.name, 'string');
+      assert.equal(typeof obj.lastModified, 'string');
+      assert.equal(typeof obj.etag, 'string');
+      assert(obj.type === 'Normal' || obj.type === 'Multipart');
+      assert.equal(typeof obj.size, 'number');
+      assert.equal(obj.storageClass, 'Standard');
+      if (options?.owner) {
+        assert(typeof obj.owner!.id === 'string' && typeof obj.owner!.displayName === 'string');
+      } else {
+        assert.equal(obj.owner, undefined);
+      }
+    }
+
+    it('should list top 3 objects', async () => {
+      const result = await ossObject.listV2({
+        'max-keys': 1,
+      });
+      assert.equal(result.objects.length, 1);
+      result.objects.forEach(obj => checkObjectProperties(obj));
+      assert.equal(typeof result.nextContinuationToken, 'string');
+      assert(result.isTruncated);
+      assert.deepEqual(result.prefixes, []);
+      assert.equal(result.keyCount, 1);
+
+      // next 2
+      const result2 = await ossObject.listV2({
+        'max-keys': '2',
+        continuationToken: result.nextContinuationToken,
+      });
+      assert.equal(result2.objects.length, 2);
+      result.objects.forEach(obj => checkObjectProperties(obj));
+      assert.equal(typeof result2.nextContinuationToken, 'string');
+      assert(result2.isTruncated);
+      assert.deepEqual(result2.prefixes, []);
+      assert.equal(result2.keyCount, 2);
+    });
+
+    it('should list with prefix', async () => {
+      let result = await ossObject.listV2({
+        prefix: `${listPrefix}fun/movie/`,
+        'fetch-owner': true,
+      });
+      assert.equal(result.objects.length, 2);
+      result.objects.forEach(obj => checkObjectProperties(obj, { owner: true }));
+      assert.equal(result.nextContinuationToken, undefined);
+      assert(!result.isTruncated);
+      assert.deepEqual(result.prefixes, []);
+
+      result = await ossObject.listV2({
+        prefix: `${listPrefix}fun/movie`,
+      });
+      assert.equal(result.objects.length, 2);
+      result.objects.forEach(obj => checkObjectProperties(obj));
+      assert.equal(result.nextContinuationToken, undefined);
+      assert(!result.isTruncated);
+      assert.deepEqual(result.prefixes, []);
+    });
+
+    it('should list current dir files only', async () => {
+      let result = await ossObject.listV2({
+        prefix: listPrefix,
+        delimiter: '/',
+      });
+      assert.equal(result.objects.length, 1);
+      result.objects.forEach(obj => checkObjectProperties(obj));
+      assert.equal(result.nextContinuationToken, undefined);
+      assert(!result.isTruncated);
+      assert.deepEqual(result.prefixes, [ `${listPrefix}fun/`, `${listPrefix}other/` ]);
+
+      result = await ossObject.listV2({
+        prefix: `${listPrefix}fun/`,
+        delimiter: '/',
+      });
+      assert.equal(result.objects.length, 1);
+      result.objects.forEach(obj => checkObjectProperties(obj));
+      assert.equal(result.nextContinuationToken, undefined);
+      assert(!result.isTruncated);
+      assert.deepEqual(result.prefixes, [ `${listPrefix}fun/movie/` ]);
+
+      result = await ossObject.listV2({
+        prefix: `${listPrefix}fun/movie/`,
+        delimiter: '/',
+      });
+      assert.equal(result.objects.length, 2);
+      result.objects.forEach(obj => checkObjectProperties(obj));
+      assert.equal(result.nextContinuationToken, undefined);
+      assert(!result.isTruncated);
+      assert.deepEqual(result.prefixes, []);
+    });
+
+    it('should list with start-after', async () => {
+      let result = await ossObject.listV2({
+        'start-after': `${listPrefix}fun`,
+        'max-keys': 1,
+      });
+      assert(result.objects[0].name === `${listPrefix}fun/movie/001.avi`);
+
+      result = await ossObject.listV2({
+        'start-after': `${listPrefix}fun/movie/001.avi`,
+        'max-keys': 1,
+      });
+      assert(result.objects[0].name === `${listPrefix}fun/movie/007.avi`);
+
+      result = await ossObject.listV2({
+        delimiter: '/',
+        prefix: `${listPrefix}fun/movie/`,
+        'start-after': `${listPrefix}fun/movie/002.avi`,
+      });
+      assert(result.objects.length === 1);
+      assert(result.objects[0].name === `${listPrefix}fun/movie/007.avi`);
+
+      result = await ossObject.listV2({
+        prefix: `${listPrefix}`,
+        'max-keys': 5,
+        'start-after': `${listPrefix}a`,
+        delimiter: '/',
+      });
+      assert.equal(result.keyCount, 3);
+      assert.equal(result.objects.length, 1);
+      assert.equal(result.objects[0].name, `${listPrefix}oss.jpg`);
+      assert.equal(result.prefixes.length, 2);
+      assert.equal(result.prefixes[0], `${listPrefix}fun/`);
+      assert.equal(result.prefixes[1], `${listPrefix}other/`);
+
+      result = await ossObject.listV2({
+        prefix: `${listPrefix}`,
+        'max-keys': 5,
+        'start-after': `${listPrefix}oss.jpg`,
+        delimiter: '/',
+      });
+      assert.equal(result.keyCount, 1);
+      assert.equal(result.objects.length, 0);
+      assert.equal(result.prefixes[0], `${listPrefix}other/`);
+    });
+
+    it('should list with continuation-token', async () => {
+      let nextContinuationToken: string | undefined;
+      let keyCount = 0;
+      do {
+        // eslint-disable-next-line no-await-in-loop
+        const result = await ossObject.listV2({
+          prefix: listPrefix,
+          'max-keys': 2,
+          'continuation-token': nextContinuationToken,
+        });
+        if (nextContinuationToken) {
+          // should has prev index
+          assert(result.continuationToken);
+        }
+        keyCount += result.keyCount;
+        nextContinuationToken = result.nextContinuationToken;
+      } while (nextContinuationToken);
+      assert.equal(keyCount, 6);
     });
   });
 

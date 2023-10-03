@@ -39,6 +39,8 @@ import {
   DeleteMultipleObjectXML,
   GetACLOptions,
   GetACLResult,
+  ListV2ObjectResult,
+  ListV2ObjectsQuery,
   OSSRequestParams,
   OSSResult,
   PutACLOptions,
@@ -118,29 +120,6 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
     return await this.#sendPutRequest(name, options ?? {}, stream);
   }
 
-  // proto.getStream = async function getStream(name, options) {
-  //   options = options || {};
-
-  //   if (options.process) {
-  //     options.subres = options.subres || {};
-  //     options.subres['x-oss-process'] = options.process;
-  //   }
-
-  //   const params = this._objectRequestParams('GET', name, options);
-  //   params.customResponse = true;
-  //   params.successStatuses = [ 200, 206, 304 ];
-
-  //   const result = await this.request(params);
-
-  //   return {
-  //     stream: result.res,
-  //     res: {
-  //       status: result.status,
-  //       headers: result.headers,
-  //     },
-  //   };
-  // };
-
   async putMeta(name: string, meta: UserMeta, options?: Omit<CopyObjectOptions, 'meta'>) {
     return await this.copy(name, name, {
       meta,
@@ -148,6 +127,10 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
     });
   }
 
+  /**
+   * GetBucket (ListObjects)
+   * @see https://help.aliyun.com/zh/oss/developer-reference/listobjects
+   */
   async list(query?: ListObjectsQuery, options?: RequestOptions): Promise<ListObjectResult> {
     // prefix, marker, max-keys, delimiter
     const params = this.#objectRequestParams('GET', '', options);
@@ -187,71 +170,86 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
     return {
       res,
       objects,
-      prefixes,
+      prefixes: prefixes || [],
       nextMarker: data.NextMarker || null,
       isTruncated: data.IsTruncated === 'true',
-    };
+    } satisfies ListObjectResult;
   }
 
-  // proto.listV2 = async function listV2(query = {}, options = {}) {
-  //   const continuation_token = query['continuation-token'] || query.continuationToken;
-  //   delete query['continuation-token'];
-  //   delete query.continuationToken;
-  //   if (continuation_token) {
-  //     options.subres = Object.assign(
-  //       {
-  //         'continuation-token': continuation_token,
-  //       },
-  //       options.subres
-  //     );
-  //   }
-  //   const params = this._objectRequestParams('GET', '', options);
-  //   params.query = Object.assign({ 'list-type': 2 }, query);
-  //   delete params.query['continuation-token'];
-  //   delete query.continuationToken;
-  //   params.xmlResponse = true;
-  //   params.successStatuses = [ 200 ];
+  /**
+   * ListObjectsV2（GetBucketV2）
+   * @see https://help.aliyun.com/zh/oss/developer-reference/listobjectsv2
+   */
+  async listV2(query?: ListV2ObjectsQuery, options?: RequestOptions): Promise<ListV2ObjectResult> {
+    const params = this.#objectRequestParams('GET', '', options);
+    params.query = {
+      'list-type': '2',
+    };
+    const continuationToken = query?.['continuation-token'] ?? query?.continuationToken;
+    if (continuationToken) {
+      // should set subResource to add sign string
+      params.subResource = {
+        'continuation-token': continuationToken,
+      };
+    }
+    if (query?.prefix) {
+      params.query.prefix = query.prefix;
+    }
+    if (query?.delimiter) {
+      params.query.delimiter = query.delimiter;
+    }
+    if (query?.['max-keys']) {
+      params.query['max-keys'] = `${query['max-keys']}`;
+    }
+    if (query?.['start-after']) {
+      params.query['start-after'] = query['start-after'];
+    }
+    if (query?.['encoding-type']) {
+      params.query['encoding-type'] = query['encoding-type'];
+    }
+    if (query?.['fetch-owner']) {
+      params.query['fetch-owner'] = 'true';
+    }
+    params.xmlResponse = true;
+    params.successStatuses = [ 200 ];
 
-  //   const result = await this.request(params);
-  //   let objects = result.data.Contents || [];
-  //   const that = this;
-  //   if (objects) {
-  //     if (!Array.isArray(objects)) {
-  //       objects = [ objects ];
-  //     }
-  //     objects = objects.map(obj => ({
-  //       name: obj.Key,
-  //       url: that._objectUrl(obj.Key),
-  //       lastModified: obj.LastModified,
-  //       etag: obj.ETag,
-  //       type: obj.Type,
-  //       size: Number(obj.Size),
-  //       storageClass: obj.StorageClass,
-  //       owner: obj.Owner
-  //         ? {
-  //           id: obj.Owner.ID,
-  //           displayName: obj.Owner.DisplayName,
-  //         }
-  //         : null,
-  //     }));
-  //   }
-  //   let prefixes = result.data.CommonPrefixes || null;
-  //   if (prefixes) {
-  //     if (!Array.isArray(prefixes)) {
-  //       prefixes = [ prefixes ];
-  //     }
-  //     prefixes = prefixes.map(item => item.Prefix);
-  //   }
-  //   return {
-  //     res: result.res,
-  //     objects,
-  //     prefixes,
-  //     isTruncated: result.data.IsTruncated === 'true',
-  //     keyCount: +result.data.KeyCount,
-  //     continuationToken: result.data.ContinuationToken || null,
-  //     nextContinuationToken: result.data.NextContinuationToken || null,
-  //   };
-  // };
+    const { data, res } = await this.request(params);
+    let objects = data.Contents || [];
+    if (objects) {
+      if (!Array.isArray(objects)) {
+        objects = [ objects ];
+      }
+      objects = objects.map((obj: any) => ({
+        name: obj.Key,
+        url: this.#objectUrl(obj.Key),
+        lastModified: obj.LastModified,
+        etag: obj.ETag,
+        type: obj.Type,
+        size: Number(obj.Size),
+        storageClass: obj.StorageClass,
+        owner: obj.Owner ? {
+          id: obj.Owner.ID,
+          displayName: obj.Owner.DisplayName,
+        } : undefined,
+      }));
+    }
+    let prefixes = data.CommonPrefixes || null;
+    if (prefixes) {
+      if (!Array.isArray(prefixes)) {
+        prefixes = [ prefixes ];
+      }
+      prefixes = prefixes.map((item: any) => item.Prefix);
+    }
+    return {
+      res,
+      objects,
+      prefixes: prefixes || [],
+      isTruncated: data.IsTruncated === 'true',
+      keyCount: parseInt(data.KeyCount),
+      continuationToken: data.ContinuationToken,
+      nextContinuationToken: data.NextContinuationToken,
+    } satisfies ListV2ObjectResult;
+  }
 
   /**
    * GetObject

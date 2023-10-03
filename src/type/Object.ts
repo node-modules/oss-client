@@ -1,5 +1,5 @@
 import type {
-  DeleteObjectOptions, NormalSuccessResponse, OwnerType, RequestOptions, UserMeta,
+  DeleteObjectOptions, NormalSuccessResponse, OwnerType, RequestOptions, UserMeta, ListObjectResult,
 } from 'oss-interface';
 import type { IncomingHttpHeaders } from 'urllib';
 
@@ -82,4 +82,36 @@ export interface AppendObjectResult {
   res: NormalSuccessResponse;
   /** the next position */
   nextAppendPosition: string;
+}
+
+export interface ListV2ObjectsQuery {
+  /** search object using prefix key */
+  prefix?: string;
+  /** search start from token, including token key */
+  'continuation-token'?: string;
+  /**
+   * @alias 'continuation-token'
+   */
+  continuationToken?: string;
+  /** only search current dir, not including subdir */
+  delimiter?: string;
+  /** max objects, default is 100, limit to 1000  */
+  'max-keys'?: string | number;
+  /**
+   * The name of the object from which the list operation begins.
+   * If this parameter is specified, objects whose names are alphabetically greater than the start-after parameter value are returned.
+   */
+  'start-after'?: string;
+  /** Specifies whether to include the information about object owners in the response. */
+  'fetch-owner'?: boolean;
+  /** Specifies that the object names in the response are URL-encoded. */
+  'encoding-type'?: 'url' | '';
+}
+
+export interface ListV2ObjectResult extends Omit<ListObjectResult, 'nextMarker'> {
+  keyCount: number;
+  /** prev index */
+  continuationToken?: string;
+  /** next index */
+  nextContinuationToken?: string;
 }
