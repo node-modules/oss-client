@@ -68,13 +68,7 @@ export interface PutSymlinkOptions extends RequestOptions {
   meta?: UserMeta;
   versionId?: string;
   storageClass?: string;
-  /** additional parameters in url */
   subResource?: Record<string, string>;
-  /**
-   * @alias subResource
-   * @deprecated
-   */
-  subres?: Record<string, string>;
   headers?: IncomingHttpHeaders;
 }
 
@@ -85,17 +79,43 @@ export interface PutSymlinkResult {
 export interface GetSymlinkOptions extends RequestOptions {
   versionId?: string;
   subResource?: Record<string, string>;
-  /**
-   * @alias subResource
-   * @deprecated
-   */
-  subres?: Record<string, string>;
 }
 
 export interface GetSymlinkResult {
   targetName: string;
   res: NormalSuccessResponse;
   meta: Record<string, string>;
+}
+
+export interface PutObjectTaggingOptions extends RequestOptions {
+  versionId?: string;
+  subResource?: Record<string, string>;
+}
+
+export interface PutObjectTaggingResult {
+  res: NormalSuccessResponse;
+  status: number;
+}
+
+export interface GutObjectTaggingOptions extends RequestOptions {
+  versionId?: string;
+  subResource?: Record<string, string>;
+}
+
+export interface GutObjectTaggingResult {
+  res: NormalSuccessResponse;
+  status: number;
+  tag: Record<string, string>;
+}
+
+export interface DeleteObjectTaggingOptions extends RequestOptions {
+  versionId?: string;
+  subResource?: Record<string, string>;
+}
+
+export interface DeleteObjectTaggingResult {
+  res: NormalSuccessResponse;
+  status: number;
 }
 
 export interface AppendObjectOptions {

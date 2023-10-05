@@ -37,22 +37,29 @@ import {
   DeleteMultipleObjectOptions,
   DeleteMultipleObjectResponse,
   DeleteMultipleObjectXML,
+  DeleteObjectTaggingOptions,
+  DeleteObjectTaggingResult,
   GetACLOptions,
   GetACLResult,
   GetSymlinkOptions,
   GetSymlinkResult,
+  GutObjectTaggingOptions,
+  GutObjectTaggingResult,
   ListV2ObjectResult,
   ListV2ObjectsQuery,
   OSSRequestParams,
   OSSResult,
   PutACLOptions,
   PutACLResult,
+  PutObjectTaggingOptions,
+  PutObjectTaggingResult,
   PutSymlinkOptions,
   PutSymlinkResult,
   RequestMethod,
 } from './type/index.js';
 import {
   checkBucketName, signatureForURL, encodeCallback, json2xml, timestamp,
+  checkObjectTag,
 } from './util/index.js';
 
 export interface OSSObjectClientInitOptions extends OSSBaseClientInitOptions {
@@ -550,9 +557,6 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
    */
   async putSymlink(name: string, targetName: string, options: PutSymlinkOptions): Promise<PutSymlinkResult> {
     options = options ?? {};
-    if (options.subres && !options.subResource) {
-      options.subResource = options.subres;
-    }
     if (!options.subResource) {
       options.subResource = {};
     }
@@ -585,9 +589,6 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
    */
   async getSymlink(name: string, options?: GetSymlinkOptions): Promise<GetSymlinkResult> {
     options = options ?? {};
-    if (options.subres && !options.subResource) {
-      options.subResource = options.subres;
-    }
     if (!options.subResource) {
       options.subResource = {};
     }
@@ -611,6 +612,105 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
       targetName: decodeURIComponent(target),
       res,
       meta,
+    };
+  }
+
+  /**
+   * PutObjectTagging
+   * @see https://help.aliyun.com/zh/oss/developer-reference/putobjecttagging
+   */
+  async putObjectTagging(name: string, tag: Record<string, string>, options?: PutObjectTaggingOptions): Promise<PutObjectTaggingResult> {
+    checkObjectTag(tag);
+    options = options ?? {};
+    if (!options.subResource) {
+      options.subResource = {};
+    }
+    options.subResource.tagging = '';
+    if (options.versionId) {
+      options.subResource.versionId = options.versionId;
+    }
+    name = this.#objectName(name);
+    const params = this.#objectRequestParams('PUT', name, options);
+    params.successStatuses = [ 200 ];
+    const tags: { Key: string; Value: string }[] = [];
+    for (const key in tag) {
+      tags.push({ Key: key, Value: tag[key] });
+    }
+
+    const paramXMLObj = {
+      Tagging: {
+        TagSet: {
+          Tag: tags,
+        },
+      },
+    };
+    params.mime = 'xml';
+    params.content = Buffer.from(json2xml(paramXMLObj));
+
+    const { res } = await this.request(params);
+    return {
+      res,
+      status: res.status,
+    };
+  }
+
+  /**
+   * GetObjectTagging
+   * @see https://help.aliyun.com/zh/oss/developer-reference/getobjecttagging
+   */
+  async getObjectTagging(name: string, options?: GutObjectTaggingOptions): Promise<GutObjectTaggingResult> {
+    options = options ?? {};
+    if (!options.subResource) {
+      options.subResource = {};
+    }
+    options.subResource.tagging = '';
+    if (options.versionId) {
+      options.subResource.versionId = options.versionId;
+    }
+    name = this.#objectName(name);
+    const params = this.#objectRequestParams('GET', name, options);
+    params.successStatuses = [ 200 ];
+    params.xmlResponse = true;
+    const { res, data } = await this.request(params);
+    // console.log(data.toString());
+    let tags = data.TagSet?.Tag;
+    if (tags && !Array.isArray(tags)) {
+      tags = [ tags ];
+    }
+    const tag: Record<string, string> = {};
+    if (tags) {
+      for (const item of tags) {
+        tag[item.Key] = item.Value;
+      }
+    }
+    return {
+      status: res.status,
+      res,
+      tag,
+    };
+  }
+
+  /**
+   * DeleteObjectTagging
+   * @see https://help.aliyun.com/zh/oss/developer-reference/deleteobjecttagging
+   */
+  async deleteObjectTagging(name: string, options?: DeleteObjectTaggingOptions): Promise<DeleteObjectTaggingResult> {
+    options = options ?? {};
+    if (!options.subResource) {
+      options.subResource = {};
+    }
+    options.subResource.tagging = '';
+    if (options.versionId) {
+      options.subResource.versionId = options.versionId;
+    }
+    name = this.#objectName(name);
+    const params = this.#objectRequestParams('DELETE', name, options);
+    params.successStatuses = [ 204 ];
+    const { res } = await this.request(params);
+
+    return {
+      status: res.status,
+      res,
     };
   }
 
@@ -698,6 +798,14 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
     } satisfies CopyAndPutMetaResult;
   }
 
+  /** protected methods */
+
+  protected getRequestEndpoint(): string {
+    return this.#bucketEndpoint;
+  }
+
+  /** private methods */
+
   #getCopySourceName(sourceName: string, bucketName?: string) {
     if (typeof bucketName === 'string') {
       sourceName = this.#objectName(sourceName);
@@ -712,14 +820,6 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
     sourceName = `/${bucketName}/${sourceName}`;
     return sourceName;
   }
-
-  /** protected methods */
-
-  protected getRequestEndpoint(): string {
-    return this.#bucketEndpoint;
-  }
-
-  /** private methods */
 
   async #sendPutRequest(name: string, options: PutObjectOptions & { subResource?: Record<string, string> },
     fileOrBufferOrStream: string | Buffer | Readable, method: RequestMethod = 'PUT') {

@@ -2,6 +2,7 @@ import { strict as assert } from 'node:assert';
 import { fileURLToPath } from 'node:url';
 import { createReadStream, createWriteStream, existsSync, readFileSync } from 'node:fs';
 import { readFile, writeFile, stat } from 'node:fs/promises';
+import { pipeline } from 'node:stream/promises';
 import path from 'node:path';
 import os from 'node:os';
 import { createHash, randomUUID } from 'node:crypto';
@@ -422,6 +423,60 @@ describe('test/OSSObject.test.ts', () => {
       const res = await ossObject.get(name);
       assert.equal(res.content.toString(), 'foobar, baz');
       assert.equal(res.res.headers['x-oss-next-append-position'], '11');
+    });
+  });
+
+  describe('mimetype', () => {
+    const createFile = async (filepath: string, size?: number) => {
+      size = size ?? 200 * 1024;
+      const rs = createReadStream('/dev/random', {
+        start: 0,
+        end: size - 1,
+      });
+      await pipeline(rs, createWriteStream(filepath));
+      return filepath;
+    };
+
+    it('should set mimetype by file ext', async () => {
+      const filepath = path.join(tmpdir, 'content-type-by-file.jpg');
+      await createFile(filepath);
+      const name = `${prefix}oss-client/oss/content-type-by-file.png`;
+      await ossObject.put(name, filepath);
+
+      const result = await ossObject.head(name);
+      assert.equal(result.res.headers['content-type'], 'image/jpeg');
+
+      // await ossObject.multipartUpload(name, filepath);
+      // result = await ossObject.head(name);
+      // assert.equal(result.res.headers['content-type'], 'image/jpeg');
+    });
+
+    it('should set mimetype by object key', async () => {
+      const filepath = path.join(tmpdir, 'content-type-by-file');
+      await createFile(filepath);
+      const name = `${prefix}oss-client/oss/content-type-by-file.png`;
+      await ossObject.put(name, filepath);
+
+      const result = await ossObject.head(name);
+      assert.equal(result.res.headers['content-type'], 'image/png');
+      // await ossObject.multipartUpload(name, filepath);
+      // result = await ossObject.head(name);
+      // assert.equal(result.res.headers['content-type'], 'image/png');
+    });
+
+    it('should set user-specified mimetype', async () => {
+      const filepath = path.join(tmpdir, 'content-type-by-file.jpg');
+      await createFile(filepath);
+      const name = `${prefix}oss-client/oss/content-type-by-file.png`;
+      await ossObject.put(name, filepath, { mime: 'text/plain' });
+
+      const result = await ossObject.head(name);
+      assert.equal(result.res.headers['content-type'], 'text/plain');
+      // await ossObject.multipartUpload(name, filepath, {
+      //   mime: 'text/plain',
+      // });
+      // result = await ossObject.head(name);
+      // assert.equal(result.res.headers['content-type'], 'text/plain');
     });
   });
 
@@ -1974,6 +2029,147 @@ describe('test/OSSObject.test.ts', () => {
         uid: '1',
         slus: 'test.html',
       });
+    });
+  });
+
+  describe('getObjectTagging() putObjectTagging() deleteObjectTagging()', () => {
+    const name = `${prefix}oss-client/tagging-${Date.now()}.js`;
+
+    before(async () => {
+      await ossObject.put(name, __filename);
+    });
+
+    after(async () => {
+      await ossObject.delete(name);
+    });
+
+    it('should get the tags of object', async () => {
+      const result = await ossObject.getObjectTagging(name);
+      assert.strictEqual(result.status, 200);
+      assert.deepEqual(result.tag, {});
+    });
+
+    it('should configures or updates the tags of object', async () => {
+      const tag = { a: '1', b: '2', c: '' };
+      let putResult = await ossObject.putObjectTagging(name, tag);
+      assert.strictEqual(putResult.status, 200);
+
+      let getResult = await ossObject.getObjectTagging(name);
+      assert.strictEqual(getResult.status, 200);
+      assert.deepEqual(getResult.tag, tag);
+
+      const tag2 = { a: '3' };
+      putResult = await ossObject.putObjectTagging(name, tag2);
+      assert.strictEqual(putResult.status, 200);
+
+      getResult = await ossObject.getObjectTagging(name);
+      assert.strictEqual(getResult.status, 200);
+      assert.deepEqual(getResult.tag, tag2);
+    });
+
+    it('maximum of 10 tags for a object', async () => {
+      await assert.rejects(async () => {
+        const tag: any = {};
+        Array(11)
+          .fill(1)
+          .forEach((_, index) => {
+            tag[index] = index;
+          });
+        await ossObject.putObjectTagging(name, tag);
+      }, (err: TypeError) => {
+        assert.strictEqual('maximum of 10 tags for a object', err.message);
+        return true;
+      });
+    });
+
+    it('tag can contain invalid string', async () => {
+      await assert.rejects(async () => {
+        const errorStr = '错误字符串@#￥%……&*！';
+        const key = errorStr;
+        const value = errorStr;
+        const tag = { [key]: value };
+        await ossObject.putObjectTagging(name, tag);
+      }, (err: TypeError) => {
+        assert.strictEqual(
+          'tag can contain letters, numbers, spaces, and the following symbols: plus sign (+), hyphen (-), equal sign (=), period (.), underscore (_), colon (:), and forward slash (/)',
+          err.message);
+        return true;
+      });
+    });
+
+    it('tag key can be a maximum of 128 bytes in length', async () => {
+      await assert.rejects(async () => {
+        const key = new Array(129).fill('1').join('');
+        const tag = { [key]: '1' };
+        await ossObject.putObjectTagging(name, tag);
+      }, (err: TypeError) => {
+        assert.strictEqual('tag key can be a minimum of 1 byte and a maximum of 128 bytes in length', err.message);
+        return true;
+      });
+    });
+
+    it('tag value can be a maximum of 256 bytes in length', async () => {
+      await assert.rejects(async () => {
+        const value = new Array(257).fill('1').join('');
+        const tag = { a: value };
+        await ossObject.putObjectTagging(name, tag);
+      }, (err: TypeError) => {
+        assert.strictEqual('tag value can be a maximum of 256 bytes in length', err.message);
+        return true;
+      });
+    });
+
+    it('should throw error when the type of tag is not Object', async () => {
+      await assert.rejects(async () => {
+        const tag = [{ a: 1 }];
+        await ossObject.putObjectTagging(name, tag as any);
+      }, (err: TypeError) => {
+        assert.equal(err.message, 'the key and value of the tag must be String');
+        return true;
+      });
+    });
+
+    it('should throw error when the type of tag value is number', async () => {
+      await assert.rejects(async () => {
+        const tag = { a: 1 };
+        await ossObject.putObjectTagging(name, tag as any);
+      }, (err: TypeError) => {
+        assert.strictEqual('the key and value of the tag must be String', err.message);
+        return true;
+      });
+    });
+
+    it('should throw error when the type of tag value is Object', async () => {
+      await assert.rejects(async () => {
+        const tag = { a: { inner: '1' } };
+        await ossObject.putObjectTagging(name, tag as any);
+      }, (err: TypeError) => {
+        assert.strictEqual('the key and value of the tag must be String', err.message);
+        return true;
+      });
+    });
+
+    it('should throw error when the type of tag value is Array', async () => {
+      await assert.rejects(async () => {
+        const tag = { a: [ '1', '2' ] };
+        await ossObject.putObjectTagging(name, tag as any);
+      }, (err: TypeError) => {
+        assert.strictEqual('the key and value of the tag must be String', err.message);
+        return true;
+      });
+    });
+
+    it('should delete the tags of object', async () => {
+      let result;
+      const tag = { a: '1', b: '2' };
+      await ossObject.putObjectTagging(name, tag);
+
+      result = await ossObject.deleteObjectTagging(name);
+      assert.strictEqual(result.status, 204);
+
+      result = await ossObject.getObjectTagging(name);
+      assert.strictEqual(result.status, 200);
+      assert.deepEqual(result.tag, {});
     });
   });
 });
