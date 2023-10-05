@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.0.0](https://github.com/node-modules/oss-client/compare/v1.2.6...v2.0.0) (2023-10-05)
+
+
+### ⚠ BREAKING CHANGES
+
+* Drop Node.js < 16 support
+
+Other BREAKING changes:
+- remove stsToken support
+- remove headerEncoding support
+- remove Bucket, Image Client support
+
+https://github.com/eggjs/egg/issues/5257
+
+### Features
+
+* refactor with typescript ([#12](https://github.com/node-modules/oss-client/issues/12)) ([5a0eb01](https://github.com/node-modules/oss-client/commit/5a0eb013e082c66b52eb6b918dd4713c7c54c149))
+
 ## [1.2.6](https://github.com/node-modules/oss-client/compare/v1.2.5...v1.2.6) (2023-09-18)
 
 
@@ -80,4 +98,3 @@
   * [[`fe3e2c1`](http://github.com/node-modules/oss-client/commit/fe3e2c1a119ffd3b8a8c77ab6b38ee545c14fb59)] - 👌 IMPROVE: Remove unuse ts files (#2) (fengmk2 <<fengmk2@gmail.com>>),fatal: No names found, cannot describe anything.
 
 **others**
-

@@ -1,6 +1,6 @@
 {
   "name": "oss-client",
-  "version": "1.2.6",
+  "version": "2.0.0",
   "description": "Aliyun OSS(Object Storage Service) Node.js Client",
   "typings": "./dist/esm/index.d.ts",
   "files": [
