@@ -842,7 +842,7 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
         'x-oss-process': '',
       },
     });
-  
+
     const bucketParam = targetBucket ? `,b_${Buffer.from(targetBucket).toString('base64')}` : '';
     targetObject = Buffer.from(targetObject).toString('base64');
     const content = {
@@ -850,7 +850,7 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
     };
     params.content = Buffer.from(querystring.stringify(content));
     params.successStatuses = [ 200 ];
-  
+
     const result = await this.request(params);
     return {
       res: result.res,

@@ -16,6 +16,8 @@ import { Readable } from 'node:stream';
 describe('test/OSSObject.test.ts', () => {
   const tmpdir = os.tmpdir();
   const prefix = config.prefix;
+  assert(config.oss.accessKeyId);
+  assert(config.oss.accessKeySecret);
   const ossObject = new OSSObject(config.oss);
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
@@ -1131,7 +1133,7 @@ describe('test/OSSObject.test.ts', () => {
     });
   });
 
-  describe('signatureUrl()', () => {
+  describe('signatureUrl() and asyncSignatureUrl()', () => {
     let name: string;
     let needEscapeName: string;
     before(async () => {
@@ -1163,6 +1165,14 @@ describe('test/OSSObject.test.ts', () => {
     it('should signature url get object ok', async () => {
       const result = await ossObject.get(name);
       const url = ossObject.signatureUrl(name);
+      const urlRes = await urllib.request(url);
+      assert.equal(urlRes.status, 200);
+      assert.equal(urlRes.data.toString(), result.content.toString());
+    });
+
+    it('should asyncSignatureUrl get object ok', async () => {
+      const result = await ossObject.get(name);
+      const url = await ossObject.asyncSignatureUrl(name);
       const urlRes = await urllib.request(url);
       assert.equal(urlRes.status, 200);
       assert.equal(urlRes.data.toString(), result.content.toString());
@@ -2242,7 +2252,7 @@ describe('test/OSSObject.test.ts', () => {
       const result = await ossObject.processObjectSave(
         name,
         target,
-        'image/watermark,text_aGVsbG8g5Zu+54mH5pyN5Yqh77yB,color_ff6a00,'
+        'image/watermark,text_aGVsbG8g5Zu+54mH5pyN5Yqh77yB,color_ff6a00,',
       );
       assert.equal(result.res.status, 200);
       assert.equal(result.status, 200);

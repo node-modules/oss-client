@@ -1,4 +1,4 @@
-import assert from 'node:assert';
+import { strict as assert } from 'node:assert';
 import { isIP } from '../../src/util/index.js';
 
 describe('test/util/isIP.test.ts', () => {
