@@ -1,6 +1,9 @@
 {
   "name": "oss-client",
   "version": "1.2.6",
+  "publishConfig": {
+    "tag": "latest-1"
+  },
   "description": "Aliyun OSS(Object Storage Service) Node.js Client",
   "main": "lib/index.js",
   "types": "index.d.ts",
