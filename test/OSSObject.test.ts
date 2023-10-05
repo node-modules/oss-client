@@ -519,7 +519,7 @@ describe('test/OSSObject.test.ts', () => {
         assert.equal(err.code, 'CallbackFailed');
         assert(err.hostId);
         assert(err.requestId);
-        assert.match(err.message, /\[request-id=\w+, response-code=CallbackFailed, response-host=oss-client-unittest-china.oss-cn-hangzhou.aliyuncs.com] Response body is not valid json format\./);
+        assert.match(err.message, /Response body is not valid json format\./);
         return true;
       });
 

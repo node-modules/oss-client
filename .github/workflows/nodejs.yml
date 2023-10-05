@@ -6,14 +6,10 @@ name: Node.js CI
 on:
   push:
     branches:
-      - main
       - master
-      - 1.x
   pull_request:
     branches:
-      - main
       - master
-      - 1.x
 
 jobs:
   build:
