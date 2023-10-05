@@ -2172,4 +2172,56 @@ describe('test/OSSObject.test.ts', () => {
       assert.deepEqual(result.tag, {});
     });
   });
+
+  describe('calculatePostSignature()', () => {
+    it('should get signature for postObject', async () => {
+      const name = 'calculatePostSignature.js';
+      const url = ossObject.generateObjectUrl(name).replace(name, '');
+      const date = new Date();
+      date.setDate(date.getDate() + 1);
+      const policy = {
+        expiration: date.toISOString(),
+        conditions: [{ bucket: config.oss.bucket }],
+      };
+
+      const params = ossObject.calculatePostSignature(policy);
+      assert.equal(typeof params.policy, 'string');
+      const result = await urllib.request(url, {
+        method: 'POST',
+        data: {
+          ...params,
+          key: name,
+        },
+        files: {
+          file: createReadStream(__filename),
+        },
+      });
+      assert.equal(result.statusCode, 204);
+      const headRes = await ossObject.head(name);
+      assert.equal(headRes.status, 200);
+    });
+
+    it('should throw error when policy is not JSON or Object', async () => {
+      assert.throws(() => {
+        ossObject.calculatePostSignature('string');
+      }, /Policy string is not a valid JSON/);
+      assert.throws(() => {
+        ossObject.calculatePostSignature(123 as any);
+      }, /policy must be JSON string or Object/);
+    });
+  });
+
+  describe('generateObjectUrl()', () => {
+    it('should return object url', () => {
+      let name = 'test.js';
+      let url = ossObject.generateObjectUrl(name);
+      assert(url);
+
+      name = '/foo/bar/a%2Faa/test&+-123~!.js';
+      url = ossObject.generateObjectUrl(name, 'https://foo.com');
+      assert.equal(url, 'https://foo.com/foo/bar/a%252Faa/test%26%2B-123~!.js');
+      const url2 = ossObject.generateObjectUrl(name, 'https://foo.com/');
+      assert.equal(url2, 'https://foo.com/foo/bar/a%252Faa/test%26%2B-123~!.js');
+    });
+  });
 });

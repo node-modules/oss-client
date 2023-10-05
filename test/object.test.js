@@ -118,40 +118,6 @@ describe('test/object.test.js', () => {
     });
   });
 
-  describe('getObjectUrl()', () => {
-    it('should return object url', () => {
-      let name = 'test.js';
-      let url = store.getObjectUrl(name);
-      assert.equal(url, store.options.endpoint.format() + name);
-
-      name = '/foo/bar/a%2Faa/test&+-123~!.js';
-      url = store.getObjectUrl(name, 'https://foo.com');
-      assert.equal(url, 'https://foo.com/foo/bar/a%252Faa/test%26%2B-123~!.js');
-      const url2 = store.getObjectUrl(name, 'https://foo.com/');
-      assert.equal(url2, 'https://foo.com/foo/bar/a%252Faa/test%26%2B-123~!.js');
-    });
-  });
-
-  describe('generateObjectUrl()', () => {
-    it('should return object url', () => {
-      let name = 'test.js';
-      let url = store.generateObjectUrl(name);
-
-      let baseUrl = store.options.endpoint.format();
-      const copyUrl = urlutil.parse(baseUrl);
-      copyUrl.hostname = `${bucket}.${copyUrl.hostname}`;
-      copyUrl.host = `${bucket}.${copyUrl.host}`;
-      baseUrl = copyUrl.format();
-      assert.equal(url, `${baseUrl}${name}`);
-
-      name = '/foo/bar/a%2Faa/test&+-123~!.js';
-      url = store.generateObjectUrl(name, 'https://foo.com');
-      assert.equal(url, 'https://foo.com/foo/bar/a%252Faa/test%26%2B-123~!.js');
-      const url2 = store.generateObjectUrl(name, 'https://foo.com/');
-      assert.equal(url2, 'https://foo.com/foo/bar/a%252Faa/test%26%2B-123~!.js');
-    });
-  });
-
   describe.skip('restore()', () => {
     before(async () => {
       await store.put('/oss/coldRestore.js', __filename, {
@@ -228,57 +194,6 @@ describe('test/object.test.js', () => {
         [ 'Expedited', 'Standard', 'Bulk' ].includes(result.res.headers['x-oss-object-restore-priority']),
         true
       );
-    });
-  });
-
-  describe('calculatePostSignature()', () => {
-    it('should get signature for postObject', async () => {
-      // not work on Node.js 14 with undici
-      if (process.version.startsWith('v14.')) return;
-      const name = 'calculatePostSignature.js';
-      const url = store.generateObjectUrl(name).replace(name, '');
-      const date = new Date();
-      date.setDate(date.getDate() + 1);
-      const policy = {
-        expiration: date.toISOString(),
-        conditions: [{ bucket: store.options.bucket }],
-      };
-
-      const params = store.calculatePostSignature(policy);
-      const options = {
-        method: 'POST',
-        data: {
-          ...params,
-          key: name,
-        },
-        files: {
-          file: fs.createReadStream(__filename),
-        },
-      };
-
-      const result = await urllib.request(url, options);
-      assert(result.statusCode === 204);
-      const headRes = await store.head(name);
-      assert.equal(headRes.status, 200);
-      // console.log(headRes.res.headers);
-    });
-
-    it('should throw error when policy is not JSON or Object', async () => {
-      let policy = 'string';
-      const errorMessage = 'policy must be JSON string or Object';
-      try {
-        store.calculatePostSignature(policy);
-        assert(false);
-      } catch (error) {
-        assert.strictEqual(errorMessage, error.message);
-      }
-      try {
-        policy = 123;
-        store.calculatePostSignature(policy);
-        assert(false);
-      } catch (error) {
-        assert.strictEqual(errorMessage, error.message);
-      }
     });
   });
 });

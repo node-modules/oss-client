@@ -59,7 +59,7 @@ import {
 } from './type/index.js';
 import {
   checkBucketName, signatureForURL, encodeCallback, json2xml, timestamp,
-  checkObjectTag,
+  checkObjectTag, computeSignature, policyToJSONString,
 } from './util/index.js';
 
 export interface OSSObjectClientInitOptions extends OSSBaseClientInitOptions {
@@ -745,6 +745,38 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
 
   async asyncSignatureUrl(name: string, options?: SignatureUrlOptions) {
     return this.signatureUrl(name, options);
+  }
+
+  /**
+   * Get Object url by name
+   * @param name - object name
+   * @param baseUrl - If provide `baseUrl`, will use `baseUrl` instead the default `endpoint and bucket`.
+   * return object url include bucket
+   */
+  generateObjectUrl(name: string, baseUrl?: string) {
+    const urlObject = new URL(baseUrl ?? this.getRequestEndpoint());
+    urlObject.pathname = this.escape(this.#objectName(name));
+    return urlObject.toString();
+  }
+
+  /**
+   * @param policy specifies the validity of the fields in the request.
+   *
+   * return params.OSSAccessKeyId
+   *  params.Signature
+   *  params.policy JSON text encoded with UTF-8 and Base64.
+   */
+  calculatePostSignature(policy: object | string) {
+    if (typeof policy !== 'object' && typeof policy !== 'string') {
+      throw new TypeError('policy must be JSON string or Object');
+    }
+    const policyString = Buffer.from(policyToJSONString(policy), 'utf8').toString('base64');
+    const Signature = computeSignature(this.options.accessKeySecret, policyString);
+    return {
+      OSSAccessKeyId: this.options.accessKeyId,
+      Signature,
+      policy: policyString,
+    };
   }
 
   /**
