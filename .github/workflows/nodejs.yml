@@ -6,14 +6,10 @@ name: Node.js CI
 on:
   push:
     branches:
-      - main
       - master
-      - 1.x
   pull_request:
     branches:
-      - main
       - master
-      - 1.x
 
 jobs:
   build:
@@ -22,15 +18,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [14.18.0, 14, 16, 18, 20]
+        node-version: [16, 18, 20]
         os: [ubuntu-latest]
 
     steps:
     - name: Checkout Git Source
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
 
@@ -52,6 +48,6 @@ jobs:
         ALI_SDK_STS_ENDPOINT: ${{ secrets.ALI_SDK_STS_ENDPOINT }}
 
     - name: Code Coverage
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v3
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
