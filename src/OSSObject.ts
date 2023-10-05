@@ -1,6 +1,7 @@
 import { Readable, Writable } from 'node:stream';
 import { createReadStream, createWriteStream } from 'node:fs';
 import { strict as assert } from 'node:assert';
+import querystring from 'node:querystring';
 import fs from 'node:fs/promises';
 import mime from 'mime';
 import { isReadable, isWritable } from 'is-type-of';
@@ -828,6 +829,33 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
       } : null,
       res,
     } satisfies CopyAndPutMetaResult;
+  }
+
+  /**
+   * 另存为
+   * @see https://help.aliyun.com/zh/oss/user-guide/sys-or-saveas
+   */
+  async processObjectSave(sourceObject: string, targetObject: string, process: string, targetBucket?: string) {
+    targetObject = this.#objectName(targetObject);
+    const params = this.#objectRequestParams('POST', sourceObject, {
+      subResource: {
+        'x-oss-process': '',
+      },
+    });
+  
+    const bucketParam = targetBucket ? `,b_${Buffer.from(targetBucket).toString('base64')}` : '';
+    targetObject = Buffer.from(targetObject).toString('base64');
+    const content = {
+      'x-oss-process': `${process}|sys/saveas,o_${targetObject}${bucketParam}`,
+    };
+    params.content = Buffer.from(querystring.stringify(content));
+    params.successStatuses = [ 200 ];
+  
+    const result = await this.request(params);
+    return {
+      res: result.res,
+      status: result.res.status,
+    };
   }
 
   /** protected methods */

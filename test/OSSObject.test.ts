@@ -2224,4 +2224,28 @@ describe('test/OSSObject.test.ts', () => {
       assert.equal(url2, 'https://foo.com/foo/bar/a%252Faa/test%26%2B-123~!.js');
     });
   });
+
+  describe('processObjectSave()', () => {
+    const name = `${prefix}oss-client/processObjectSave/sourceObject.png`;
+    const target = `${prefix}oss-client/processObjectSave/processObject_target${Date.now()}.jpg`;
+    before(async () => {
+      const imagePath = path.join(__dirname, 'nodejs-1024x768.png');
+      await ossObject.put(name, imagePath);
+    });
+
+    after(async () => {
+      await ossObject.delete(name);
+      await ossObject.delete(target);
+    });
+
+    it('should process image', async () => {
+      const result = await ossObject.processObjectSave(
+        name,
+        target,
+        'image/watermark,text_aGVsbG8g5Zu+54mH5pyN5Yqh77yB,color_ff6a00,'
+      );
+      assert.equal(result.res.status, 200);
+      assert.equal(result.status, 200);
+    });
+  });
 });
