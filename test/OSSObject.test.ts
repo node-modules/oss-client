@@ -1942,4 +1942,38 @@ describe('test/OSSObject.test.ts', () => {
       });
     });
   });
+
+  describe('putSymlink() and getSymlink()', () => {
+    it('Should put and get Symlink', async () => {
+      const targetName = `${prefix}oss-client/target-测试.js`;
+      const name = `${prefix}oss-client/symlink-软链接.js`;
+      await ossObject.put(targetName, __filename);
+
+      const result = await ossObject.putSymlink(name, targetName, {
+        storageClass: 'IA',
+        meta: {
+          uid: '1',
+          slus: 'test.html',
+        },
+      });
+      assert.equal(result.res.status, 200);
+
+      const getResult = await ossObject.getSymlink(name);
+      assert.equal(getResult.res.status, 200);
+      // console.log(getResult.res.headers);
+      assert.equal(getResult.targetName, targetName);
+      assert.deepEqual(getResult.meta, {
+        uid: '1',
+        slus: 'test.html',
+      });
+
+      const headResult = await ossObject.head(name);
+      assert.equal(headResult.res.status, 200);
+      assert.equal(headResult.res.headers['x-oss-object-type'], 'Symlink');
+      assert.deepEqual(headResult.meta, {
+        uid: '1',
+        slus: 'test.html',
+      });
+    });
+  });
 });

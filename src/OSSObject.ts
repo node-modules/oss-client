@@ -39,12 +39,16 @@ import {
   DeleteMultipleObjectXML,
   GetACLOptions,
   GetACLResult,
+  GetSymlinkOptions,
+  GetSymlinkResult,
   ListV2ObjectResult,
   ListV2ObjectsQuery,
   OSSRequestParams,
   OSSResult,
   PutACLOptions,
   PutACLResult,
+  PutSymlinkOptions,
+  PutSymlinkResult,
   RequestMethod,
 } from './type/index.js';
 import {
@@ -317,7 +321,6 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
     options = options ?? {};
     if (options.subres && !options.subResource) {
       options.subResource = options.subres;
-      delete options.subres;
     }
     if (!options.subResource) {
       options.subResource = {};
@@ -538,6 +541,76 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
     return {
       status: res.status,
       res,
+    };
+  }
+
+  /**
+   * PutSymlink
+   * @see https://help.aliyun.com/zh/oss/developer-reference/putsymlink
+   */
+  async putSymlink(name: string, targetName: string, options: PutSymlinkOptions): Promise<PutSymlinkResult> {
+    options = options ?? {};
+    if (options.subres && !options.subResource) {
+      options.subResource = options.subres;
+    }
+    if (!options.subResource) {
+      options.subResource = {};
+    }
+    options.subResource.symlink = '';
+    if (options.versionId) {
+      options.subResource.versionId = options.versionId;
+    }
+    options.headers = options.headers ?? {};
+    this.#convertMetaToHeaders(options.meta, options.headers);
+
+    targetName = this.escape(this.#objectName(targetName));
+    options.headers['x-oss-symlink-target'] = targetName;
+    if (options.storageClass) {
+      options.headers['x-oss-storage-class'] = options.storageClass;
+    }
+
+    name = this.#objectName(name);
+    const params = this.#objectRequestParams('PUT', name, options);
+
+    params.successStatuses = [ 200 ];
+    const { res } = await this.request(params);
+    return {
+      res,
+    };
+  }
+
+  /**
+   * GetSymlink
+   * @see https://help.aliyun.com/zh/oss/developer-reference/getsymlink
+   */
+  async getSymlink(name: string, options?: GetSymlinkOptions): Promise<GetSymlinkResult> {
+    options = options ?? {};
+    if (options.subres && !options.subResource) {
+      options.subResource = options.subres;
+    }
+    if (!options.subResource) {
+      options.subResource = {};
+    }
+    options.subResource.symlink = '';
+    if (options.versionId) {
+      options.subResource.versionId = options.versionId;
+    }
+    name = this.#objectName(name);
+    const params = this.#objectRequestParams('GET', name, options);
+    params.successStatuses = [ 200 ];
+    const { res } = await this.request(params);
+    const target = res.headers['x-oss-symlink-target'] as string;
+    const meta: Record<string, string> = {};
+    for (const k in res.headers) {
+      if (k.startsWith('x-oss-meta-')) {
+        const key = k.substring(11);
+        meta[key] = res.headers[k] as string;
+      }
+    }
+    return {
+      targetName: decodeURIComponent(target),
+      res,
+      meta,
     };
   }
 

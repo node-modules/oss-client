@@ -87,6 +87,9 @@ export abstract class OSSBaseClient {
     return auth;
   }
 
+  /**
+   * encodeURIComponent name except '/'
+   */
   protected escape(name: string) {
     return utility.encodeURIComponent(name).replaceAll('%2F', '/');
   }

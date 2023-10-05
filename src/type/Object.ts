@@ -64,6 +64,40 @@ export interface GetACLResult {
   res: NormalSuccessResponse;
 }
 
+export interface PutSymlinkOptions extends RequestOptions {
+  meta?: UserMeta;
+  versionId?: string;
+  storageClass?: string;
+  /** additional parameters in url */
+  subResource?: Record<string, string>;
+  /**
+   * @alias subResource
+   * @deprecated
+   */
+  subres?: Record<string, string>;
+  headers?: IncomingHttpHeaders;
+}
+
+export interface PutSymlinkResult {
+  res: NormalSuccessResponse;
+}
+
+export interface GetSymlinkOptions extends RequestOptions {
+  versionId?: string;
+  subResource?: Record<string, string>;
+  /**
+   * @alias subResource
+   * @deprecated
+   */
+  subres?: Record<string, string>;
+}
+
+export interface GetSymlinkResult {
+  targetName: string;
+  res: NormalSuccessResponse;
+  meta: Record<string, string>;
+}
+
 export interface AppendObjectOptions {
   /** specify the position which is the content length of the latest object */
   position?: string | number;
