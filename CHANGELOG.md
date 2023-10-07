@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1](https://github.com/node-modules/oss-client/compare/v2.0.0...v2.0.1) (2023-10-07)
+
+
+### Bug Fixes
+
+* add getObjectUrl alias to generateObjectUrl ([#15](https://github.com/node-modules/oss-client/issues/15)) ([0cfa089](https://github.com/node-modules/oss-client/commit/0cfa0899edaaeb1b7da76cfa68bafbdd9d26c863))
+
 ## [2.0.0](https://github.com/node-modules/oss-client/compare/v1.2.6...v2.0.0) (2023-10-05)
 
 
