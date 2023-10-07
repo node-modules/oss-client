@@ -2221,7 +2221,7 @@ describe('test/OSSObject.test.ts', () => {
     });
   });
 
-  describe('generateObjectUrl()', () => {
+  describe('generateObjectUrl() & getObjectUrl()', () => {
     it('should return object url', () => {
       let name = 'test.js';
       let url = ossObject.generateObjectUrl(name);
@@ -2230,8 +2230,10 @@ describe('test/OSSObject.test.ts', () => {
       name = '/foo/bar/a%2Faa/test&+-123~!.js';
       url = ossObject.generateObjectUrl(name, 'https://foo.com');
       assert.equal(url, 'https://foo.com/foo/bar/a%252Faa/test%26%2B-123~!.js');
+      assert.equal(ossObject.generateObjectUrl(name, 'https://foo.com'), url);
       const url2 = ossObject.generateObjectUrl(name, 'https://foo.com/');
       assert.equal(url2, 'https://foo.com/foo/bar/a%252Faa/test%26%2B-123~!.js');
+      assert.equal(ossObject.generateObjectUrl(name, 'https://foo.com/'), url2);
     });
   });
 
