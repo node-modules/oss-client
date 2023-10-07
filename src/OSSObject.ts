@@ -761,6 +761,13 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
   }
 
   /**
+   * @alias generateObjectUrl
+   */
+  getObjectUrl(name: string, baseUrl?: string) {
+    return this.generateObjectUrl(name, baseUrl);
+  }
+
+  /**
    * @param policy specifies the validity of the fields in the request.
    *
    * return params.OSSAccessKeyId
