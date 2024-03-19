@@ -485,7 +485,9 @@ describe('test/OSSObject.test.ts', () => {
   describe('put()', () => {
     let name: string;
     afterEach(async () => {
-      await ossObject.delete(name);
+      if (name) {
+        await ossObject.delete(name);
+      }
     });
 
     it('should add object with local file path', async () => {
@@ -534,6 +536,40 @@ describe('test/OSSObject.test.ts', () => {
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       assert.equal(typeof object.res.rt, 'number');
       assert.equal(object.name, name);
+    });
+
+    it('should keep /foo/bar compatible to foo/bar', async () => {
+      const name1 = `/${prefix}oss-client/oss/put-name-compatible`;
+      const name2 = `${prefix}oss-client/oss/put-name-compatible`;
+      const object1 = await ossObject.put(name1, Buffer.from('foo content'));
+      assert.equal(typeof object1.res.headers['x-oss-request-id'], 'string');
+      assert.equal(typeof object1.res.rt, 'number');
+      assert.equal(object1.name, name2);
+      let o = await ossObject.head(name1);
+      assert(o);
+      assert.equal(o.status, 200);
+      await ossObject.delete(name1);
+      await assert.rejects(async () => {
+        await ossObject.head(name1);
+      }, (err: any) => {
+        assert.equal(err.code, 'NoSuchKey');
+        return true;
+      });
+
+      const object2 = await ossObject.put(name2, Buffer.from('foo content'));
+      assert.equal(typeof object2.res.headers['x-oss-request-id'], 'string');
+      assert.equal(typeof object2.res.rt, 'number');
+      assert.equal(object2.name, name2);
+      o = await ossObject.head(name2);
+      assert(o);
+      assert.equal(o.status, 200);
+      await ossObject.delete(name2);
+      await assert.rejects(async () => {
+        await ossObject.head(name2);
+      }, (err: any) => {
+        assert.equal(err.code, 'NoSuchKey');
+        return true;
+      });
     });
 
     it('should add object with readstream', async () => {
