@@ -1,4 +1,4 @@
-import utility from 'utility';
+import { escape as escapeHTML } from 'utility';
 
 export function json2xml(json: Record<string, any>, options?: { headers: boolean }) {
   let xml = '';
@@ -19,7 +19,7 @@ export function json2xml(json: Record<string, any>, options?: { headers: boolean
       xml += json2xml(value);
       xml += `</${key}>`;
     } else {
-      xml += `<${key}>${utility.escape(value.toString())}</${key}>`;
+      xml += `<${key}>${escapeHTML(value.toString())}</${key}>`;
     }
   }
   return xml;

@@ -4,7 +4,7 @@ import { createHash } from 'node:crypto';
 import { extname } from 'node:path';
 import { sendToWormhole } from 'stream-wormhole';
 import { parseStringPromise } from 'xml2js';
-import utility from 'utility';
+import { encodeURIComponent as safeEncodeURIComponent } from 'utility';
 import mime from 'mime';
 import {
   HttpClient, RequestOptions, HttpClientResponse, IncomingHttpHeaders,
@@ -91,7 +91,7 @@ export abstract class OSSBaseClient {
    * encodeURIComponent name except '/'
    */
   protected escape(name: string) {
-    return utility.encodeURIComponent(name).replaceAll('%2F', '/');
+    return safeEncodeURIComponent(name).replaceAll('%2F', '/');
   }
 
   protected abstract getRequestEndpoint(): string;
