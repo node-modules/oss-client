@@ -1,6 +1,6 @@
 {
   "name": "oss-client",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "Aliyun OSS(Object Storage Service) Node.js Client",
   "scripts": {
     "lint": "eslint src test --ext .ts",

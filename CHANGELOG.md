@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.0](https://github.com/node-modules/oss-client/compare/v2.0.1...v2.1.0) (2024-05-08)
+
+
+### Features
+
+* use utility@2 ([#17](https://github.com/node-modules/oss-client/issues/17)) ([7e677ca](https://github.com/node-modules/oss-client/commit/7e677cae81ea078e6adf70df76d044866f08066f))
+
 ## [2.0.1](https://github.com/node-modules/oss-client/compare/v2.0.0...v2.0.1) (2023-10-07)
 
 
