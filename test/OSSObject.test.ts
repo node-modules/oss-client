@@ -2296,4 +2296,25 @@ describe('test/OSSObject.test.ts', () => {
       assert.equal(result.status, 200);
     });
   });
+
+  describe('options.cname = true', () => {
+    it('should work', async () => {
+      const ossObject = new OSSObject({
+        ...config.oss,
+        cname: true,
+        endpoint: 'https://foo.bar.com',
+      });
+      const url = ossObject.signatureUrl('foo.jpg');
+      assert.match(url, /https:\/\/foo\.bar\.com\/foo\.jpg\?OSSAccessKeyId=/);
+    });
+
+    it('should throw error when bucket empty', async () => {
+      assert.throws(() => {
+        new OSSObject({
+          ...config.oss,
+          bucket: '',
+        });
+      }, /bucket required/);
+    });
+  });
 });

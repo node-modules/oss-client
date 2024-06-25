@@ -64,7 +64,12 @@ import {
 } from './util/index.js';
 
 export interface OSSObjectClientInitOptions extends OSSBaseClientInitOptions {
-  bucket: string;
+  bucket?: string;
+  /**
+   * Enable cname
+   * @see https://help.aliyun.com/zh/oss/user-guide/map-custom-domain-names-5
+   */
+  cname?: boolean;
 }
 
 export class OSSObject extends OSSBaseClient implements IObjectSimple {
@@ -72,12 +77,23 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
   #bucketEndpoint: string;
 
   constructor(options: OSSObjectClientInitOptions) {
-    checkBucketName(options.bucket);
+    if (!options.cname) {
+      assert(options.bucket, 'bucket required');
+    }
+    if (options.bucket) {
+      checkBucketName(options.bucket);
+    }
     super(options);
-    this.#bucket = options.bucket;
-    const urlObject = new URL(this.options.endpoint);
-    urlObject.hostname = `${this.#bucket}.${urlObject.hostname}`;
-    this.#bucketEndpoint = urlObject.toString();
+    if (options.cname) {
+      // ignore bucket on cname set to true
+      this.#bucket = '';
+      this.#bucketEndpoint = this.options.endpoint;
+    } else {
+      this.#bucket = options.bucket!;
+      const urlObject = new URL(this.options.endpoint);
+      urlObject.hostname = `${this.#bucket}.${urlObject.hostname}`;
+      this.#bucketEndpoint = urlObject.toString();
+    }
   }
 
   /** public methods */
@@ -882,9 +898,11 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
       bucketName = sourceName.replace(/\/(.+?)(\/.*)/, '$1');
       sourceName = sourceName.replace(/(\/.+?\/)(.*)/, '$2');
     }
-    checkBucketName(bucketName);
     sourceName = encodeURIComponent(sourceName);
-    sourceName = `/${bucketName}/${sourceName}`;
+    if (bucketName) {
+      checkBucketName(bucketName);
+      sourceName = `/${bucketName}/${sourceName}`;
+    }
     return sourceName;
   }
 

@@ -159,7 +159,7 @@ const store = new OSSObject({
   accessKeyId: 'your access key',
   accessKeySecret: 'your access secret',
   bucket: 'your bucket name',
-  region: 'oss-cn-hangzhou'
+  region: 'oss-cn-hangzhou',
 });
 ```
 
@@ -175,11 +175,13 @@ const store = new OSSObject({
   accessKeyId: 'your access key',
   accessKeySecret: 'your access secret',
   bucket: 'your bucket name',
-  endpoint: 'oss-accelerate.aliyuncs.com',
+  endpoint: 'https://oss-accelerate.aliyuncs.com',
 });
 ```
 
 3. use custom domain
+
+See https://help.aliyun.com/zh/oss/user-guide/map-custom-domain-names-5
 
 ```js
 const { OSSObject } = require('oss-client');
@@ -188,7 +190,8 @@ const store = new OSSObject({
   accessKeyId: 'your access key',
   accessKeySecret: 'your access secret',
   cname: true,
-  endpoint: 'your custome domain',
+  // your custom domain endpoint
+  endpoint: 'https://my-static.domain.com',
 });
 ```
 
@@ -1629,19 +1632,8 @@ RequestError | -1 | network error | 网络出现中断或异常
 ConnectionTimeoutError | -2 | request connect timeout | 请求连接超时
 SecurityTokenExpired | 403 | sts Security Token Expired | sts Security Token 超时失效
 
-<!-- GITCONTRIBUTOR_START -->
-
 ## Contributors
 
-|[<img src="https://avatars.githubusercontent.com/u/1611647?v=4" width="100px;"/><br/><sub><b>PeterRao</b></sub>](https://github.com/PeterRao)<br/>|[<img src="https://avatars.githubusercontent.com/u/1209779?v=4" width="100px;"/><br/><sub><b>rockuw</b></sub>](https://github.com/rockuw)<br/>|[<img src="https://avatars.githubusercontent.com/u/156269?v=4" width="100px;"/><br/><sub><b>fengmk2</b></sub>](https://github.com/fengmk2)<br/>|[<img src="https://avatars.githubusercontent.com/u/985607?v=4" width="100px;"/><br/><sub><b>dead-horse</b></sub>](https://github.com/dead-horse)<br/>|[<img src="https://avatars.githubusercontent.com/u/24582204?v=4" width="100px;"/><br/><sub><b>taotao7</b></sub>](https://github.com/taotao7)<br/>|[<img src="https://avatars.githubusercontent.com/u/19388725?v=4" width="100px;"/><br/><sub><b>weiyie</b></sub>](https://github.com/weiyie)<br/>|
-| :---: | :---: | :---: | :---: | :---: | :---: |
-|[<img src="https://avatars.githubusercontent.com/u/5886725?v=4" width="100px;"/><br/><sub><b>binghaiwang</b></sub>](https://github.com/binghaiwang)<br/>|[<img src="https://avatars.githubusercontent.com/u/14790466?v=4" width="100px;"/><br/><sub><b>greenkeeperio-bot</b></sub>](https://github.com/greenkeeperio-bot)<br/>|[<img src="https://avatars.githubusercontent.com/u/5653578?v=4" width="100px;"/><br/><sub><b>luozhang002</b></sub>](https://github.com/luozhang002)<br/>|[<img src="https://avatars.githubusercontent.com/u/17213005?v=4" width="100px;"/><br/><sub><b>beajer</b></sub>](https://github.com/beajer)<br/>|[<img src="https://avatars.githubusercontent.com/u/17476119?v=4" width="100px;"/><br/><sub><b>mars-coder</b></sub>](https://github.com/mars-coder)<br/>|[<img src="https://avatars.githubusercontent.com/u/4757625?v=4" width="100px;"/><br/><sub><b>duan007a</b></sub>](https://github.com/duan007a)<br/>|
-|[<img src="https://avatars.githubusercontent.com/u/33024188?v=4" width="100px;"/><br/><sub><b>Ari1c</b></sub>](https://github.com/Ari1c)<br/>|[<img src="https://avatars.githubusercontent.com/u/20496894?v=4" width="100px;"/><br/><sub><b>Pedestrian93</b></sub>](https://github.com/Pedestrian93)<br/>|[<img src="https://avatars.githubusercontent.com/u/13463883?v=4" width="100px;"/><br/><sub><b>microJ</b></sub>](https://github.com/microJ)<br/>|[<img src="https://avatars.githubusercontent.com/u/19716675?v=4" width="100px;"/><br/><sub><b>aloisklink</b></sub>](https://github.com/aloisklink)<br/>|[<img src="https://avatars.githubusercontent.com/u/360661?v=4" width="100px;"/><br/><sub><b>popomore</b></sub>](https://github.com/popomore)<br/>|[<img src="https://avatars.githubusercontent.com/u/32174276?v=4" width="100px;"/><br/><sub><b>semantic-release-bot</b></sub>](https://github.com/semantic-release-bot)<br/>|
-|[<img src="https://avatars.githubusercontent.com/u/12809715?v=4" width="100px;"/><br/><sub><b>1019272778</b></sub>](https://github.com/1019272778)<br/>|[<img src="https://avatars.githubusercontent.com/u/863754?v=4" width="100px;"/><br/><sub><b>zensh</b></sub>](https://github.com/zensh)<br/>|[<img src="https://avatars.githubusercontent.com/u/340282?v=4" width="100px;"/><br/><sub><b>fool2fish</b></sub>](https://github.com/fool2fish)<br/>|[<img src="https://avatars.githubusercontent.com/u/8952081?v=4" width="100px;"/><br/><sub><b>AviVahl</b></sub>](https://github.com/AviVahl)<br/>|[<img src="https://avatars.githubusercontent.com/u/5139554?v=4" width="100px;"/><br/><sub><b>danielwpz</b></sub>](https://github.com/danielwpz)<br/>|[<img src="https://avatars.githubusercontent.com/u/19678627?v=4" width="100px;"/><br/><sub><b>tianniu0106</b></sub>](https://github.com/tianniu0106)<br/>|
-|[<img src="https://avatars.githubusercontent.com/u/327019?v=4" width="100px;"/><br/><sub><b>JacksonTian</b></sub>](https://github.com/JacksonTian)<br/>|[<img src="https://avatars.githubusercontent.com/u/440651?v=4" width="100px;"/><br/><sub><b>jackytck</b></sub>](https://github.com/jackytck)<br/>|[<img src="https://avatars.githubusercontent.com/u/3422918?v=4" width="100px;"/><br/><sub><b>leoliew</b></sub>](https://github.com/leoliew)<br/>|[<img src="https://avatars.githubusercontent.com/u/103457?v=4" width="100px;"/><br/><sub><b>lfeng</b></sub>](https://github.com/lfeng)<br/>|[<img src="https://avatars.githubusercontent.com/u/19733683?v=4" width="100px;"/><br/><sub><b>snyk-bot</b></sub>](https://github.com/snyk-bot)<br/>|[<img src="https://avatars.githubusercontent.com/u/30425185?v=4" width="100px;"/><br/><sub><b>yupeng-yuxiaoyu</b></sub>](https://github.com/yupeng-yuxiaoyu)<br/>|
-|[<img src="https://avatars.githubusercontent.com/u/99770068?v=4" width="100px;"/><br/><sub><b>sartoshi-foot-dao</b></sub>](https://github.com/sartoshi-foot-dao)<br/>|[<img src="https://avatars.githubusercontent.com/u/5172747?v=4" width="100px;"/><br/><sub><b>chay-xu</b></sub>](https://github.com/chay-xu)<br/>|[<img src="https://avatars.githubusercontent.com/u/4565306?v=4" width="100px;"/><br/><sub><b>chunpu</b></sub>](https://github.com/chunpu)<br/>|[<img src="https://avatars.githubusercontent.com/in/29110?v=4" width="100px;"/><br/><sub><b>dependabot[bot]</b></sub>](https://github.com/apps/dependabot)<br/>|[<img src="https://avatars.githubusercontent.com/u/7284558?v=4" width="100px;"/><br/><sub><b>duncup</b></sub>](https://github.com/duncup)<br/>|[<img src="https://avatars.githubusercontent.com/u/416060?v=4" width="100px;"/><br/><sub><b>qin</b></sub>](https://github.com/qin)<br/>|
-[<img src="https://avatars.githubusercontent.com/u/17328761?v=4" width="100px;"/><br/><sub><b>rdwh</b></sub>](https://github.com/rdwh)<br/>|[<img src="https://avatars.githubusercontent.com/u/25103518?v=4" width="100px;"/><br/><sub><b>richex-cn</b></sub>](https://github.com/richex-cn)<br/>|[<img src="https://avatars.githubusercontent.com/u/45714422?v=4" width="100px;"/><br/><sub><b>hengshanMWC</b></sub>](https://github.com/hengshanMWC)<br/>
+[![Contributors](https://contrib.rocks/image?repo=node-modules/oss-client)](https://github.com/node-modules/oss-client/graphs/contributors)
 
-This project follows the git-contributor [spec](https://github.com/xudafeng/git-contributor), auto updated at `Sat Sep 16 2023 01:02:55 GMT+0800`.
-
-<!-- GITCONTRIBUTOR_END -->
+Made with [contributors-img](https://contrib.rocks).

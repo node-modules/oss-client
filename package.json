@@ -1,14 +1,16 @@
 {
   "name": "oss-client",
   "version": "2.1.0",
+  "engines": {
+    "node": ">= 16.0.0"
+  },
   "description": "Aliyun OSS(Object Storage Service) Node.js Client",
   "scripts": {
     "lint": "eslint src test --ext .ts",
     "test": "egg-bin test",
     "test-local": "egg-bin test",
     "cov": "egg-bin cov",
-    "ci": "npm run lint && npm run cov && npm run prepublishOnly",
-    "contributor": "git-contributor",
+    "ci": "npm run lint && npm run cov && npm run prepublishOnly && attw --pack",
     "prepublishOnly": "tshy && tshy-after"
   },
   "repository": {
@@ -25,9 +27,6 @@
   "bugs": {
     "url": "https://github.com/node-modules/oss-client/issues"
   },
-  "engines": {
-    "node": ">= 16.0.0"
-  },
   "homepage": "https://github.com/node-modules/oss-client",
   "dependencies": {
     "is-type-of": "^2.0.1",
@@ -40,6 +39,7 @@
     "xml2js": "^0.6.2"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.15.3",
     "@eggjs/tsconfig": "^1.1.0",
     "@types/mime": "^3.0.1",
     "@types/mocha": "^10.0.1",
@@ -49,12 +49,10 @@
     "egg-bin": "^6.4.1",
     "eslint": "^8.25.0",
     "eslint-config-egg": "^13.0.0",
-    "git-contributor": "^2.1.5",
     "tshy": "^1.0.0",
     "tshy-after": "^1.0.0",
     "typescript": "^5.2.2"
   },
-  "typings": "./dist/esm/index.d.ts",
   "files": [
     "dist",
     "src"
@@ -70,14 +68,17 @@
     "./package.json": "./package.json",
     ".": {
       "import": {
+        "source": "./src/index.ts",
         "types": "./dist/esm/index.d.ts",
         "default": "./dist/esm/index.js"
       },
       "require": {
+        "source": "./src/index.ts",
         "types": "./dist/commonjs/index.d.ts",
         "default": "./dist/commonjs/index.js"
       }
     }
   },
-  "types": "./dist/commonjs/index.d.ts"
+  "types": "./dist/commonjs/index.d.ts",
+  "main": "./dist/commonjs/index.js"
 }
