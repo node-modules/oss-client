@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.0](https://github.com/node-modules/oss-client/compare/v2.1.0...v2.2.0) (2024-06-25)
+
+
+### Features
+
+* support cname ([#19](https://github.com/node-modules/oss-client/issues/19)) ([8c64904](https://github.com/node-modules/oss-client/commit/8c649048ca2e87897c09d5da689355cafc1a4d60))
+
 ## [2.1.0](https://github.com/node-modules/oss-client/compare/v2.0.1...v2.1.0) (2024-05-08)
 
 
