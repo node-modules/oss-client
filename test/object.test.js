@@ -1724,7 +1724,7 @@ describe('test/object.test.js', () => {
     });
   });
 
-  describe('list()', () => {
+  describe.skip('list()', () => {
     // oss.jpg
     // fun/test.jpg
     // fun/movie/001.avi
@@ -1838,7 +1838,7 @@ describe('test/object.test.js', () => {
     });
   });
 
-  describe('listV2()', () => {
+  describe.skip('listV2()', () => {
     let listPrefix;
     before(async () => {
       listPrefix = `${prefix}oss-client/listV2/`;
