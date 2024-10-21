@@ -17,6 +17,7 @@ import {
   GetStreamResult,
   CopyObjectOptions,
   CopyAndPutMetaResult,
+  DeleteObjectResult,
   Client,
   ImageClient,
   ClusterClient,
@@ -49,7 +50,7 @@ class SimpleClient implements IObjectSimple {
     console.log(name, options);
     return {} as any;
   }
-  async delete(name: string, options?: RequestOptions): Promise<NormalSuccessResponse> {
+  async delete(name: string, options?: RequestOptions): Promise<DeleteObjectResult> {
     console.log(name, options);
     return {} as any;
   }

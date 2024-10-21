@@ -21,6 +21,7 @@ import {
   OwnerType,
   UserMeta,
   ObjectCallback,
+  DeleteObjectResult,
 } from 'oss-interface';
 
 export * from 'oss-interface';
@@ -892,7 +893,7 @@ export class Client implements IObjectSimple {
   /**
    * Delete an object from the bucket.
    */
-  delete(name: string, options?: RequestOptions): Promise<NormalSuccessResponse>;
+  delete(name: string, options?: RequestOptions): Promise<DeleteObjectResult>;
 
   /**
    * Copy an object from sourceName to name.
