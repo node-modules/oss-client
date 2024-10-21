@@ -311,7 +311,7 @@ export abstract class OSSBaseClient {
 
       // https://help.aliyun.com/zh/oss/support/http-status-code-409#section-rmc-hvd-j38
       if (info?.Code === 'PositionNotEqualToLength' && result.headers['x-oss-next-append-position']) {
-        (err as any).nextAppendPosition = result.headers['x-oss-next-append-position'];
+        err.nextAppendPosition = result.headers['x-oss-next-append-position'] as string;
       }
     }
 

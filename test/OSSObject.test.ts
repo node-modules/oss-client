@@ -406,7 +406,7 @@ describe('test/OSSObject.test.ts', () => {
         assert.equal(err.name, 'OSSClientError');
         assert.equal(err.code, 'PositionNotEqualToLength');
         assert.equal(err.status, 409);
-        assert.equal((err as any).nextAppendPosition, '3');
+        assert.equal(err.nextAppendPosition, '3');
         assert.match(err.message, /Position is not equal to file length/);
         return true;
       });
