@@ -308,6 +308,11 @@ export abstract class OSSBaseClient {
         hostId = info.HostId;
       }
       err = new OSSClientError(status, info?.Code ?? 'Unknown', message, requestId, hostId);
+
+      // https://help.aliyun.com/zh/oss/support/http-status-code-409#section-rmc-hvd-j38
+      if (info?.Code === 'PositionNotEqualToLength' && result.headers['x-oss-next-append-position']) {
+        (err as any).nextAppendPosition = result.headers['x-oss-next-append-position'];
+      }
     }
 
     debug('generate error %o', err);
