@@ -7,6 +7,7 @@ export class OSSClientError extends Error {
   status: number;
   requestId?: string;
   hostId?: string;
+  nextAppendPosition?: string;
 
   constructor(status: number, code: string, message: string, requestId?: string, hostId?: string) {
     super(`[${REQUEST_ID_KEY}=${requestId}, ${RESPONSE_CODE_KEY}=${code}, ${RESPONSE_HOST_KEY}=${hostId}] ${message}`);
