@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/node-modules/oss-client/compare/v1.2.6...v1.3.0) (2024-10-26)
+
+
+### Features
+
+* add nextAppendPosition ([#25](https://github.com/node-modules/oss-client/issues/25)) ([4ff0640](https://github.com/node-modules/oss-client/commit/4ff0640a0e06454ee4fd4af4f86ef907d33324ad))
+
 ## [1.2.6](https://github.com/node-modules/oss-client/compare/v1.2.5...v1.2.6) (2023-09-18)
 
 
