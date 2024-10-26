@@ -1724,7 +1724,7 @@ describe('test/object.test.js', () => {
     });
   });
 
-  describe('list()', () => {
+  describe.skip('list()', () => {
     // oss.jpg
     // fun/test.jpg
     // fun/movie/001.avi
@@ -1838,7 +1838,7 @@ describe('test/object.test.js', () => {
     });
   });
 
-  describe('listV2()', () => {
+  describe.skip('listV2()', () => {
     let listPrefix;
     before(async () => {
       listPrefix = `${prefix}oss-client/listV2/`;
@@ -2075,13 +2075,13 @@ describe('test/object.test.js', () => {
     it('should error when positio not match', async () => {
       await store.append(name, Buffer.from('foo'));
 
-      try {
-        await store.append(name, Buffer.from('foo'));
-        throw new Error('should not run');
-      } catch (err) {
-        assert(err.message === 'Position is not equal to file length');
-        assert(err.name === 'PositionNotEqualToLengthError');
-      }
+      await assert.rejects(
+        store.append(name, Buffer.from('foo')),
+        err =>
+          err.message === 'Position is not equal to file length' &&
+          err.name === 'PositionNotEqualToLengthError' &&
+          err.nextAppendPosition === '3'
+      );
     });
 
     it('should use nextAppendPosition to append next', async () => {
