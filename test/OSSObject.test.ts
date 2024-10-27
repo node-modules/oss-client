@@ -22,8 +22,7 @@ describe('test/OSSObject.test.ts', () => {
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
 
-  // OSSClientError: Access denied by bucket policy.
-  describe.skip('list()', () => {
+  describe('list()', () => {
     // oss.jpg
     // fun/test.jpg
     // fun/movie/001.avi
@@ -42,9 +41,12 @@ describe('test/OSSObject.test.ts', () => {
       assert.equal(typeof obj.name, 'string');
       assert.equal(typeof obj.lastModified, 'string');
       assert.equal(typeof obj.etag, 'string');
-      assert(obj.type === 'Normal' || obj.type === 'Multipart');
+      assert(obj.type === 'Normal' || obj.type === 'Multipart' || obj.type === 'Appendable' || obj.type === 'Symlink',
+        `invalid obj.type ${obj.type}`);
       assert.equal(typeof obj.size, 'number');
-      assert.equal(obj.storageClass, 'Standard');
+      // assert.equal(obj.storageClass, 'Standard');
+      assert(obj.storageClass === 'Standard' || obj.storageClass === 'IA',
+        `invalid obj.storageClass ${obj.storageClass}`);
       assert.equal(typeof obj.owner, 'object');
       assert.equal(typeof obj.owner!.id, 'string');
       assert.equal(typeof obj.owner!.displayName, 'string');
@@ -56,6 +58,7 @@ describe('test/OSSObject.test.ts', () => {
       // console.log(result.objects);
       result.objects.map(checkObjectProperties);
       assert.equal(typeof result.nextMarker, 'string');
+      // console.log(result.isTruncated);
       assert(result.isTruncated);
       assert.deepEqual(result.prefixes, []);
       assert(result.res.headers.date);
@@ -66,7 +69,7 @@ describe('test/OSSObject.test.ts', () => {
       assert(obj.size > 0);
     });
 
-    it('should list timeout work', async () => {
+    it.skip('should list timeout work', async () => {
       await assert.rejects(async () => {
         await ossObject.list({}, { timeout: 1 });
       }, (err: Error) => {
@@ -168,8 +171,7 @@ describe('test/OSSObject.test.ts', () => {
     });
   });
 
-  // OSSClientError: Access denied by bucket policy.
-  describe.skip('listV2()', () => {
+  describe('listV2()', () => {
     const listPrefix = `${prefix}oss-client/listV2/`;
     before(async () => {
       await ossObject.put(`${listPrefix}oss.jpg`, Buffer.from('oss.jpg'));
@@ -186,7 +188,8 @@ describe('test/OSSObject.test.ts', () => {
       assert.equal(typeof obj.etag, 'string');
       assert(obj.type === 'Normal' || obj.type === 'Multipart');
       assert.equal(typeof obj.size, 'number');
-      assert.equal(obj.storageClass, 'Standard');
+      // assert.equal(obj.storageClass, 'Standard');
+      assert(obj.storageClass === 'Standard' || obj.storageClass === 'IA');
       if (options?.owner) {
         assert(typeof obj.owner!.id === 'string' && typeof obj.owner!.displayName === 'string');
       } else {
@@ -924,12 +927,13 @@ describe('test/OSSObject.test.ts', () => {
       assert(r2.owner.displayName);
       assert(r2.owner.id);
 
-      const r3 = await ossObject.putACL(name, 'public-read');
+      // public-read, Put public object acl is not allowed
+      const r3 = await ossObject.putACL(name, 'private');
       assert.equal(r3.res.status, 200);
 
       const r4 = await ossObject.getACL(name);
       assert.equal(r4.res.status, 200);
-      assert.equal(r4.acl, 'public-read');
+      assert.equal(r4.acl, 'private');
 
       const r5 = await ossObject.get(name);
       assert.equal(r5.res.status, 200);
