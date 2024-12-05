@@ -53,7 +53,10 @@ describe('test/OSSObject.test.ts', () => {
     }
 
     it('should list with query', async () => {
-      const result = await ossObject.list();
+      const result = await ossObject.list({
+        prefix: listPrefix,
+        'max-keys': 5,
+      });
       assert(result.objects.length > 0);
       // console.log(result.objects);
       result.objects.map(checkObjectProperties);
@@ -1728,8 +1731,8 @@ describe('test/OSSObject.test.ts', () => {
   describe('copy()', () => {
     let name: string;
     let resHeaders: IncomingHttpHeaders;
-    let otherBucket: string;
-    let otherBucketObject: string;
+    // let otherBucket: string;
+    // let otherBucketObject: string;
     before(async () => {
       name = `${prefix}oss-client/oss/copy-meta.js`;
       const object = await ossObject.put(name, __filename, {
@@ -1783,25 +1786,25 @@ describe('test/OSSObject.test.ts', () => {
       assert.strictEqual(res.headers['content-disposition'], disposition);
     });
 
-    it.skip('should copy object from other bucket, sourceBucket in copySource', async () => {
-      const copySource = `/${otherBucket}/${otherBucketObject}`;
-      const copyTarget = `${prefix}oss-client/oss/copy-target.js`;
-      const result = await ossObject.copy(copyTarget, copySource);
-      assert.equal(result.res.status, 200);
+    // it.skip('should copy object from other bucket, sourceBucket in copySource', async () => {
+    //   const copySource = `/${otherBucket}/${otherBucketObject}`;
+    //   const copyTarget = `${prefix}oss-client/oss/copy-target.js`;
+    //   const result = await ossObject.copy(copyTarget, copySource);
+    //   assert.equal(result.res.status, 200);
+    //
+    //   const info = await ossObject.head(copyTarget);
+    //   assert.equal(info.status, 200);
+    // });
 
-      const info = await ossObject.head(copyTarget);
-      assert.equal(info.status, 200);
-    });
-
-    it.skip('should copy object from other bucket, sourceBucket is a separate parameter', async () => {
-      const copySource = otherBucketObject;
-      const copyTarget = `${prefix}oss-client/oss/has-bucket-name-copy-target.js`;
-      const result = await ossObject.copy(copyTarget, copySource, otherBucket);
-      assert.equal(result.res.status, 200);
-
-      const info = await ossObject.head(copyTarget);
-      assert.equal(info.status, 200);
-    });
+    // it.skip('should copy object from other bucket, sourceBucket is a separate parameter', async () => {
+    //   const copySource = otherBucketObject;
+    //   const copyTarget = `${prefix}oss-client/oss/has-bucket-name-copy-target.js`;
+    //   const result = await ossObject.copy(copyTarget, copySource, otherBucket);
+    //   assert.equal(result.res.status, 200);
+    //
+    //   const info = await ossObject.head(copyTarget);
+    //   assert.equal(info.status, 200);
+    // });
 
     it('should copy object with non-english name', async () => {
       const sourceName = `${prefix}oss-client/oss/copy-meta_测试.js`;
