@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.4.0](https://github.com/node-modules/oss-client/compare/v2.3.0...v2.4.0) (2024-12-05)
+
+
+### Features
+
+* upgrade urllib to 4.x ([#26](https://github.com/node-modules/oss-client/issues/26)) ([ad9346f](https://github.com/node-modules/oss-client/commit/ad9346fbba72c2d30072846484fab5daab57f285))
+
 ## [2.3.0](https://github.com/node-modules/oss-client/compare/v2.2.0...v2.3.0) (2024-10-21)
 
 
