@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.5.0](https://github.com/node-modules/oss-client/compare/v2.4.0...v2.5.0) (2025-05-10)
+
+
+### Features
+
+* use prettier, oxlint and vitest ([#27](https://github.com/node-modules/oss-client/issues/27)) ([d411a9f](https://github.com/node-modules/oss-client/commit/d411a9fdbae20185392ed25615ce16de82e9fc9f))
+
 ## [2.4.0](https://github.com/node-modules/oss-client/compare/v2.3.0...v2.4.0) (2024-12-05)
 
 
