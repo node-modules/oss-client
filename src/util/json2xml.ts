@@ -1,6 +1,9 @@
 import { escape as escapeHTML } from 'utility';
 
-export function json2xml(json: Record<string, any>, options?: { headers: boolean }) {
+export function json2xml(
+  json: Record<string, unknown>,
+  options?: { headers: boolean }
+) {
   let xml = '';
   if (options?.headers) {
     xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
@@ -16,7 +19,7 @@ export function json2xml(json: Record<string, any>, options?: { headers: boolean
       }
     } else if (typeof value === 'object') {
       xml += `<${key}>`;
-      xml += json2xml(value);
+      xml += json2xml(value as Record<string, unknown>);
       xml += `</${key}>`;
     } else {
       xml += `<${key}>${escapeHTML(value.toString())}</${key}>`;

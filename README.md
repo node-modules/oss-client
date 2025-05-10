@@ -98,7 +98,7 @@ const ossObject = new OSSObject({
   endpoint: '<oss endpoint>',
   accessKeyId: '<Your accessKeyId>',
   accessKeySecret: '<Your accessKeySecret>',
-  bucket: '<Your bucket name>'
+  bucket: '<Your bucket name>',
 });
 ```
 
@@ -112,7 +112,7 @@ const ossObject = new OSSObject({
   endpoint: '<oss endpoint>',
   accessKeyId: '<Your accessKeyId>',
   accessKeySecret: '<Your accessKeySecret>',
-  bucket: '<Your bucket name>'
+  bucket: '<Your bucket name>',
 });
 ```
 
@@ -208,21 +208,23 @@ parameters:
 - name {String} object name store on OSS
 - file {String|Buffer|ReadStream} object local path, content buffer or ReadStream content instance use in Node, Blob and html5 File
 - [options] {Object} optional parameters
+
   - [timeout] {Number} the operation timeout
   - [mime] {String} custom mime, will send with `Content-Type` entity header
   - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
     e.g.: `{ uid: 123, pid: 110 }`
   - [callback] {Object} The callback parameter is composed of a JSON string encoded in Base64,detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm)<br>
+
     - url {String} After a file is uploaded successfully, the OSS sends a callback request to this URL.
     - [host] {String} The host header value for initiating callback requests.
     - body {String} The value of the request body when a callback is initiated, for example, `key=${key}&etag=${etag}&my_var=${x:my_var}`.
     - [contentType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.
     - [customValue] {Object} Custom parameters are a map of key-values<br>
-         e.g.:
+      e.g.:
 
-        ```js
-           var customValue = {var1: 'value1', var2: 'value2'}
-        ```
+      ```js
+      var customValue = { var1: 'value1', var2: 'value2' };
+      ```
 
   - [headers] {Object} extra headers
     - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
@@ -333,22 +335,24 @@ parameters:
 - name {String} object name store on OSS
 - stream {ReadStream} object ReadStream content instance
 - [options] {Object} optional parameters
+
   - [contentLength] {Number} the stream length, `chunked encoding` will be used if absent
   - [timeout] {Number} the operation timeout
   - [mime] {String} custom mime, will send with `Content-Type` entity header
   - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
     e.g.: `{ uid: 123, pid: 110 }`
   - [callback] {Object} The callback parameter is composed of a JSON string encoded in Base64,detail [see](https://www.alibabacloud.com/help/doc-detail/31989.htm)<br>
+
     - url {String} After a file is uploaded successfully, the OSS sends a callback request to this URL.
     - [host] {String} The host header value for initiating callback requests.
     - body {String} The value of the request body when a callback is initiated, for example, key=${key}&etag=${etag}&my_var=${x:my_var}.
     - [contentType] {String} The Content-Type of the callback requests initiatiated, It supports application/x-www-form-urlencoded and application/json, and the former is the default value.
     - [customValue] {Object} Custom parameters are a map of key-values<br>
-         e.g.:
+      e.g.:
 
-        ```js
-           var customValue = {var1: 'value1', var2: 'value2'}
-        ```
+      ```js
+      var customValue = { var1: 'value1', var2: 'value2' };
+      ```
 
   - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
     - 'Cache-Control' cache control for download, e.g.: `Cache-Control: public, no-cache`
@@ -450,7 +454,10 @@ e.g.:
 const url = store.generateObjectUrl('foo/bar.jpg');
 // cdnUrl should be `https://${bucketname}.${endpotint}foo/bar.jpg`
 
-const cdnUrl = store.generateObjectUrl('foo/bar.jpg', 'https://mycdn.domian.com');
+const cdnUrl = store.generateObjectUrl(
+  'foo/bar.jpg',
+  'https://mycdn.domian.com'
+);
 // cdnUrl should be `https://mycdn.domian.com/foo/bar.jpg`
 ```
 
@@ -466,13 +473,13 @@ parameters:
   - [versionId] {String} the version id of history object
   - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
     - 'If-Modified-Since' object modified after this time will return 200 and object meta,
-        otherwise return 304 not modified
+      otherwise return 304 not modified
     - 'If-Unmodified-Since' object modified before this time will return 200 and object meta,
-        otherwise throw PreconditionFailedError
+      otherwise throw PreconditionFailedError
     - 'If-Match' object etag equal this will return 200 and object meta,
-        otherwise throw PreconditionFailedError
+      otherwise throw PreconditionFailedError
     - 'If-None-Match' object etag not equal this will return 200 and object meta,
-        otherwise return 304 not modified
+      otherwise return 304 not modified
 
 Success will return the object's meta information.
 
@@ -480,7 +487,7 @@ object:
 
 - status {Number} response status, maybe 200 or 304
 - meta {Object} object user meta, if not set on `put()`, will return null.
-    If return status 304, meta will be null too
+  If return status 304, meta will be null too
 - res {Object} response info, including
   - status {Number} response status
   - headers {Object} response headers
@@ -521,7 +528,7 @@ const object = await this.store.head('ossdemo/head-meta');
 
 ### .getObjectMeta(name[, options])
 
-Get an  object meta info include ETag、Size、LastModified and so on, not return object content.
+Get an object meta info include ETag、Size、LastModified and so on, not return object content.
 
 parameters:
 
@@ -570,13 +577,13 @@ parameters:
   - [headers] {Object} extra headers, detail see [RFC 2616](http://www.w3.org/Protocols/rfc2616/rfc2616.html)
     - 'Range' get specifying range bytes content, e.g.: `Range: bytes=0-9`
     - 'If-Modified-Since' object modified after this time will return 200 and object meta,
-        otherwise return 304 not modified
+      otherwise return 304 not modified
     - 'If-Unmodified-Since' object modified before this time will return 200 and object meta,
-        otherwise throw PreconditionFailedError
+      otherwise throw PreconditionFailedError
     - 'If-Match' object etag equal this will return 200 and object meta,
-        otherwise throw PreconditionFailedError
+      otherwise throw PreconditionFailedError
     - 'If-None-Match' object etag not equal this will return 200 and object meta,
-        otherwise return 304 not modified
+      otherwise return 304 not modified
 
 Success will return the info contains response.
 
@@ -600,7 +607,7 @@ const filepath = '/home/ossdemo/demo.txt';
 await store.get('ossdemo/demo.txt', filepath);
 ```
 
-_ Store object to a writestream
+\_ Store object to a writestream
 
 ```js
 await store.get('ossdemo/demo.txt', somestream);
@@ -617,7 +624,9 @@ console.log(Buffer.isBuffer(result.content));
 
 ```js
 const filepath = '/home/ossdemo/demo.png';
-await store.get('ossdemo/demo.png', filepath, {process: 'image/resize,w_200'});
+await store.get('ossdemo/demo.png', filepath, {
+  process: 'image/resize,w_200',
+});
 ```
 
 - Get a not exists object
@@ -634,7 +643,7 @@ await store.get('ossdemo/not-exists-demo.txt', filepath);
 const filepath = '/home/ossdemo/demo.txt';
 const versionId = 'versionId string';
 await store.get('ossdemo/not-exists-demo.txt', filepath, {
-  versionId
+  versionId,
 });
 ```
 
@@ -650,20 +659,20 @@ parameters:
   - [process] {String} image process params, will send with `x-oss-process`
   - [headers] {Object} extra headers
     - 'If-Modified-Since' object modified after this time will return 200 and object meta,
-        otherwise return 304 not modified
+      otherwise return 304 not modified
     - 'If-Unmodified-Since' object modified before this time will return 200 and object meta,
-        otherwise throw PreconditionFailedError
+      otherwise throw PreconditionFailedError
     - 'If-Match' object etag equal this will return 200 and object meta,
-        otherwise throw PreconditionFailedError
+      otherwise throw PreconditionFailedError
     - 'If-None-Match' object etag not equal this will return 200 and object meta,
-        otherwise return 304 not modified
+      otherwise return 304 not modified
 
 Success will return the stream instance and response info.
 
 object:
 
 - stream {ReadStream} readable stream instance
-    if response status is not 200, stream will be `null`.
+  if response status is not 200, stream will be `null`.
 - res {Object} response info, including
   - status {Number} response status
   - headers {Object} response headers
@@ -746,9 +755,9 @@ parameters:
     - 'If-None-Match' do copy if source object etag not equal this,
       otherwise throw PreconditionFailedError
     - 'If-Modified-Since' do copy if source object modified after this time,
-        otherwise throw PreconditionFailedError
+      otherwise throw PreconditionFailedError
     - 'If-Unmodified-Since' do copy if source object modified before this time,
-        otherwise throw PreconditionFailedError
+      otherwise throw PreconditionFailedError
     - See more: [CopyObject](https://help.aliyun.com/document_detail/31979.html?#title-tzy-vxc-ncx)
 
 Success will return the copy result in `data` property.
@@ -771,7 +780,7 @@ example:
 - Copy same bucket object
 
 ```js
-store.copy('newName', 'oldName').then((result) => {
+store.copy('newName', 'oldName').then(result => {
   console.log(result);
 });
 ```
@@ -779,7 +788,7 @@ store.copy('newName', 'oldName').then((result) => {
 - Copy other bucket object
 
 ```js
-store.copy('logo.png', 'logo.png', 'other-bucket').then((result) => {
+store.copy('logo.png', 'logo.png', 'other-bucket').then(result => {
   console.log(result);
 });
 ```
@@ -787,10 +796,12 @@ store.copy('logo.png', 'logo.png', 'other-bucket').then((result) => {
 - Copy historic object
 
 ```js
-const versionId = 'your verisonId'
-store.copy('logo.png', 'logo.png', 'other-bucket', { versionId }).then((result) => {
-  console.log(result);
-});
+const versionId = 'your verisonId';
+store
+  .copy('logo.png', 'logo.png', 'other-bucket', { versionId })
+  .then(result => {
+    console.log(result);
+  });
 ```
 
 ### .putMeta(name, meta[, options])
@@ -825,7 +836,8 @@ example:
 
 ```js
 const result = await store.putMeta('ossdemo.txt', {
-  uid: 1, pid: 'p123'
+  uid: 1,
+  pid: 'p123',
 });
 console.log(result);
 ```
@@ -848,7 +860,7 @@ parameters:
 - [options] {Object} optional parameters
   - [quiet] {Boolean} quiet mode or verbose mode, default is `false`, verbose mode
     quiet mode: if all objects delete succes, return emtpy response.
-      otherwise return delete error object results.
+    otherwise return delete error object results.
     verbose mode: return all object delete results.
   - [timeout] {Number} the operation timeout
 
@@ -871,7 +883,7 @@ example:
 
 ```js
 const result = await store.deleteMulti(['obj1', 'obj2', 'obj3'], {
-  quiet: true
+  quiet: true,
 });
 ```
 
@@ -886,12 +898,12 @@ const result = await store.deleteMulti(['obj1', 'obj2', 'obj3']);
 ```js
 const obj1 = {
   key: 'key1',
-  versionId: 'versionId1'
-}
+  versionId: 'versionId1',
+};
 const obj2 = {
   key: 'key2',
-  versionId: 'versionId2'
-}
+  versionId: 'versionId2',
+};
 const result = await store.deleteMulti([obj1, obj2]);
 ```
 
@@ -943,7 +955,7 @@ console.log(result.objects);
 
 ```js
 const result = await store.list({
-  prefix: 'fun/'
+  prefix: 'fun/',
 });
 console.log(result.objects);
 ```
@@ -953,7 +965,7 @@ console.log(result.objects);
 ```js
 const result = await store.list({
   prefix: 'fun/',
-  delimiter: '/'
+  delimiter: '/',
 });
 console.log(result.objects);
 ```
@@ -992,6 +1004,7 @@ Success will return objects list on `objects` properties.
 - nextContinuationToken {String} next continuation-token string
 - keyCount {Number} The number of keys returned for this request. If Delimiter is specified, KeyCount is the sum of the elements in Key and CommonPrefixes.
 - res {Object} response info, including
+
   - status {Number} response status
   - headers {Object} response headers
   - size {Number} response size
@@ -1001,7 +1014,7 @@ Success will return objects list on `objects` properties.
 
 ```js
 const result = await store.listV2({
-  'max-keys': 10
+  'max-keys': 10,
 });
 console.log(result.objects);
 ```
@@ -1010,7 +1023,7 @@ console.log(result.objects);
 
 ```js
 const result = await store.listV2({
-  prefix: 'fun/'
+  prefix: 'fun/',
 });
 console.log(result.objects);
 ```
@@ -1020,7 +1033,7 @@ console.log(result.objects);
 ```js
 const result = await store.listV2({
   prefix: 'fun/',
-  delimiter: '/'
+  delimiter: '/',
 });
 console.log(result.objects);
 ```
@@ -1031,7 +1044,7 @@ console.log(result.objects);
 const result = await store.listV2({
   delimiter: '/',
   prefix: 'a/',
-  'start-after': 'a/b'
+  'start-after': 'a/b',
 });
 console.log(result.objects);
 ```
@@ -1094,7 +1107,7 @@ console.log(result.deleteMarker);
 
 ```js
 const result = await store.getBucketVersions({
-  'keyMarker': 'keyMarker'
+  keyMarker: 'keyMarker',
 });
 console.log(result.objects);
 ```
@@ -1103,8 +1116,8 @@ console.log(result.objects);
 
 ```js
 const result = await store.getBucketVersions({
-  'versionIdMarker': 'versionIdMarker',
-  'keyMarker': 'keyMarker'
+  versionIdMarker: 'versionIdMarker',
+  keyMarker: 'keyMarker',
 });
 console.log(result.objects);
 console.log(result.deleteMarker);
@@ -1149,7 +1162,7 @@ console.log(url);
 // --------------------------------------------------
 const url = store.signatureUrl('ossdemo.txt', {
   expires: 3600,
-  method: 'PUT'
+  method: 'PUT',
 });
 console.log(url);
 
@@ -1168,8 +1181,8 @@ const url = store.signatureUrl('ossdemo.txt', {
   expires: 3600,
   response: {
     'content-type': 'text/custom',
-    'content-disposition': 'attachment'
-  }
+    'content-disposition': 'attachment',
+  },
 });
 console.log(url);
 
@@ -1180,13 +1193,13 @@ console.log(url);
 
 ```js
 const url = store.signatureUrl('ossdemo.png', {
-  process: 'image/resize,w_200'
+  process: 'image/resize,w_200',
 });
 console.log(url);
 // --------------------------------------------------
 const url = store.signatureUrl('ossdemo.png', {
   expires: 3600,
-  process: 'image/resize,w_200'
+  process: 'image/resize,w_200',
 });
 console.log(url);
 ```
@@ -1230,7 +1243,7 @@ console.log(url);
 // --------------------------------------------------
 const url = await store.asyncSignatureUrl('ossdemo.txt', {
   expires: 3600,
-  method: 'PUT'
+  method: 'PUT',
 });
 console.log(url);
 //  put object with signatureUrl
@@ -1246,8 +1259,8 @@ const url = await store.asyncSignatureUrl('ossdemo.txt', {
   expires: 3600,
   response: {
     'content-type': 'text/custom',
-    'content-disposition': 'attachment'
-  }
+    'content-disposition': 'attachment',
+  },
 });
 console.log(url);
 // put operation
@@ -1257,13 +1270,13 @@ console.log(url);
 
 ```js
 const url = await store.asyncSignatureUrl('ossdemo.png', {
-  process: 'image/resize,w_200'
+  process: 'image/resize,w_200',
 });
 console.log(url);
 // --------------------------------------------------
 const url = await store.asyncSignatureUrl('ossdemo.png', {
   expires: 3600,
-  process: 'image/resize,w_200'
+  process: 'image/resize,w_200',
 });
 console.log(url);
 ```
@@ -1299,9 +1312,9 @@ await store.putACL('ossdemo.txt', 'public-read');
 - Set an history object's ACL
 
 ```js
-const versionId = 'object versionId'
+const versionId = 'object versionId';
 await store.putACL('ossdemo.txt', 'public-read', {
-  versionId
+  versionId,
 });
 ```
 
@@ -1337,7 +1350,7 @@ console.log(result.acl);
 - Get an history object's ACL
 
 ```js
-const versionId = 'object versionId'
+const versionId = 'object versionId';
 const result = await store.getACL('ossdemo.txt', { versionId });
 console.log(result.acl);
 ```
@@ -1374,14 +1387,17 @@ console.log(result.status);
 - Restore an object with ColdArchive type
 
 ```js
-const result = await store.restore('ossdemo.txt',{type:'ColdArchive'});
+const result = await store.restore('ossdemo.txt', { type: 'ColdArchive' });
 console.log(result.status);
 ```
 
 - Days for unfreezing Specifies the days for unfreezing
 
 ```js
-const result = await store.restore('ossdemo.txt',{type:'ColdArchive',Days:2});
+const result = await store.restore('ossdemo.txt', {
+  type: 'ColdArchive',
+  Days: 2,
+});
 console.log(result.status);
 ```
 
@@ -1402,6 +1418,7 @@ parameters:
 - name {String} object name
 - targetName {String} target object name
 - [options] {Object} optional parameters
+
   - [storageClass] {String} the storage type include (Standard,IA,Archive)
   - [meta] {Object} user meta, will send with `x-oss-meta-` prefix string
   - [headers] {Object} extra headers, detail see [PutSymlink](https://help.aliyun.com/document_detail/45126.html#title-x71-l2b-7i8)
@@ -1419,11 +1436,11 @@ const options = {
   storageClass: 'IA',
   meta: {
     uid: '1',
-    slus: 'test.html'
-  }
-}
-const result = await store.putSymlink('ossdemo.txt', 'targetName', options)
-console.log(result.res)
+    slus: 'test.html',
+  },
+};
+const result = await store.putSymlink('ossdemo.txt', 'targetName', options);
+console.log(result.res);
 ```
 
 putSymlink multiversion
@@ -1433,11 +1450,11 @@ const options = {
   storageClass: 'IA',
   meta: {
     uid: '1',
-    slus: 'test.html'
+    slus: 'test.html',
   },
-}
-const result = await store.putSymlink('ossdemo.txt', 'targetName', options)
-console.log(result.res.headers['x-oss-version-id'])
+};
+const result = await store.putSymlink('ossdemo.txt', 'targetName', options);
+console.log(result.res.headers['x-oss-version-id']);
 ```
 
 ### .getSymlink(name[, options])
@@ -1462,16 +1479,16 @@ Success will return
 example:
 
 ```js
-const result = await store.getSymlink('ossdemo.txt')
-console.log(result.targetName)
+const result = await store.getSymlink('ossdemo.txt');
+console.log(result.targetName);
 ```
 
 for history object
 
 ```js
 const versionId = 'object versionId';
-const result = await store.getSymlink('ossdemo.txt', { versionId })
-console.log(result.targetName)
+const result = await store.getSymlink('ossdemo.txt', { versionId });
+console.log(result.targetName);
 ```
 
 ### .calculatePostSignature(policy)
@@ -1562,9 +1579,10 @@ object:
 - res {Object} response info
 
 ```js
-const sourceObject = 'a.png'
-const targetObject = 'b.png'
-const process = 'image/watermark,text_aGVsbG8g5Zu+54mH5pyN5Yqh77yB,color_ff6a00'
+const sourceObject = 'a.png';
+const targetObject = 'b.png';
+const process =
+  'image/watermark,text_aGVsbG8g5Zu+54mH5pyN5Yqh77yB,color_ff6a00';
 
 await this.store.processObjectSave(sourceObject, targetObject, process);
 ```
@@ -1576,61 +1594,61 @@ Each error return by OSS server will contains these properties:
 - name {String} error name
 - message {String} error message
 - requestId {String} uuid for this request, if you meet some unhandled problem,
-    you can send this request id to OSS engineer to find out what's happend.
+  you can send this request id to OSS engineer to find out what's happend.
 - hostId {String} OSS cluster name for this request
 
 The following table lists the OSS error codes:
 
 [More code info](https://help.aliyun.com/knowledge_detail/32005.html)
 
-code | status | message | message in Chinese
----  | --- | ---     | ---
-AccessDenied | 403 | Access Denied | 拒绝访问
-BucketAlreadyExists | 409 | Bucket already exists | Bucket 已经存在
-BucketNotEmpty | 409 | Bucket is not empty | Bucket 不为空
-RestoreAlreadyInProgress | 409 | The restore operation is in progress. | restore 操作正在进行中
-OperationNotSupported | 400 | The operation is not supported for this resource | 该资源暂不支持restore操作
-EntityTooLarge | 400 | Entity too large | 实体过大
-EntityTooSmall | 400 | Entity too small | 实体过小
-FileGroupTooLarge | 400 | File group too large | 文件组过大
-InvalidLinkName | 400 | Link name can't be the same as the object name | Object Link 与指向的 Object 同名
-LinkPartNotExist | 400 | Can't link to not exists object | Object Link 中指向的 Object 不存在
-ObjectLinkTooLarge | 400 | Too many links to this object | Object Link 中 Object 个数过多
-FieldItemTooLong | 400 | Post form fields items too large | Post 请求中表单域过大
-FilePartInterity | 400 | File part has changed | 文件 Part 已改变
-FilePartNotExist | 400 | File part not exists | 文件 Part 不存在
-FilePartStale| 400 | File part stale | 文件 Part 过时
-IncorrectNumberOfFilesInPOSTRequest | 400 | Post request contains invalid number of files | Post 请求中文件个数非法
-InvalidArgument | 400 | Invalid format argument | 参数格式错误
-InvalidAccessKeyId | 400 | Access key id not exists | Access Key ID 不存在
-InvalidBucketName | 400 | Invalid bucket name | 无效的 Bucket 名字
-InvalidDigest | 400 | Invalid digest | 无效的摘要
-InvalidEncryptionAlgorithm | 400 | Invalid encryption algorithm | 指定的熵编码加密算法错误
-InvalidObjectName | 400 | Invalid object name | 无效的 Object 名字
-InvalidPart | 400 | Invalid part | 无效的 Part
-InvalidPartOrder | 400 | Invalid part order | 无效的 part 顺序
-InvalidPolicyDocument | 400 | Invalid policy document | 无效的 Policy 文档
-InvalidTargetBucketForLogging | 400 | Invalid bucket on logging operation | Logging 操作中有无效的目标 bucket
-Internal | 500 | OSS server internal error | OSS 内部发生错误
-MalformedXML | 400 | Malformed XML format | XML 格式非法
-MalformedPOSTRequest | 400 | Invalid post body format | Post 请求的 body 格式非法
-MaxPOSTPreDataLengthExceeded | 400 | Post extra data too large | Post 请求上传文件内容之外的 body 过大
-MethodNotAllowed | 405 | Not allowed method | 不支持的方法
-MissingArgument | 411 | Missing argument | 缺少参数
-MissingContentLength | 411 | Missing `Content-Length` header | 缺少内容长度
-NoSuchBucket | 404 | Bucket not exists | Bucket 不存在
-NoSuchKey | 404 | Object not exists | 文件不存在
-NoSuchUpload | 404 | Multipart upload id not exists | Multipart Upload ID 不存在
-NotImplemented | 501 | Not implemented | 无法处理的方法
-PreconditionFailed | 412 | Pre condition failed | 预处理错误
-RequestTimeTooSkewed | 403 | Request time exceeds 15 minutes to server time | 发起请求的时间和服务器时间超出 15 分钟
-RequestTimeout | 400 | Request timeout | 请求超时
-RequestIsNotMultiPartContent | 400 | Invalid post content-type | Post 请求 content-type 非法
-SignatureDoesNotMatch | 403 | Invalid signature | 签名错误
-TooManyBuckets | 400 | Too many buckets on this user | 用户的 Bucket 数目超过限制
-RequestError | -1 | network error | 网络出现中断或异常
-ConnectionTimeoutError | -2 | request connect timeout | 请求连接超时
-SecurityTokenExpired | 403 | sts Security Token Expired | sts Security Token 超时失效
+| code                                | status | message                                          | message in Chinese                     |
+| ----------------------------------- | ------ | ------------------------------------------------ | -------------------------------------- |
+| AccessDenied                        | 403    | Access Denied                                    | 拒绝访问                               |
+| BucketAlreadyExists                 | 409    | Bucket already exists                            | Bucket 已经存在                        |
+| BucketNotEmpty                      | 409    | Bucket is not empty                              | Bucket 不为空                          |
+| RestoreAlreadyInProgress            | 409    | The restore operation is in progress.            | restore 操作正在进行中                 |
+| OperationNotSupported               | 400    | The operation is not supported for this resource | 该资源暂不支持restore操作              |
+| EntityTooLarge                      | 400    | Entity too large                                 | 实体过大                               |
+| EntityTooSmall                      | 400    | Entity too small                                 | 实体过小                               |
+| FileGroupTooLarge                   | 400    | File group too large                             | 文件组过大                             |
+| InvalidLinkName                     | 400    | Link name can't be the same as the object name   | Object Link 与指向的 Object 同名       |
+| LinkPartNotExist                    | 400    | Can't link to not exists object                  | Object Link 中指向的 Object 不存在     |
+| ObjectLinkTooLarge                  | 400    | Too many links to this object                    | Object Link 中 Object 个数过多         |
+| FieldItemTooLong                    | 400    | Post form fields items too large                 | Post 请求中表单域过大                  |
+| FilePartInterity                    | 400    | File part has changed                            | 文件 Part 已改变                       |
+| FilePartNotExist                    | 400    | File part not exists                             | 文件 Part 不存在                       |
+| FilePartStale                       | 400    | File part stale                                  | 文件 Part 过时                         |
+| IncorrectNumberOfFilesInPOSTRequest | 400    | Post request contains invalid number of files    | Post 请求中文件个数非法                |
+| InvalidArgument                     | 400    | Invalid format argument                          | 参数格式错误                           |
+| InvalidAccessKeyId                  | 400    | Access key id not exists                         | Access Key ID 不存在                   |
+| InvalidBucketName                   | 400    | Invalid bucket name                              | 无效的 Bucket 名字                     |
+| InvalidDigest                       | 400    | Invalid digest                                   | 无效的摘要                             |
+| InvalidEncryptionAlgorithm          | 400    | Invalid encryption algorithm                     | 指定的熵编码加密算法错误               |
+| InvalidObjectName                   | 400    | Invalid object name                              | 无效的 Object 名字                     |
+| InvalidPart                         | 400    | Invalid part                                     | 无效的 Part                            |
+| InvalidPartOrder                    | 400    | Invalid part order                               | 无效的 part 顺序                       |
+| InvalidPolicyDocument               | 400    | Invalid policy document                          | 无效的 Policy 文档                     |
+| InvalidTargetBucketForLogging       | 400    | Invalid bucket on logging operation              | Logging 操作中有无效的目标 bucket      |
+| Internal                            | 500    | OSS server internal error                        | OSS 内部发生错误                       |
+| MalformedXML                        | 400    | Malformed XML format                             | XML 格式非法                           |
+| MalformedPOSTRequest                | 400    | Invalid post body format                         | Post 请求的 body 格式非法              |
+| MaxPOSTPreDataLengthExceeded        | 400    | Post extra data too large                        | Post 请求上传文件内容之外的 body 过大  |
+| MethodNotAllowed                    | 405    | Not allowed method                               | 不支持的方法                           |
+| MissingArgument                     | 411    | Missing argument                                 | 缺少参数                               |
+| MissingContentLength                | 411    | Missing `Content-Length` header                  | 缺少内容长度                           |
+| NoSuchBucket                        | 404    | Bucket not exists                                | Bucket 不存在                          |
+| NoSuchKey                           | 404    | Object not exists                                | 文件不存在                             |
+| NoSuchUpload                        | 404    | Multipart upload id not exists                   | Multipart Upload ID 不存在             |
+| NotImplemented                      | 501    | Not implemented                                  | 无法处理的方法                         |
+| PreconditionFailed                  | 412    | Pre condition failed                             | 预处理错误                             |
+| RequestTimeTooSkewed                | 403    | Request time exceeds 15 minutes to server time   | 发起请求的时间和服务器时间超出 15 分钟 |
+| RequestTimeout                      | 400    | Request timeout                                  | 请求超时                               |
+| RequestIsNotMultiPartContent        | 400    | Invalid post content-type                        | Post 请求 content-type 非法            |
+| SignatureDoesNotMatch               | 403    | Invalid signature                                | 签名错误                               |
+| TooManyBuckets                      | 400    | Too many buckets on this user                    | 用户的 Bucket 数目超过限制             |
+| RequestError                        | -1     | network error                                    | 网络出现中断或异常                     |
+| ConnectionTimeoutError              | -2     | request connect timeout                          | 请求连接超时                           |
+| SecurityTokenExpired                | 403    | sts Security Token Expired                       | sts Security Token 超时失效            |
 
 ## Contributors
 

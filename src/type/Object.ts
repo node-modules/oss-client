@@ -1,5 +1,10 @@
 import type {
-  DeleteObjectOptions, NormalSuccessResponse, OwnerType, RequestOptions, UserMeta, ListObjectResult,
+  DeleteObjectOptions,
+  NormalSuccessResponse,
+  OwnerType,
+  RequestOptions,
+  UserMeta,
+  ListObjectResult,
 } from 'oss-interface';
 import type { IncomingHttpHeaders } from 'urllib';
 
@@ -162,7 +167,8 @@ export interface ListV2ObjectsQuery {
   'encoding-type'?: 'url' | '';
 }
 
-export interface ListV2ObjectResult extends Omit<ListObjectResult, 'nextMarker'> {
+export interface ListV2ObjectResult
+  extends Omit<ListObjectResult, 'nextMarker'> {
   keyCount: number;
   /** prev index */
   continuationToken?: string;

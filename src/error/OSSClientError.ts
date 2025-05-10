@@ -9,8 +9,16 @@ export class OSSClientError extends Error {
   hostId?: string;
   nextAppendPosition?: string;
 
-  constructor(status: number, code: string, message: string, requestId?: string, hostId?: string) {
-    super(`[${REQUEST_ID_KEY}=${requestId}, ${RESPONSE_CODE_KEY}=${code}, ${RESPONSE_HOST_KEY}=${hostId}] ${message}`);
+  constructor(
+    status: number,
+    code: string,
+    message: string,
+    requestId?: string,
+    hostId?: string
+  ) {
+    super(
+      `[${REQUEST_ID_KEY}=${requestId}, ${RESPONSE_CODE_KEY}=${code}, ${RESPONSE_HOST_KEY}=${hostId}] ${message}`
+    );
     this.status = status;
     this.code = code;
     this.name = 'OSSClientError';

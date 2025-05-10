@@ -1,7 +1,9 @@
 import { debuglog } from 'node:util';
 import crypto from 'node:crypto';
+
 import type { IncomingHttpHeaders } from 'urllib';
 import type { SignatureUrlOptions } from 'oss-interface';
+
 import type { Request, RequestParameters } from '../type/Request.js';
 import { encodeCallback } from './encodeCallback.js';
 
@@ -12,7 +14,10 @@ const OSS_PREFIX = 'x-oss-';
  * build canonicalized resource
  * @see https://help.aliyun.com/zh/oss/developer-reference/include-signatures-in-the-authorization-header#section-rvv-dx2-xdb
  */
-function buildCanonicalizedResource(resourcePath: string, parameters?: RequestParameters) {
+function buildCanonicalizedResource(
+  resourcePath: string,
+  parameters?: RequestParameters
+) {
   let canonicalizedResource = `${resourcePath}`;
   let separatorString = '?';
 
@@ -39,7 +44,9 @@ function buildCanonicalizedResource(resourcePath: string, parameters?: RequestPa
       }
       separatorString = '&';
     };
-    Object.keys(parameters).sort(compareFunc).forEach(processFunc);
+    for (const key of Object.keys(parameters).sort(compareFunc)) {
+      processFunc(key);
+    }
   }
   debug('canonicalizedResource: %o', canonicalizedResource);
   return canonicalizedResource;
@@ -55,42 +62,60 @@ function lowercaseKeyHeader(headers: IncomingHttpHeaders) {
   return lowercaseHeaders;
 }
 
-export function buildCanonicalString(method: string, resourcePath: string, request: Request, expiresTimestamp?: string) {
+export function buildCanonicalString(
+  method: string,
+  resourcePath: string,
+  request: Request,
+  expiresTimestamp?: string
+) {
   const headers = lowercaseKeyHeader(request.headers);
   const headersToSign: IncomingHttpHeaders = {};
   const signContent: string[] = [
     method.toUpperCase(),
-    headers['content-md5'] as string ?? '',
-    headers['content-type']!,
-    expiresTimestamp || headers['x-oss-date'] as string,
+    (headers['content-md5'] as string) ?? '',
+    headers['content-type'] as string,
+    expiresTimestamp || (headers['x-oss-date'] as string),
   ];
 
-  Object.keys(headers).forEach(key => {
+  for (const key of Object.keys(headers)) {
     if (key.startsWith(OSS_PREFIX)) {
       headersToSign[key] = String(headers[key]).trim();
     }
-  });
+  }
 
-  Object.keys(headersToSign).sort().forEach(key => {
+  for (const key of Object.keys(headersToSign).sort()) {
     signContent.push(`${key}:${headersToSign[key]}`);
-  });
-  signContent.push(buildCanonicalizedResource(resourcePath, request.parameters));
+  }
+  signContent.push(
+    buildCanonicalizedResource(resourcePath, request.parameters)
+  );
 
   return signContent.join('\n');
 }
 
-export function computeSignature(accessKeySecret: string, canonicalString: string) {
+export function computeSignature(
+  accessKeySecret: string,
+  canonicalString: string
+) {
   const signature = crypto.createHmac('sha1', accessKeySecret);
   return signature.update(Buffer.from(canonicalString)).digest('base64');
 }
 
-export function authorization(accessKeyId: string, accessKeySecret: string, canonicalString: string) {
+export function authorization(
+  accessKeyId: string,
+  accessKeySecret: string,
+  canonicalString: string
+) {
   // https://help.aliyun.com/zh/oss/developer-reference/include-signatures-in-the-authorization-header
   return `OSS ${accessKeyId}:${computeSignature(accessKeySecret, canonicalString)}`;
 }
 
-export function signatureForURL(accessKeySecret: string, options: SignatureUrlOptions,
-  resource: string, expiresTimestamp: number) {
+export function signatureForURL(
+  accessKeySecret: string,
+  options: SignatureUrlOptions,
+  resource: string,
+  expiresTimestamp: number
+) {
   const headers: Record<string, string> = {};
   const subResource = options.subResource ?? {};
 
@@ -141,10 +166,15 @@ export function signatureForURL(accessKeySecret: string, options: SignatureUrlOp
     }
   }
 
-  const canonicalString = buildCanonicalString(options.method!, resource, {
-    headers,
-    parameters: subResource,
-  }, `${expiresTimestamp}`);
+  const canonicalString = buildCanonicalString(
+    options.method as string,
+    resource,
+    {
+      headers,
+      parameters: subResource,
+    },
+    `${expiresTimestamp}`
+  );
 
   return {
     Signature: computeSignature(accessKeySecret, canonicalString),
