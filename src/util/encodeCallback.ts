@@ -17,7 +17,9 @@ export function encodeCallback(objectCallback: ObjectCallback) {
   if (objectCallback.contentType) {
     data.callbackBodyType = objectCallback.contentType;
   }
-  const callbackHeaderValue = Buffer.from(JSON.stringify(data)).toString('base64');
+  const callbackHeaderValue = Buffer.from(JSON.stringify(data)).toString(
+    'base64'
+  );
   const options: CallbackOptions = {
     callback: callbackHeaderValue,
   };
@@ -27,7 +29,9 @@ export function encodeCallback(objectCallback: ObjectCallback) {
     for (const key in objectCallback.customValue) {
       callbackVar[`x:${key}`] = objectCallback.customValue[key].toString();
     }
-    options.callbackVar = Buffer.from(JSON.stringify(callbackVar)).toString('base64');
+    options.callbackVar = Buffer.from(JSON.stringify(callbackVar)).toString(
+      'base64'
+    );
   }
   return options;
 }

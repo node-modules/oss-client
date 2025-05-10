@@ -1,8 +1,9 @@
-import { Readable, Writable } from 'node:stream';
+import type { Readable, Writable } from 'node:stream';
 import { createReadStream, createWriteStream } from 'node:fs';
 import { strict as assert } from 'node:assert';
 import querystring from 'node:querystring';
 import fs from 'node:fs/promises';
+
 import mime from 'mime';
 import { isReadable, isWritable } from 'is-type-of';
 import type { IncomingHttpHeaders } from 'urllib';
@@ -25,12 +26,15 @@ import type {
   GetStreamResult,
   CopyObjectOptions,
   CopyAndPutMetaResult,
+  ObjectMeta,
+  StorageType,
 } from 'oss-interface';
+
 import {
-  OSSBaseClientInitOptions,
+  type OSSBaseClientInitOptions,
   OSSBaseClient,
 } from './OSSBaseClient.js';
-import {
+import type {
   ACLType,
   AppendObjectOptions,
   AppendObjectResult,
@@ -59,8 +63,14 @@ import {
   RequestMethod,
 } from './type/index.js';
 import {
-  checkBucketName, signatureForURL, encodeCallback, json2xml, timestamp,
-  checkObjectTag, computeSignature, policyToJSONString,
+  checkBucketName,
+  signatureForURL,
+  encodeCallback,
+  json2xml,
+  timestamp,
+  checkObjectTag,
+  computeSignature,
+  policyToJSONString,
 } from './util/index.js';
 
 export interface OSSObjectClientInitOptions extends OSSBaseClientInitOptions {
@@ -72,13 +82,27 @@ export interface OSSObjectClientInitOptions extends OSSBaseClientInitOptions {
   cname?: boolean;
 }
 
+interface XMLCommonPrefix {
+  Prefix: string;
+}
+
+interface XMLContent {
+  Key: string;
+  LastModified: string;
+  ETag: string;
+  Type: string;
+  Size: string;
+  StorageClass: StorageType;
+  Owner: { ID: string; DisplayName: string };
+}
+
 export class OSSObject extends OSSBaseClient implements IObjectSimple {
   #bucket: string;
   #bucketEndpoint: string;
 
   constructor(options: OSSObjectClientInitOptions) {
     if (!options.cname) {
-      assert(options.bucket, 'bucket required');
+      assert.ok(options.bucket, 'bucket required');
     }
     if (options.bucket) {
       checkBucketName(options.bucket);
@@ -89,7 +113,7 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
       this.#bucket = '';
       this.#bucketEndpoint = this.options.endpoint;
     } else {
-      this.#bucket = options.bucket!;
+      this.#bucket = options.bucket ?? '';
       const urlObject = new URL(this.options.endpoint);
       urlObject.hostname = `${this.#bucket}.${urlObject.hostname}`;
       this.#bucketEndpoint = urlObject.toString();
@@ -102,18 +126,29 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
    * AppendObject
    * @see https://help.aliyun.com/zh/oss/developer-reference/appendobject
    */
-  async append(name: string, file: string | Buffer | Readable, options?: AppendObjectOptions): Promise<AppendObjectResult> {
+  async append(
+    name: string,
+    file: string | Buffer | Readable,
+    options?: AppendObjectOptions
+  ): Promise<AppendObjectResult> {
     const position = options?.position ?? '0';
-    const result = await this.#sendPutRequest(name, {
-      ...options,
-      subResource: {
-        append: '',
-        position: `${position}`,
+    const result = await this.#sendPutRequest(
+      name,
+      {
+        ...options,
+        subResource: {
+          append: '',
+          position: `${position}`,
+        },
       },
-    }, file, 'POST');
+      file,
+      'POST'
+    );
     return {
       ...result,
-      nextAppendPosition: result.res.headers['x-oss-next-append-position'] as string,
+      nextAppendPosition: result.res.headers[
+        'x-oss-next-append-position'
+      ] as string,
     };
   }
 
@@ -132,9 +167,13 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
    *                    key1: 'value1',
    *                    key2: 'value2'
    *                  }
-   * @return {Object} result
+   * @returns {Object} result
    */
-  async put(name: string, file: string | Buffer | Readable, options?: PutObjectOptions): Promise<PutObjectResult> {
+  async put(
+    name: string,
+    file: string | Buffer | Readable,
+    options?: PutObjectOptions
+  ): Promise<PutObjectResult> {
     if (typeof file === 'string' || isReadable(file) || Buffer.isBuffer(file)) {
       return await this.#sendPutRequest(name, options ?? {}, file);
     }
@@ -144,11 +183,19 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
   /**
    * put an object from ReadableStream.
    */
-  async putStream(name: string, stream: Readable, options?: PutObjectOptions): Promise<PutObjectResult> {
+  async putStream(
+    name: string,
+    stream: Readable,
+    options?: PutObjectOptions
+  ): Promise<PutObjectResult> {
     return await this.#sendPutRequest(name, options ?? {}, stream);
   }
 
-  async putMeta(name: string, meta: UserMeta, options?: Omit<CopyObjectOptions, 'meta'>) {
+  async putMeta(
+    name: string,
+    meta: UserMeta,
+    options?: Omit<CopyObjectOptions, 'meta'>
+  ) {
     return await this.copy(name, name, {
       meta,
       ...options,
@@ -159,22 +206,26 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
    * GetBucket (ListObjects)
    * @see https://help.aliyun.com/zh/oss/developer-reference/listobjects
    */
-  async list(query?: ListObjectsQuery, options?: RequestOptions): Promise<ListObjectResult> {
+  async list(
+    query?: ListObjectsQuery,
+    options?: RequestOptions
+  ): Promise<ListObjectResult> {
     // prefix, marker, max-keys, delimiter
     const params = this.#objectRequestParams('GET', '', options);
     if (query) {
       params.query = query;
     }
     params.xmlResponse = true;
-    params.successStatuses = [ 200 ];
+    params.successStatuses = [200];
 
     const { data, res } = await this.request(params);
-    let objects = data.Contents || [];
-    if (objects) {
-      if (!Array.isArray(objects)) {
-        objects = [ objects ];
+    let contents = data.Contents as XMLContent[] | XMLContent | undefined;
+    let objects: ObjectMeta[] = [];
+    if (contents) {
+      if (!Array.isArray(contents)) {
+        contents = [contents];
       }
-      objects = objects.map((obj: any) => ({
+      objects = contents.map(obj => ({
         name: obj.Key,
         url: this.#objectUrl(obj.Key),
         lastModified: obj.LastModified,
@@ -188,12 +239,16 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
         },
       }));
     }
-    let prefixes = data.CommonPrefixes || null;
-    if (prefixes) {
-      if (!Array.isArray(prefixes)) {
-        prefixes = [ prefixes ];
+    let commonPrefixes = data.CommonPrefixes as
+      | XMLCommonPrefix[]
+      | XMLCommonPrefix
+      | undefined;
+    let prefixes: string[] = [];
+    if (commonPrefixes) {
+      if (!Array.isArray(commonPrefixes)) {
+        commonPrefixes = [commonPrefixes];
       }
-      prefixes = prefixes.map((item: any) => item.Prefix);
+      prefixes = commonPrefixes.map(item => item.Prefix);
     }
     return {
       res,
@@ -208,12 +263,16 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
    * ListObjectsV2（GetBucketV2）
    * @see https://help.aliyun.com/zh/oss/developer-reference/listobjectsv2
    */
-  async listV2(query?: ListV2ObjectsQuery, options?: RequestOptions): Promise<ListV2ObjectResult> {
+  async listV2(
+    query?: ListV2ObjectsQuery,
+    options?: RequestOptions
+  ): Promise<ListV2ObjectResult> {
     const params = this.#objectRequestParams('GET', '', options);
     params.query = {
       'list-type': '2',
     };
-    const continuationToken = query?.['continuation-token'] ?? query?.continuationToken;
+    const continuationToken =
+      query?.['continuation-token'] ?? query?.continuationToken;
     if (continuationToken) {
       // should set subResource to add sign string
       params.subResource = {
@@ -239,15 +298,16 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
       params.query['fetch-owner'] = 'true';
     }
     params.xmlResponse = true;
-    params.successStatuses = [ 200 ];
+    params.successStatuses = [200];
 
     const { data, res } = await this.request(params);
-    let objects = data.Contents || [];
-    if (objects) {
-      if (!Array.isArray(objects)) {
-        objects = [ objects ];
+    let contents = data.Contents as XMLContent[] | XMLContent | undefined;
+    let objects: ObjectMeta[] = [];
+    if (contents) {
+      if (!Array.isArray(contents)) {
+        contents = [contents];
       }
-      objects = objects.map((obj: any) => ({
+      objects = contents.map(obj => ({
         name: obj.Key,
         url: this.#objectUrl(obj.Key),
         lastModified: obj.LastModified,
@@ -255,25 +315,31 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
         type: obj.Type,
         size: Number(obj.Size),
         storageClass: obj.StorageClass,
-        owner: obj.Owner ? {
-          id: obj.Owner.ID,
-          displayName: obj.Owner.DisplayName,
-        } : undefined,
+        owner: obj.Owner
+          ? {
+              id: obj.Owner.ID,
+              displayName: obj.Owner.DisplayName,
+            }
+          : undefined,
       }));
     }
-    let prefixes = data.CommonPrefixes || null;
-    if (prefixes) {
-      if (!Array.isArray(prefixes)) {
-        prefixes = [ prefixes ];
+    let commonPrefixes = data.CommonPrefixes as
+      | XMLCommonPrefix[]
+      | XMLCommonPrefix
+      | undefined;
+    let prefixes: string[] = [];
+    if (commonPrefixes) {
+      if (!Array.isArray(commonPrefixes)) {
+        commonPrefixes = [commonPrefixes];
       }
-      prefixes = prefixes.map((item: any) => item.Prefix);
+      prefixes = commonPrefixes.map(item => item.Prefix);
     }
     return {
       res,
       objects,
-      prefixes: prefixes || [],
+      prefixes,
       isTruncated: data.IsTruncated === 'true',
-      keyCount: parseInt(data.KeyCount),
+      keyCount: Number.parseInt(data.KeyCount),
       continuationToken: data.ContinuationToken,
       nextContinuationToken: data.NextContinuationToken,
     } satisfies ListV2ObjectResult;
@@ -284,8 +350,16 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
    * @see https://help.aliyun.com/zh/oss/developer-reference/getobject
    */
   async get(name: string, options?: GetObjectOptions): Promise<GetObjectResult>;
-  async get(name: string, file: string | Writable, options?: GetObjectOptions): Promise<GetObjectResult>;
-  async get(name: string, file?: string | Writable | GetObjectOptions, options?: GetObjectOptions): Promise<GetObjectResult> {
+  async get(
+    name: string,
+    file: string | Writable,
+    options?: GetObjectOptions
+  ): Promise<GetObjectResult>;
+  async get(
+    name: string,
+    file?: string | Writable | GetObjectOptions,
+    options?: GetObjectOptions
+  ): Promise<GetObjectResult> {
     let writeStream: Writable | undefined;
     let needDestroy = false;
 
@@ -304,7 +378,7 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
     try {
       const params = this.#objectRequestParams('GET', name, options);
       params.writeStream = writeStream;
-      params.successStatuses = [ 200, 206, 304 ];
+      params.successStatuses = [200, 206, 304];
 
       result = await this.request<Buffer>(params);
       if (needDestroy && writeStream) {
@@ -325,11 +399,14 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
     };
   }
 
-  async getStream(name: string, options?: GetStreamOptions): Promise<GetStreamResult> {
+  async getStream(
+    name: string,
+    options?: GetStreamOptions
+  ): Promise<GetStreamResult> {
     options = this.#formatGetOptions(options);
     const params = this.#objectRequestParams('GET', name, options);
     params.streaming = true;
-    params.successStatuses = [ 200, 206, 304 ];
+    params.successStatuses = [200, 206, 304];
     const { res } = await this.request(params);
     return {
       stream: res,
@@ -341,7 +418,11 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
    * PutObjectACL
    * @see https://help.aliyun.com/zh/oss/developer-reference/putobjectacl
    */
-  async putACL(name: string, acl: ACLType, options?: PutACLOptions): Promise<PutACLResult> {
+  async putACL(
+    name: string,
+    acl: ACLType,
+    options?: PutACLOptions
+  ): Promise<PutACLResult> {
     options = options ?? {};
     if (options.subres && !options.subResource) {
       options.subResource = options.subres;
@@ -357,7 +438,7 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
     options.headers['x-oss-object-acl'] = acl;
     name = this.#objectName(name);
     const params = this.#objectRequestParams('PUT', name, options);
-    params.successStatuses = [ 200 ];
+    params.successStatuses = [200];
     const { res } = await this.request(params);
     return {
       res,
@@ -365,9 +446,9 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
   }
 
   /**
-  * GetObjectACL
-  * @see https://help.aliyun.com/zh/oss/developer-reference/getobjectacl
-  */
+   * GetObjectACL
+   * @see https://help.aliyun.com/zh/oss/developer-reference/getobjectacl
+   */
   async getACL(name: string, options?: GetACLOptions): Promise<GetACLResult> {
     options = options ?? {};
     if (options.subres && !options.subResource) {
@@ -384,7 +465,7 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
     name = this.#objectName(name);
 
     const params = this.#objectRequestParams('GET', name, options);
-    params.successStatuses = [ 200 ];
+    params.successStatuses = [200];
     params.xmlResponse = true;
 
     const { data, res } = await this.request(params);
@@ -438,7 +519,10 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
    * DeleteObject
    * @see https://help.aliyun.com/zh/oss/developer-reference/deleteobject
    */
-  async delete(name: string, options?: DeleteObjectOptions): Promise<DeleteObjectResult> {
+  async delete(
+    name: string,
+    options?: DeleteObjectOptions
+  ): Promise<DeleteObjectResult> {
     const requestOptions = {
       timeout: options?.timeout,
       subResource: {} as Record<string, string>,
@@ -447,7 +531,7 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
       requestOptions.subResource.versionId = options.versionId;
     }
     const params = this.#objectRequestParams('DELETE', name, requestOptions);
-    params.successStatuses = [ 204 ];
+    params.successStatuses = [204];
     const { res } = await this.request(params);
     return {
       res,
@@ -462,24 +546,33 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
    * DeleteMultipleObjects
    * @see https://help.aliyun.com/zh/oss/developer-reference/deletemultipleobjects
    */
-  async deleteMulti(namesOrObjects: string[] | DeleteMultipleObject[], options?: DeleteMultipleObjectOptions): Promise<DeleteMultipleObjectResponse> {
+  async deleteMulti(
+    namesOrObjects: string[] | DeleteMultipleObject[],
+    options?: DeleteMultipleObjectOptions
+  ): Promise<DeleteMultipleObjectResponse> {
     const objects: DeleteMultipleObjectXML[] = [];
-    assert(namesOrObjects.length > 0, 'namesOrObjects is empty');
+    assert.ok(namesOrObjects.length > 0, 'namesOrObjects is empty');
     for (const nameOrObject of namesOrObjects) {
       if (typeof nameOrObject === 'string') {
         objects.push({ Key: this.#objectName(nameOrObject) });
       } else {
-        assert(nameOrObject.key, 'key is empty');
-        objects.push({ Key: this.#objectName(nameOrObject.key), VersionId: nameOrObject.versionId });
+        assert.ok(nameOrObject.key, 'key is empty');
+        objects.push({
+          Key: this.#objectName(nameOrObject.key),
+          VersionId: nameOrObject.versionId,
+        });
       }
     }
 
-    const xml = json2xml({
-      Delete: {
-        Quiet: !!options?.quiet,
-        Object: objects,
+    const xml = json2xml(
+      {
+        Delete: {
+          Quiet: !!options?.quiet,
+          Object: objects,
+        },
       },
-    }, { headers: true });
+      { headers: true }
+    );
 
     const requestOptions = {
       timeout: options?.timeout,
@@ -492,16 +585,14 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
 
     const params = this.#objectRequestParams('POST', '', requestOptions);
     params.mime = 'xml';
-    params.content = Buffer.from(xml, 'utf-8');
+    params.content = Buffer.from(xml, 'utf8');
     params.xmlResponse = true;
-    params.successStatuses = [ 200 ];
+    params.successStatuses = [200];
     const { data, res } = await this.request(params);
     // quiet will return null
     let deleted = data?.Deleted || [];
-    if (deleted) {
-      if (!Array.isArray(deleted)) {
-        deleted = [ deleted ];
-      }
+    if (deleted && !Array.isArray(deleted)) {
+      deleted = [deleted];
     }
     return {
       res,
@@ -513,7 +604,10 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
    * HeadObject
    * @see https://help.aliyun.com/zh/oss/developer-reference/headobject
    */
-  async head(name: string, options?: HeadObjectOptions): Promise<HeadObjectResult> {
+  async head(
+    name: string,
+    options?: HeadObjectOptions
+  ): Promise<HeadObjectResult> {
     options = options ?? {};
     if (options.subres && !options.subResource) {
       options.subResource = options.subres;
@@ -525,7 +619,7 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
       options.subResource.versionId = options.versionId;
     }
     const params = this.#objectRequestParams('HEAD', name, options);
-    params.successStatuses = [ 200, 304 ];
+    params.successStatuses = [200, 304];
     const { res } = await this.request(params);
     const meta: UserMeta = {};
     const result = {
@@ -535,7 +629,7 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
     } satisfies HeadObjectResult;
     for (const k in res.headers) {
       if (k.startsWith('x-oss-meta-')) {
-        const key = k.substring(11);
+        const key = k.slice(11);
         meta[key] = res.headers[k] as string;
       }
     }
@@ -560,7 +654,7 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
     }
     options.subResource.objectMeta = '';
     const params = this.#objectRequestParams('HEAD', name, options);
-    params.successStatuses = [ 200 ];
+    params.successStatuses = [200];
     const { res } = await this.request(params);
     return {
       status: res.status,
@@ -572,7 +666,11 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
    * PutSymlink
    * @see https://help.aliyun.com/zh/oss/developer-reference/putsymlink
    */
-  async putSymlink(name: string, targetName: string, options: PutSymlinkOptions): Promise<PutSymlinkResult> {
+  async putSymlink(
+    name: string,
+    targetName: string,
+    options: PutSymlinkOptions
+  ): Promise<PutSymlinkResult> {
     options = options ?? {};
     if (!options.subResource) {
       options.subResource = {};
@@ -593,7 +691,7 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
     name = this.#objectName(name);
     const params = this.#objectRequestParams('PUT', name, options);
 
-    params.successStatuses = [ 200 ];
+    params.successStatuses = [200];
     const { res } = await this.request(params);
     return {
       res,
@@ -604,7 +702,10 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
    * GetSymlink
    * @see https://help.aliyun.com/zh/oss/developer-reference/getsymlink
    */
-  async getSymlink(name: string, options?: GetSymlinkOptions): Promise<GetSymlinkResult> {
+  async getSymlink(
+    name: string,
+    options?: GetSymlinkOptions
+  ): Promise<GetSymlinkResult> {
     options = options ?? {};
     if (!options.subResource) {
       options.subResource = {};
@@ -615,13 +716,13 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
     }
     name = this.#objectName(name);
     const params = this.#objectRequestParams('GET', name, options);
-    params.successStatuses = [ 200 ];
+    params.successStatuses = [200];
     const { res } = await this.request(params);
     const target = res.headers['x-oss-symlink-target'] as string;
     const meta: Record<string, string> = {};
     for (const k in res.headers) {
       if (k.startsWith('x-oss-meta-')) {
-        const key = k.substring(11);
+        const key = k.slice(11);
         meta[key] = res.headers[k] as string;
       }
     }
@@ -636,7 +737,11 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
    * PutObjectTagging
    * @see https://help.aliyun.com/zh/oss/developer-reference/putobjecttagging
    */
-  async putObjectTagging(name: string, tag: Record<string, string>, options?: PutObjectTaggingOptions): Promise<PutObjectTaggingResult> {
+  async putObjectTagging(
+    name: string,
+    tag: Record<string, string>,
+    options?: PutObjectTaggingOptions
+  ): Promise<PutObjectTaggingResult> {
     checkObjectTag(tag);
     options = options ?? {};
     if (!options.subResource) {
@@ -648,7 +753,7 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
     }
     name = this.#objectName(name);
     const params = this.#objectRequestParams('PUT', name, options);
-    params.successStatuses = [ 200 ];
+    params.successStatuses = [200];
     const tags: { Key: string; Value: string }[] = [];
     for (const key in tag) {
       tags.push({ Key: key, Value: tag[key] });
@@ -675,7 +780,10 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
    * GetObjectTagging
    * @see https://help.aliyun.com/zh/oss/developer-reference/getobjecttagging
    */
-  async getObjectTagging(name: string, options?: GutObjectTaggingOptions): Promise<GutObjectTaggingResult> {
+  async getObjectTagging(
+    name: string,
+    options?: GutObjectTaggingOptions
+  ): Promise<GutObjectTaggingResult> {
     options = options ?? {};
     if (!options.subResource) {
       options.subResource = {};
@@ -686,13 +794,13 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
     }
     name = this.#objectName(name);
     const params = this.#objectRequestParams('GET', name, options);
-    params.successStatuses = [ 200 ];
+    params.successStatuses = [200];
     params.xmlResponse = true;
     const { res, data } = await this.request(params);
     // console.log(data.toString());
     let tags = data.TagSet?.Tag;
     if (tags && !Array.isArray(tags)) {
-      tags = [ tags ];
+      tags = [tags];
     }
     const tag: Record<string, string> = {};
     if (tags) {
@@ -711,7 +819,10 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
    * DeleteObjectTagging
    * @see https://help.aliyun.com/zh/oss/developer-reference/deleteobjecttagging
    */
-  async deleteObjectTagging(name: string, options?: DeleteObjectTaggingOptions): Promise<DeleteObjectTaggingResult> {
+  async deleteObjectTagging(
+    name: string,
+    options?: DeleteObjectTaggingOptions
+  ): Promise<DeleteObjectTaggingResult> {
     options = options ?? {};
     if (!options.subResource) {
       options.subResource = {};
@@ -722,7 +833,7 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
     }
     name = this.#objectName(name);
     const params = this.#objectRequestParams('DELETE', name, options);
-    params.successStatuses = [ 204 ];
+    params.successStatuses = [204];
     const { res } = await this.request(params);
 
     return {
@@ -746,7 +857,12 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
       object: name,
     };
     const resource = this.getResource(params);
-    const signRes = signatureForURL(this.options.accessKeySecret, options, resource, expiresTimestamp);
+    const signRes = signatureForURL(
+      this.options.accessKeySecret,
+      options,
+      resource,
+      expiresTimestamp
+    );
 
     const url = this.getRequestURL({
       object: name,
@@ -766,9 +882,9 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
 
   /**
    * Get Object url by name
-   * @param name - object name
-   * @param baseUrl - If provide `baseUrl`, will use `baseUrl` instead the default `endpoint and bucket`.
-   * return object url include bucket
+   * @param {string} name - object name
+   * @param {string} [baseUrl] - If provide `baseUrl`, will use `baseUrl` instead the default `endpoint and bucket`.
+   * @returns {string} object url include bucket
    */
   generateObjectUrl(name: string, baseUrl?: string) {
     const urlObject = new URL(baseUrl ?? this.getRequestEndpoint());
@@ -784,9 +900,8 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
   }
 
   /**
-   * @param policy specifies the validity of the fields in the request.
-   *
-   * return params.OSSAccessKeyId
+   * @param {object | string} policy specifies the validity of the fields in the request.
+   * @returns {object} params.OSSAccessKeyId
    *  params.Signature
    *  params.policy JSON text encoded with UTF-8 and Base64.
    */
@@ -794,8 +909,14 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
     if (typeof policy !== 'object' && typeof policy !== 'string') {
       throw new TypeError('policy must be JSON string or Object');
     }
-    const policyString = Buffer.from(policyToJSONString(policy), 'utf8').toString('base64');
-    const Signature = computeSignature(this.options.accessKeySecret, policyString);
+    const policyString = Buffer.from(
+      policyToJSONString(policy),
+      'utf8'
+    ).toString('base64');
+    const Signature = computeSignature(
+      this.options.accessKeySecret,
+      policyString
+    );
     return {
       OSSAccessKeyId: this.options.accessKeyId,
       Signature,
@@ -806,9 +927,23 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
   /**
    * Copy an object from sourceName to name.
    */
-  async copy(name: string, sourceName: string, options?: CopyObjectOptions): Promise<CopyAndPutMetaResult>;
-  async copy(name: string, sourceName: string, sourceBucket: string, options?: CopyObjectOptions): Promise<CopyAndPutMetaResult>;
-  async copy(name: string, sourceName: string, sourceBucket?: string | CopyObjectOptions, options?: CopyObjectOptions): Promise<CopyAndPutMetaResult> {
+  async copy(
+    name: string,
+    sourceName: string,
+    options?: CopyObjectOptions
+  ): Promise<CopyAndPutMetaResult>;
+  async copy(
+    name: string,
+    sourceName: string,
+    sourceBucket: string,
+    options?: CopyObjectOptions
+  ): Promise<CopyAndPutMetaResult>;
+  async copy(
+    name: string,
+    sourceName: string,
+    sourceBucket?: string | CopyObjectOptions,
+    options?: CopyObjectOptions
+  ): Promise<CopyAndPutMetaResult> {
     if (typeof sourceBucket === 'object') {
       options = sourceBucket; // 兼容旧版本，旧版本第三个参数为options
       sourceBucket = undefined;
@@ -816,18 +951,19 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
     options = options ?? {};
     options.headers = options.headers ?? {};
     let hasMetadata = !!options.meta;
-    const REPLACE_HEADERS = [
+    const REPLACE_HEADERS = new Set([
       'content-type',
       'content-encoding',
       'content-language',
       'content-disposition',
       'cache-control',
       'expires',
-    ];
+    ]);
     for (const key in options.headers) {
       const lowerCaseKey = key.toLowerCase();
-      options.headers[`x-oss-copy-source-${lowerCaseKey}`] = options.headers[key];
-      if (REPLACE_HEADERS.includes(lowerCaseKey)) {
+      options.headers[`x-oss-copy-source-${lowerCaseKey}`] =
+        options.headers[key];
+      if (REPLACE_HEADERS.has(lowerCaseKey)) {
         hasMetadata = true;
       }
     }
@@ -843,13 +979,15 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
     options.headers['x-oss-copy-source'] = sourceName;
     const params = this.#objectRequestParams('PUT', name, options);
     params.xmlResponse = true;
-    params.successStatuses = [ 200, 304 ];
+    params.successStatuses = [200, 304];
     const { data, res } = await this.request(params);
     return {
-      data: data ? {
-        etag: data.ETag ?? '',
-        lastModified: data.LastModified ?? '',
-      } : null,
+      data: data
+        ? {
+            etag: data.ETag ?? '',
+            lastModified: data.LastModified ?? '',
+          }
+        : null,
       res,
     } satisfies CopyAndPutMetaResult;
   }
@@ -858,7 +996,12 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
    * 另存为
    * @see https://help.aliyun.com/zh/oss/user-guide/sys-or-saveas
    */
-  async processObjectSave(sourceObject: string, targetObject: string, process: string, targetBucket?: string) {
+  async processObjectSave(
+    sourceObject: string,
+    targetObject: string,
+    process: string,
+    targetBucket?: string
+  ) {
     targetObject = this.#objectName(targetObject);
     const params = this.#objectRequestParams('POST', sourceObject, {
       subResource: {
@@ -866,13 +1009,15 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
       },
     });
 
-    const bucketParam = targetBucket ? `,b_${Buffer.from(targetBucket).toString('base64')}` : '';
+    const bucketParam = targetBucket
+      ? `,b_${Buffer.from(targetBucket).toString('base64')}`
+      : '';
     targetObject = Buffer.from(targetObject).toString('base64');
     const content = {
       'x-oss-process': `${process}|sys/saveas,o_${targetObject}${bucketParam}`,
     };
     params.content = Buffer.from(querystring.stringify(content));
-    params.successStatuses = [ 200 ];
+    params.successStatuses = [200];
 
     const result = await this.request(params);
     return {
@@ -892,6 +1037,7 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
   #getCopySourceName(sourceName: string, bucketName?: string) {
     if (typeof bucketName === 'string') {
       sourceName = this.#objectName(sourceName);
+      // eslint-disable-next-line no-negated-condition
     } else if (sourceName[0] !== '/') {
       bucketName = this.#bucket;
     } else {
@@ -906,11 +1052,17 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
     return sourceName;
   }
 
-  async #sendPutRequest(name: string, options: PutObjectOptions & { subResource?: Record<string, string> },
-    fileOrBufferOrStream: string | Buffer | Readable, method: RequestMethod = 'PUT') {
+  async #sendPutRequest(
+    name: string,
+    options: PutObjectOptions & { subResource?: Record<string, string> },
+    fileOrBufferOrStream: string | Buffer | Readable,
+    method: RequestMethod = 'PUT'
+  ) {
     options.headers = options.headers ?? {};
     if (options.headers['Content-Type'] && !options.headers['content-type']) {
-      options.headers['content-type'] = options.headers['Content-Type'] as string;
+      options.headers['content-type'] = options.headers[
+        'Content-Type'
+      ] as string;
       delete options.headers['Content-Type'];
     }
     name = this.#objectName(name);
@@ -942,7 +1094,7 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
       params.stream = fileOrBufferOrStream;
     }
     params.mime = options.mime;
-    params.successStatuses = [ 200 ];
+    params.successStatuses = [200];
 
     const { res, data } = await this.request<Buffer>(params);
     const putResult = {
@@ -985,8 +1137,11 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
   /**
    * generator request params
    */
-  #objectRequestParams(method: RequestMethod, name: string,
-    options?: Pick<OSSRequestParams, 'headers' | 'subResource' | 'timeout'>) {
+  #objectRequestParams(
+    method: RequestMethod,
+    name: string,
+    options?: Pick<OSSRequestParams, 'headers' | 'subResource' | 'timeout'>
+  ) {
     name = this.#objectName(name);
     const params: OSSRequestParams = {
       object: name,
@@ -1003,7 +1158,10 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
     return name.replace(/^\/+/, '');
   }
 
-  #convertMetaToHeaders(meta: UserMeta | undefined, headers: IncomingHttpHeaders) {
+  #convertMetaToHeaders(
+    meta: UserMeta | undefined,
+    headers: IncomingHttpHeaders
+  ) {
     if (!meta) {
       return;
     }

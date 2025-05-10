@@ -2,9 +2,18 @@ import type { Readable, Writable } from 'node:stream';
 import type { ListObjectsQuery } from 'oss-interface';
 import type { RawResponseWithMeta, IncomingHttpHeaders } from 'urllib';
 
-export type RequestParameters = string | string[] | Record<string, string | number>;
+export type RequestParameters =
+  | string
+  | string[]
+  | Record<string, string | number>;
 export type RequestQuery = Record<string, string> | ListObjectsQuery;
-export type RequestMethod = 'GET' | 'HEAD' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+export type RequestMethod =
+  | 'GET'
+  | 'HEAD'
+  | 'POST'
+  | 'PUT'
+  | 'PATCH'
+  | 'DELETE';
 
 export interface Request {
   headers: IncomingHttpHeaders;

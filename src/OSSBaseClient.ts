@@ -2,16 +2,28 @@ import { debuglog } from 'node:util';
 import assert from 'node:assert';
 import { createHash } from 'node:crypto';
 import { extname } from 'node:path';
+
 import { sendToWormhole } from 'stream-wormhole';
 import { parseStringPromise } from 'xml2js';
 import { encodeURIComponent as safeEncodeURIComponent } from 'utility';
 import mime from 'mime';
 import {
-  HttpClient, RequestOptions, HttpClientResponse, IncomingHttpHeaders,
+  type RequestOptions,
+  type HttpClientResponse,
+  type IncomingHttpHeaders,
+  HttpClient,
 } from 'urllib';
 import ms from 'ms';
-import { authorization, buildCanonicalString, computeSignature } from './util/index.js';
-import { OSSRequestParams, OSSResult, RequestParameters } from './type/Request.js';
+import {
+  authorization,
+  buildCanonicalString,
+  computeSignature,
+} from './util/index.js';
+import type {
+  OSSRequestParams,
+  OSSResult,
+  RequestParameters,
+} from './type/Request.js';
 import { OSSClientError } from './error/index.js';
 
 const debug = debuglog('oss-client:client');
@@ -76,13 +88,22 @@ export abstract class OSSBaseClient {
    *  + CanonicalizedOSSHeaders
    *  + CanonicalizedResource))
    */
-  protected authorization(method: string, resource: string, headers: IncomingHttpHeaders, subResource?: RequestParameters) {
+  protected authorization(
+    method: string,
+    resource: string,
+    headers: IncomingHttpHeaders,
+    subResource?: RequestParameters
+  ) {
     const stringToSign = buildCanonicalString(method.toUpperCase(), resource, {
       headers,
       parameters: subResource,
     });
     debug('stringToSign: %o', stringToSign);
-    const auth = authorization(this.options.accessKeyId, this.options.accessKeySecret, stringToSign);
+    const auth = authorization(
+      this.options.accessKeyId,
+      this.options.accessKeySecret,
+      stringToSign
+    );
     debug('authorization: %o', auth);
     return auth;
   }
@@ -96,7 +117,9 @@ export abstract class OSSBaseClient {
 
   protected abstract getRequestEndpoint(): string;
 
-  protected getRequestURL(params: Pick<OSSRequestParams, 'object' | 'query' | 'subResource'>) {
+  protected getRequestURL(
+    params: Pick<OSSRequestParams, 'object' | 'query' | 'subResource'>
+  ) {
     let resourcePath = '/';
     if (params.object) {
       // Preserve '/' in result url
@@ -116,9 +139,9 @@ export abstract class OSSBaseClient {
       if (typeof params.subResource === 'string') {
         subresAsQuery[params.subResource] = '';
       } else if (Array.isArray(params.subResource)) {
-        params.subResource.forEach(k => {
+        for (const k of params.subResource) {
           subresAsQuery[k] = '';
-        });
+        }
       } else {
         subresAsQuery = params.subResource;
       }
@@ -129,7 +152,7 @@ export abstract class OSSBaseClient {
     return urlObject.toString();
   }
 
-  getResource(params: { bucket?: string; object?: string; }) {
+  getResource(params: { bucket?: string; object?: string }) {
     let resource = '/';
     if (params.bucket) resource += `${params.bucket}/`;
     if (params.object) resource += params.object;
@@ -164,19 +187,30 @@ export abstract class OSSBaseClient {
       }
     }
     if (params.content) {
-      if (!params.disabledMD5) {
-        if (!headers['content-md5']) {
-          headers['content-md5'] = createHash('md5').update(Buffer.from(params.content)).digest('base64');
-        }
+      if (!params.disabledMD5 && !headers['content-md5']) {
+        headers['content-md5'] = createHash('md5')
+          .update(Buffer.from(params.content))
+          .digest('base64');
       }
       if (!headers['content-length']) {
         headers['content-length'] = `${params.content.length}`;
       }
     }
     const authResource = this.getResource(params);
-    headers.authorization = this.authorization(params.method, authResource, headers, params.subResource);
+    headers.authorization = this.authorization(
+      params.method,
+      authResource,
+      headers,
+      params.subResource
+    );
     const url = this.getRequestURL(params);
-    debug('request %s %s, with headers %j, !!stream: %s', params.method, url, headers, !!params.stream);
+    debug(
+      'request %s %s, with headers %j, !!stream: %s',
+      params.method,
+      url,
+      headers,
+      !!params.stream
+    );
     const timeout = params.timeout ?? this.options.timeout;
     const options: RequestOptions = {
       method: params.method,
@@ -196,13 +230,21 @@ export abstract class OSSBaseClient {
   /**
    * request oss server
    */
-  protected async request<T = any>(params: OSSRequestParams): Promise<OSSResult<T>> {
+  // eslint-disable-next-line no-explicit-any
+  protected async request<T = any>(
+    params: OSSRequestParams
+  ): Promise<OSSResult<T>> {
     const { url, options } = this.createHttpClientRequestParams(params);
     const result = await this.#httpClient.request<Buffer>(url, options);
-    debug('response %s %s, got %s, headers: %j', params.method, url, result.status, result.headers);
-    let err;
+    debug(
+      'response %s %s, got %s, headers: %j',
+      params.method,
+      url,
+      result.status,
+      result.headers
+    );
     if (!params.successStatuses?.includes(result.status)) {
-      err = await this.#createClientException(result);
+      const err = await this.#createClientException(result);
       if (params.streaming && result.res) {
         // consume the response stream
         await sendToWormhole(result.res);
@@ -220,13 +262,15 @@ export abstract class OSSBaseClient {
     } satisfies OSSResult<T>;
   }
 
-
   /** private methods */
 
   #initOptions(options: OSSBaseClientInitOptions) {
-    assert(options.accessKeyId && options.accessKeySecret, 'require accessKeyId and accessKeySecret');
-    assert(options.endpoint, 'require endpoint');
-    let timeout = 60000;
+    assert.ok(
+      options.accessKeyId && options.accessKeySecret,
+      'require accessKeyId and accessKeySecret'
+    );
+    assert.ok(options.endpoint, 'require endpoint');
+    let timeout = 60_000;
     if (options.timeout) {
       if (typeof options.timeout === 'string') {
         timeout = ms(options.timeout);
@@ -259,31 +303,49 @@ export abstract class OSSBaseClient {
     return `${sdk} ${platform}`;
   }
 
+  // eslint-disable-next-line no-explicit-any
   async #xml2json<T = any>(xml: string | Buffer) {
     if (Buffer.isBuffer(xml)) {
       xml = xml.toString();
     }
     debug('xml2json %o', xml);
-    return await parseStringPromise(xml, {
+    return (await parseStringPromise(xml, {
       explicitRoot: false,
       explicitArray: false,
-    }) as T;
+    })) as T;
   }
 
   async #createClientException(result: HttpClientResponse<Buffer>) {
     let err: OSSClientError;
-    let requestId = result.headers['x-oss-request-id'] as string ?? '';
+    let requestId = (result.headers['x-oss-request-id'] as string) ?? '';
     let hostId = '';
     const status = result.status;
-    if (!result.data || !result.data.length) {
+    if (!result.data || result.data.length === 0) {
       // HEAD not exists resource
       if (status === 404) {
-        err = new OSSClientError(status, 'NoSuchKey', 'Object not exists', requestId, hostId);
+        err = new OSSClientError(
+          status,
+          'NoSuchKey',
+          'Object not exists',
+          requestId,
+          hostId
+        );
       } else if (status === 412) {
-        err = new OSSClientError(status, 'PreconditionFailed', 'Pre condition failed', requestId, hostId);
+        err = new OSSClientError(
+          status,
+          'PreconditionFailed',
+          'Pre condition failed',
+          requestId,
+          hostId
+        );
       } else {
-        err = new OSSClientError(status, 'Unknown', `Unknown error, status=${status}, raw error=${result}`,
-          requestId, hostId);
+        err = new OSSClientError(
+          status,
+          'Unknown',
+          `Unknown error, status=${status}, raw error=${result}`,
+          requestId,
+          hostId
+        );
       }
     } else {
       const xml = result.data.toString();
@@ -292,12 +354,21 @@ export abstract class OSSBaseClient {
       let info;
       try {
         info = await this.#xml2json(xml);
-      } catch (e: any) {
-        err = new OSSClientError(status, 'PreconditionFailed', `${e.message} (raw xml=${JSON.stringify(xml)})`, requestId, hostId);
+      } catch (e) {
+        const message = e instanceof Error ? e.message : String(e);
+        err = new OSSClientError(
+          status,
+          'PreconditionFailed',
+          `${message} (raw xml=${JSON.stringify(xml)})`,
+          requestId,
+          hostId
+        );
         return err;
       }
 
-      let message = info?.Message ?? `Unknown request error, status=${result.status}, raw xml=${JSON.stringify(xml)}`;
+      let message =
+        info?.Message ??
+        `Unknown request error, status=${result.status}, raw xml=${JSON.stringify(xml)}`;
       if (info?.Condition) {
         message += ` (condition=${info.Condition})`;
       }
@@ -307,11 +378,22 @@ export abstract class OSSBaseClient {
       if (info?.HostId) {
         hostId = info.HostId;
       }
-      err = new OSSClientError(status, info?.Code ?? 'Unknown', message, requestId, hostId);
+      err = new OSSClientError(
+        status,
+        info?.Code ?? 'Unknown',
+        message,
+        requestId,
+        hostId
+      );
 
       // https://help.aliyun.com/zh/oss/support/http-status-code-409#section-rmc-hvd-j38
-      if (info?.Code === 'PositionNotEqualToLength' && result.headers['x-oss-next-append-position']) {
-        err.nextAppendPosition = result.headers['x-oss-next-append-position'] as string;
+      if (
+        info?.Code === 'PositionNotEqualToLength' &&
+        result.headers['x-oss-next-append-position']
+      ) {
+        err.nextAppendPosition = result.headers[
+          'x-oss-next-append-position'
+        ] as string;
       }
     }
 
@@ -363,4 +445,3 @@ export abstract class OSSBaseClient {
 //  * STS Client class
 //  */
 // Client.STS = require('./sts');
-

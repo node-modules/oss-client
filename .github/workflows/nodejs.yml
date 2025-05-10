@@ -18,31 +18,31 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [18, 20, 22, 23]
+        node-version: [18, 20, 22, 24]
         os: [ubuntu-latest]
 
     steps:
-    - name: Checkout Git Source
-      uses: actions/checkout@v4
+      - name: Checkout Git Source
+        uses: actions/checkout@v4
 
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
 
-    - name: Install Dependencies
-      run: npm i
+      - name: Install Dependencies
+        run: npm i
 
-    - name: Continuous Integration
-      run: npm run ci
-      env:
-        OSS_CLIENT_ID: ${{ secrets.OSS_CLIENT_ID }}
-        OSS_CLIENT_SECRET: ${{ secrets.OSS_CLIENT_SECRET }}
-        OSS_CLIENT_REGION: ${{ secrets.OSS_CLIENT_REGION }}
-        OSS_CLIENT_ENDPOINT: ${{ secrets.OSS_CLIENT_ENDPOINT }}
-        OSS_CLIENT_BUCKET: ${{ secrets.OSS_CLIENT_BUCKET }}
+      - name: Continuous Integration
+        run: npm run ci
+        env:
+          OSS_CLIENT_ID: ${{ secrets.OSS_CLIENT_ID }}
+          OSS_CLIENT_SECRET: ${{ secrets.OSS_CLIENT_SECRET }}
+          OSS_CLIENT_REGION: ${{ secrets.OSS_CLIENT_REGION }}
+          OSS_CLIENT_ENDPOINT: ${{ secrets.OSS_CLIENT_ENDPOINT }}
+          OSS_CLIENT_BUCKET: ${{ secrets.OSS_CLIENT_BUCKET }}
 
-    - name: Code Coverage
-      uses: codecov/codecov-action@v3
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
+      - name: Code Coverage
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
