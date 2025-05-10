@@ -8,8 +8,8 @@
   "scripts": {
     "lint": "oxlint",
     "pretest": "npm run lint -- --fix",
-    "test": "vitest run",
-    "cov": "vitest run --coverage",
+    "test": "vitest run --test-timeout 15000",
+    "cov": "npm run test -- --coverage",
     "preci": "npm run lint",
     "ci": "npm run cov && npm run prepublishOnly && attw --pack",
     "prepublishOnly": "tshy && tshy-after",

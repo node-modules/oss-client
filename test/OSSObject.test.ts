@@ -1542,7 +1542,7 @@ describe('test/OSSObject.test.ts', () => {
     });
 
     it('should store object to local file', async () => {
-      const savePath = path.join(tmpdir, name.replaceAll(String.raw`\/`, '-'));
+      const savePath = path.join(tmpdir, name.replaceAll('/', '-'));
       const result = await ossObject.get(name, savePath);
       assert.equal(result.res.status, 200);
       assert.ok(
@@ -1556,10 +1556,7 @@ describe('test/OSSObject.test.ts', () => {
     });
 
     it('should escape uri path ok', async () => {
-      const savePath = path.join(
-        tmpdir,
-        needEscapeName.replaceAll(String.raw`\/`, '-')
-      );
+      const savePath = path.join(tmpdir, needEscapeName.replaceAll('/', '-'));
       const result = await ossObject.get(needEscapeName, savePath);
       assert.equal(result.res.status, 200);
       const { size: saveSize } = await stat(savePath);
@@ -1571,7 +1568,7 @@ describe('test/OSSObject.test.ts', () => {
       const savePath = path.join(
         tmpdir,
         'not-exists',
-        name.replaceAll(String.raw`\/`, '-')
+        name.replaceAll('/', '-')
       );
       await assert.rejects(
         async () => {
@@ -1585,7 +1582,7 @@ describe('test/OSSObject.test.ts', () => {
     });
 
     it('should store object to writeStream', async () => {
-      const savePath = path.join(tmpdir, name.replaceAll(String.raw`\/`, '-'));
+      const savePath = path.join(tmpdir, name.replaceAll('/', '-'));
       const result = await ossObject.get(name, createWriteStream(savePath));
       assert.equal(result.res.status, 200);
       const { size } = await stat(__filename);
@@ -1594,7 +1591,7 @@ describe('test/OSSObject.test.ts', () => {
     });
 
     it('should store not exists object to file', async () => {
-      const savePath = path.join(tmpdir, name.replaceAll(String.raw`\/`, '-'));
+      const savePath = path.join(tmpdir, name.replaceAll('/', '-'));
       await assert.rejects(
         async () => {
           await ossObject.get(`${name}not-exists`, savePath);
@@ -1612,7 +1609,7 @@ describe('test/OSSObject.test.ts', () => {
       const savePath = path.join(
         tmpdir,
         'not-exists-dir',
-        name.replaceAll(String.raw`\/`, '-')
+        name.replaceAll('/', '-')
       );
       await assert.rejects(
         async () => {
