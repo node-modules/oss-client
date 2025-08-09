@@ -49,6 +49,7 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.15.3",
+    "@eggjs/oxlint-config": "^1.0.0",
     "@eggjs/tsconfig": "^1.1.0",
     "@types/mime": "^3.0.1",
     "@types/ms": "^0.7.31",
