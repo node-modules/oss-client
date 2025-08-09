@@ -2,12 +2,17 @@
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "extends": ["./node_modules/@eggjs/oxlint-config/.oxlintrc.json"],
   "env": {
-    "node": true,
-    "mocha": true
+    "node": true
   },
   "rules": {
     "no-console": "warn",
     "no-empty-function": "allow"
   },
-  "ignorePatterns": ["index.d.ts", "test/fixtures/**", "__snapshots__"]
+  "ignorePatterns": [
+    "index.d.ts",
+    "test/fixtures/**",
+    "__snapshots__",
+    "test/*.cjs",
+    "test/setup.ts"
+  ]
 }

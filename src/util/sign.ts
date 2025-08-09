@@ -10,6 +10,15 @@ import { encodeCallback } from './encodeCallback.js';
 const debug = debuglog('oss-client:sign');
 const OSS_PREFIX = 'x-oss-';
 
+function compareCanonicalizedString(entry1: string, entry2: string) {
+  if (entry1[0] > entry2[0]) {
+    return 1;
+  } else if (entry1[0] < entry2[0]) {
+    return -1;
+  }
+  return 0;
+}
+
 /**
  * build canonicalized resource
  * @see https://help.aliyun.com/zh/oss/developer-reference/include-signatures-in-the-authorization-header#section-rvv-dx2-xdb
@@ -29,14 +38,6 @@ function buildCanonicalizedResource(
     parameters.sort();
     canonicalizedResource += separatorString + parameters.join('&');
   } else if (parameters) {
-    const compareFunc = (entry1: string, entry2: string) => {
-      if (entry1[0] > entry2[0]) {
-        return 1;
-      } else if (entry1[0] < entry2[0]) {
-        return -1;
-      }
-      return 0;
-    };
     const processFunc = (key: string) => {
       canonicalizedResource += separatorString + key;
       if (parameters[key] || parameters[key] === 0) {
@@ -44,7 +45,9 @@ function buildCanonicalizedResource(
       }
       separatorString = '&';
     };
-    for (const key of Object.keys(parameters).sort(compareFunc)) {
+    for (const key of Object.keys(parameters).sort(
+      compareCanonicalizedString
+    )) {
       processFunc(key);
     }
   }
