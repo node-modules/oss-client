@@ -1,5 +1,11 @@
 # Changelog
 
+## <small>2.5.1 (2025-08-09)</small>
+
+* fix: patch File to support test on Node.js 18 (#31) ([93edf11](https://github.com/node-modules/oss-client/commit/93edf11)), closes [#31](https://github.com/node-modules/oss-client/issues/31)
+* chore: remove eslint deps (#28) ([46b4acf](https://github.com/node-modules/oss-client/commit/46b4acf)), closes [#28](https://github.com/node-modules/oss-client/issues/28)
+* chore: update oxlint config to use @eggjs/oxlint-config (#30) ([798a8d1](https://github.com/node-modules/oss-client/commit/798a8d1)), closes [#30](https://github.com/node-modules/oss-client/issues/30)
+
 ## [2.5.0](https://github.com/node-modules/oss-client/compare/v2.4.0...v2.5.0) (2025-05-10)
 
 
