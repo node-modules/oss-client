@@ -5,7 +5,7 @@
 [![coverage][cov-image]][cov-url]
 
 [npm-image]: https://img.shields.io/npm/v/oss-client.svg?style=flat-square
-[npm-url]: https://npmjs.org/package/oss-client
+[npm-url]: https://npmx.dev/package/oss-client
 [cov-image]: http://codecov.io/github/node-modules/oss-client/coverage.svg?branch=master
 [cov-url]: http://codecov.io/github/node-modules/oss-client?branch=master
 
