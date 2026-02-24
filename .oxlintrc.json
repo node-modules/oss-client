@@ -6,22 +6,7 @@
   },
   "rules": {
     "no-console": "warn",
-    "no-empty-function": "allow",
-    "capitalized-comments": "allow",
-    "max-statements": "allow",
-    "no-param-reassign": "allow",
-    "class-methods-use-this": "allow",
-    "no-implicit-coercion": "allow",
-    "complexity": "allow",
-    "preserve-caught-error": "allow",
-    "no-warning-comments": "allow",
-    "no-shadow": "allow",
-    "no-inline-comments": "allow",
-    "import/no-named-export": "allow",
-    "import/no-nodejs-modules": "allow",
-    "import/no-relative-parent-imports": "allow",
-    "unicorn/prefer-ternary": "allow",
-    "unicorn/no-array-sort": "allow"
+    "no-empty-function": "allow"
   },
   "ignorePatterns": [
     "index.d.ts",
