@@ -112,12 +112,14 @@ export abstract class OSSBaseClient {
   /**
    * EncodeURIComponent name except '/'
    */
+  // oxlint-disable-next-line class-methods-use-this
   protected escape(name: string) {
     return safeEncodeURIComponent(name).replaceAll('%2F', '/');
   }
 
   protected abstract getRequestEndpoint(): string;
 
+  // oxlint-disable-next-line max-statements
   protected getRequestURL(
     params: Pick<OSSRequestParams, 'object' | 'query' | 'subResource'>
   ) {
@@ -153,6 +155,7 @@ export abstract class OSSBaseClient {
     return urlObject.toString();
   }
 
+  // oxlint-disable-next-line class-methods-use-this
   getResource(params: { bucket?: string; object?: string }) {
     let resource = '/';
     if (params.bucket) resource += `${params.bucket}/`;
@@ -160,6 +163,7 @@ export abstract class OSSBaseClient {
     return resource;
   }
 
+  // oxlint-disable-next-line max-statements
   createHttpClientRequestParams(params: OSSRequestParams) {
     const headers: IncomingHttpHeaders = {
       ...params.headers,
@@ -175,11 +179,9 @@ export abstract class OSSBaseClient {
     if (!headers['content-type']) {
       let contentType: string | null = null;
       if (params.mime) {
-        if (params.mime.includes('/')) {
-          contentType = params.mime;
-        } else {
-          contentType = mime.getType(params.mime);
-        }
+        contentType = params.mime.includes('/')
+          ? params.mime
+          : mime.getType(params.mime);
       } else if (params.object) {
         contentType = mime.getType(extname(params.object));
       }
@@ -231,7 +233,7 @@ export abstract class OSSBaseClient {
   /**
    * Request oss server
    */
-  // eslint-disable-next-line no-explicit-any
+  // oxlint-disable-next-line max-statements, no-explicit-any
   protected async request<T = any>(
     params: OSSRequestParams
   ): Promise<OSSResult<T>> {
@@ -265,6 +267,7 @@ export abstract class OSSBaseClient {
 
   /** Private methods */
 
+  // oxlint-disable-next-line class-methods-use-this
   #initOptions(options: OSSBaseClientInitOptions) {
     assert.ok(
       options.accessKeyId && options.accessKeySecret,
@@ -273,11 +276,10 @@ export abstract class OSSBaseClient {
     assert.ok(options.endpoint, 'require endpoint');
     let timeout = 60_000;
     if (options.timeout) {
-      if (typeof options.timeout === 'string') {
-        timeout = ms(options.timeout);
-      } else {
-        timeout = options.timeout;
-      }
+      timeout =
+        typeof options.timeout === 'string'
+          ? ms(options.timeout)
+          : options.timeout;
     }
 
     const initOptions = {
@@ -297,25 +299,25 @@ export abstract class OSSBaseClient {
    * @example
    *   oss-client/2.0.0 Node.js/5.3.0 (darwin; arm64)
    */
+  // oxlint-disable-next-line class-methods-use-this
   #getUserAgent() {
-    // TODO: should read version from package.json
+    // Read version from package.json in the future
     const sdk = 'oss-client/2.0.0';
     const platform = `Node.js/${process.version.slice(1)} (${process.platform}; ${process.arch})`;
     return `${sdk} ${platform}`;
   }
 
-  // eslint-disable-next-line no-explicit-any
+  // oxlint-disable-next-line class-methods-use-this, no-explicit-any
   async #xml2json<T = any>(xml: string | Buffer) {
-    if (Buffer.isBuffer(xml)) {
-      xml = xml.toString();
-    }
-    debug('xml2json %o', xml);
-    return (await parseStringPromise(xml, {
+    const _xml = Buffer.isBuffer(xml) ? xml.toString() : xml;
+    debug('xml2json %o', _xml);
+    return (await parseStringPromise(_xml, {
       explicitRoot: false,
       explicitArray: false,
     })) as T;
   }
 
+  // oxlint-disable-next-line max-statements, complexity
   async #createClientException(result: HttpClientResponse<Buffer>) {
     let err: OSSClientError;
     let requestId = (result.headers['x-oss-request-id'] as string) ?? '';
