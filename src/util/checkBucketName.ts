@@ -1,3 +1,4 @@
+/* oxlint-disable no-named-export */
 export function checkBucketName(name: string, createBucket = false) {
   const bucketRegex = createBucket
     ? /^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$/

@@ -1,3 +1,4 @@
+/* oxlint-disable no-named-export */
 import type {
   DeleteObjectOptions,
   NormalSuccessResponse,
@@ -38,7 +39,7 @@ export type ACLType = 'public-read-write' | 'public-read' | 'private';
 
 export interface PutACLOptions extends RequestOptions {
   versionId?: string;
-  /** additional parameters in url */
+  /** Additional parameters in url */
   subResource?: Record<string, string>;
   /**
    * @alias subResource
@@ -54,7 +55,7 @@ export interface PutACLResult {
 
 export interface GetACLOptions extends RequestOptions {
   versionId?: string;
-  /** additional parameters in url */
+  /** Additional parameters in url */
   subResource?: Record<string, string>;
   /**
    * @alias subResource
@@ -124,11 +125,11 @@ export interface DeleteObjectTaggingResult {
 }
 
 export interface AppendObjectOptions {
-  /** specify the position which is the content length of the latest object */
+  /** Specify the position which is the content length of the latest object */
   position?: string | number;
-  /** the operation timeout */
+  /** The operation timeout */
   timeout?: number;
-  /** custom mime, will send with Content-Type entity header */
+  /** Custom mime, will send with Content-Type entity header */
   mime?: string;
   meta?: UserMeta;
   headers?: IncomingHttpHeaders;
@@ -136,25 +137,25 @@ export interface AppendObjectOptions {
 
 export interface AppendObjectResult {
   name: string;
-  /** the url of oss */
+  /** The url of oss */
   url: string;
   res: NormalSuccessResponse;
-  /** the next position */
+  /** The next position */
   nextAppendPosition: string;
 }
 
 export interface ListV2ObjectsQuery {
-  /** search object using prefix key */
+  /** Search object using prefix key */
   prefix?: string;
-  /** search start from token, including token key */
+  /** Search start from token, including token key */
   'continuation-token'?: string;
   /**
    * @alias 'continuation-token'
    */
   continuationToken?: string;
-  /** only search current dir, not including subdir */
+  /** Only search current dir, not including subdir */
   delimiter?: string;
-  /** max objects, default is 100, limit to 1000  */
+  /** Max objects, default is 100, limit to 1000  */
   'max-keys'?: string | number;
   /**
    * The name of the object from which the list operation begins.
@@ -170,8 +171,8 @@ export interface ListV2ObjectsQuery {
 export interface ListV2ObjectResult
   extends Omit<ListObjectResult, 'nextMarker'> {
   keyCount: number;
-  /** prev index */
+  /** Prev index */
   continuationToken?: string;
-  /** next index */
+  /** Next index */
   nextContinuationToken?: string;
 }

@@ -1,3 +1,4 @@
+/* oxlint-disable no-named-export, no-nodejs-modules */
 import { debuglog } from 'node:util';
 import assert from 'node:assert';
 import { createHash } from 'node:crypto';
@@ -29,22 +30,22 @@ import { OSSClientError } from './error/index.js';
 const debug = debuglog('oss-client:client');
 
 export interface OSSBaseClientInitOptions {
-  /** access key you create */
+  /** Access key you create */
   accessKeyId: string;
-  /** access secret you create */
+  /** Access secret you create */
   accessKeySecret: string;
   /**
-   * oss region domain. It takes priority over region.
+   * Oss region domain. It takes priority over region.
    * e.g.:
    * - oss-cn-shanghai.aliyuncs.com
    * - oss-cn-shanghai-internal.aliyuncs.com
    */
   endpoint: string;
-  /** the bucket data region location, please see Data Regions, default is oss-cn-hangzhou. */
+  /** The bucket data region location, please see Data Regions, default is oss-cn-hangzhou. */
   region?: string | undefined;
-  /** access OSS with aliyun internal network or not, default is false. If your servers are running on aliyun too, you can set true to save lot of money. */
+  /** Access OSS with aliyun internal network or not, default is false. If your servers are running on aliyun too, you can set true to save lot of money. */
   internal?: boolean | undefined;
-  /** instance level timeout for all operations, default is 60s */
+  /** Instance level timeout for all operations, default is 60s */
   timeout?: number | string;
   isRequestPay?: boolean;
 }
@@ -63,20 +64,20 @@ export abstract class OSSBaseClient {
     this.#userAgent = this.#getUserAgent();
   }
 
-  /** public methods */
+  /** Public methods */
 
   /**
-   * get OSS signature
+   * Get OSS signature
    */
   signature(stringToSign: string) {
     debug('authorization stringToSign: %s', stringToSign);
     return computeSignature(this.options.accessKeySecret, stringToSign);
   }
 
-  /** protected methods */
+  /** Protected methods */
 
   /**
-   * get author header
+   * Get author header
    *
    * "Authorization: OSS " + Access Key Id + ":" + Signature
    *
@@ -109,14 +110,16 @@ export abstract class OSSBaseClient {
   }
 
   /**
-   * encodeURIComponent name except '/'
+   * EncodeURIComponent name except '/'
    */
+  // oxlint-disable-next-line class-methods-use-this
   protected escape(name: string) {
     return safeEncodeURIComponent(name).replaceAll('%2F', '/');
   }
 
   protected abstract getRequestEndpoint(): string;
 
+  // oxlint-disable-next-line max-statements
   protected getRequestURL(
     params: Pick<OSSRequestParams, 'object' | 'query' | 'subResource'>
   ) {
@@ -152,6 +155,7 @@ export abstract class OSSBaseClient {
     return urlObject.toString();
   }
 
+  // oxlint-disable-next-line class-methods-use-this
   getResource(params: { bucket?: string; object?: string }) {
     let resource = '/';
     if (params.bucket) resource += `${params.bucket}/`;
@@ -159,12 +163,13 @@ export abstract class OSSBaseClient {
     return resource;
   }
 
+  // oxlint-disable-next-line max-statements
   createHttpClientRequestParams(params: OSSRequestParams) {
     const headers: IncomingHttpHeaders = {
       ...params.headers,
       // https://help.aliyun.com/zh/oss/developer-reference/include-signatures-in-the-authorization-header
       // 此次操作的时间，Date必须为GMT格式，且不能为空。该值取自请求头的Date字段或者x-oss-date字段。当这两个字段同时存在时，以x-oss-date为准。
-      // e.g.: Sun, 22 Nov 2015 08:16:38 GMT
+      // E.g.: Sun, 22 Nov 2015 08:16:38 GMT
       'x-oss-date': new Date().toUTCString(),
       'user-agent': this.#userAgent,
     };
@@ -174,11 +179,9 @@ export abstract class OSSBaseClient {
     if (!headers['content-type']) {
       let contentType: string | null = null;
       if (params.mime) {
-        if (params.mime.includes('/')) {
-          contentType = params.mime;
-        } else {
-          contentType = mime.getType(params.mime);
-        }
+        contentType = params.mime.includes('/')
+          ? params.mime
+          : mime.getType(params.mime);
       } else if (params.object) {
         contentType = mime.getType(extname(params.object));
       }
@@ -209,7 +212,7 @@ export abstract class OSSBaseClient {
       params.method,
       url,
       headers,
-      !!params.stream
+      Boolean(params.stream)
     );
     const timeout = params.timeout ?? this.options.timeout;
     const options: RequestOptions = {
@@ -228,9 +231,9 @@ export abstract class OSSBaseClient {
   }
 
   /**
-   * request oss server
+   * Request oss server
    */
-  // eslint-disable-next-line no-explicit-any
+  // oxlint-disable-next-line max-statements, no-explicit-any
   protected async request<T = any>(
     params: OSSRequestParams
   ): Promise<OSSResult<T>> {
@@ -246,7 +249,7 @@ export abstract class OSSBaseClient {
     if (!params.successStatuses?.includes(result.status)) {
       const err = await this.#createClientException(result);
       if (params.streaming && result.res) {
-        // consume the response stream
+        // Consume the response stream
         await sendToWormhole(result.res);
       }
       throw err;
@@ -262,8 +265,9 @@ export abstract class OSSBaseClient {
     } satisfies OSSResult<T>;
   }
 
-  /** private methods */
+  /** Private methods */
 
+  // oxlint-disable-next-line class-methods-use-this
   #initOptions(options: OSSBaseClientInitOptions) {
     assert.ok(
       options.accessKeyId && options.accessKeySecret,
@@ -272,11 +276,10 @@ export abstract class OSSBaseClient {
     assert.ok(options.endpoint, 'require endpoint');
     let timeout = 60_000;
     if (options.timeout) {
-      if (typeof options.timeout === 'string') {
-        timeout = ms(options.timeout);
-      } else {
-        timeout = options.timeout;
-      }
+      timeout =
+        typeof options.timeout === 'string'
+          ? ms(options.timeout)
+          : options.timeout;
     }
 
     const initOptions = {
@@ -296,25 +299,25 @@ export abstract class OSSBaseClient {
    * @example
    *   oss-client/2.0.0 Node.js/5.3.0 (darwin; arm64)
    */
+  // oxlint-disable-next-line class-methods-use-this
   #getUserAgent() {
-    // TODO: should read version from package.json
+    // Read version from package.json in the future
     const sdk = 'oss-client/2.0.0';
     const platform = `Node.js/${process.version.slice(1)} (${process.platform}; ${process.arch})`;
     return `${sdk} ${platform}`;
   }
 
-  // eslint-disable-next-line no-explicit-any
+  // oxlint-disable-next-line class-methods-use-this, no-explicit-any
   async #xml2json<T = any>(xml: string | Buffer) {
-    if (Buffer.isBuffer(xml)) {
-      xml = xml.toString();
-    }
-    debug('xml2json %o', xml);
-    return (await parseStringPromise(xml, {
+    const _xml = Buffer.isBuffer(xml) ? xml.toString() : xml;
+    debug('xml2json %o', _xml);
+    return (await parseStringPromise(_xml, {
       explicitRoot: false,
       explicitArray: false,
     })) as T;
   }
 
+  // oxlint-disable-next-line max-statements, complexity
   async #createClientException(result: HttpClientResponse<Buffer>) {
     let err: OSSClientError;
     let requestId = (result.headers['x-oss-request-id'] as string) ?? '';
@@ -405,33 +408,33 @@ export abstract class OSSBaseClient {
 // /**
 //  * Object operations
 //  */
-// merge(proto, require('./common/object'));
-// merge(proto, require('./object'));
-// merge(proto, require('./common/image'));
+// Merge(proto, require('./common/object'));
+// Merge(proto, require('./object'));
+// Merge(proto, require('./common/image'));
 // /**
 //  * Bucket operations
 //  */
-// merge(proto, require('./common/bucket'));
-// merge(proto, require('./bucket'));
+// Merge(proto, require('./common/bucket'));
+// Merge(proto, require('./bucket'));
 // // multipart upload
-// merge(proto, require('./managed-upload'));
+// Merge(proto, require('./managed-upload'));
 // /**
 //  * RTMP operations
 //  */
-// merge(proto, require('./rtmp'));
+// Merge(proto, require('./rtmp'));
 
 // /**
-//  * common multipart-copy
+//  * Common multipart-copy
 //  */
-// merge(proto, require('./common/multipart-copy'));
+// Merge(proto, require('./common/multipart-copy'));
 // /**
 //  * Common module parallel
 //  */
-// merge(proto, require('./common/parallel'));
+// Merge(proto, require('./common/parallel'));
 // /**
 //  * Multipart operations
 //  */
-// merge(proto, require('./common/multipart'));
+// Merge(proto, require('./common/multipart'));
 // /**
 //  * ImageClient class
 //  */

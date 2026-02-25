@@ -1,3 +1,4 @@
+/* oxlint-disable no-nodejs-modules, no-relative-parent-imports */
 import { strict as assert } from 'node:assert';
 import { fileURLToPath } from 'node:url';
 import {
@@ -32,6 +33,7 @@ import { OSSObject } from '../src/index.js';
 import type { OSSClientError } from '../src/error/OSSClientError.js';
 import { Readable } from 'node:stream';
 
+// oxlint-disable-next-line max-statements
 describe('test/OSSObject.test.ts', () => {
   const tmpdir = os.tmpdir();
   const prefix = config.prefix;
@@ -42,10 +44,10 @@ describe('test/OSSObject.test.ts', () => {
   const __dirname = path.dirname(__filename);
 
   describe('list()', () => {
-    // oss.jpg
-    // fun/test.jpg
-    // fun/movie/001.avi
-    // fun/movie/007.avi
+    // Oss.jpg
+    // Fun/test.jpg
+    // Fun/movie/001.avi
+    // Fun/movie/007.avi
     const listPrefix = `${prefix}oss-client/list/`;
     beforeAll(async () => {
       await ossObject.put(`${listPrefix}oss.jpg`, Buffer.from('oss.jpg'));
@@ -71,6 +73,7 @@ describe('test/OSSObject.test.ts', () => {
       );
     });
 
+    // oxlint-disable-next-line max-statements
     function checkObjectProperties(obj: ObjectMeta) {
       assert.equal(typeof obj.name, 'string');
       assert.equal(typeof obj.lastModified, 'string');
@@ -83,7 +86,7 @@ describe('test/OSSObject.test.ts', () => {
         `invalid obj.type ${obj.type}`
       );
       assert.equal(typeof obj.size, 'number');
-      // assert.equal(obj.storageClass, 'Standard');
+      // Assert.equal(obj.storageClass, 'Standard');
       assert.ok(
         obj.storageClass === 'Standard' || obj.storageClass === 'IA',
         `invalid obj.storageClass ${obj.storageClass}`
@@ -95,16 +98,17 @@ describe('test/OSSObject.test.ts', () => {
       assert.equal(typeof obj.owner.displayName, 'string');
     }
 
+    // oxlint-disable-next-line max-statements
     it('should list with query', async () => {
       const result = await ossObject.list({
         prefix: listPrefix,
         'max-keys': 5,
       });
       assert.ok(result.objects.length > 0);
-      // console.log(result.objects);
+      // Console.log(result.objects);
       result.objects.map(checkObjectProperties);
       assert.equal(typeof result.nextMarker, 'string');
-      // console.log(result.isTruncated);
+      // Console.log(result.isTruncated);
       assert.ok(result.isTruncated);
       assert.deepEqual(result.prefixes, []);
       assert.ok(result.res.headers.date);
@@ -129,6 +133,7 @@ describe('test/OSSObject.test.ts', () => {
       );
     });
 
+    // oxlint-disable-next-line max-statements
     it('should list only 1 object', async () => {
       const result = await ossObject.list({
         'max-keys': 1,
@@ -147,6 +152,7 @@ describe('test/OSSObject.test.ts', () => {
       assert.ok(obj.size > 0);
     });
 
+    // oxlint-disable-next-line max-statements
     it('should list top 3 objects', async () => {
       const result = await ossObject.list({
         'max-keys': 3,
@@ -157,7 +163,7 @@ describe('test/OSSObject.test.ts', () => {
       assert.ok(result.isTruncated);
       assert.deepEqual(result.prefixes, []);
 
-      // next 2
+      // Next 2
       const result2 = await ossObject.list({
         'max-keys': '2',
         marker: result.nextMarker,
@@ -169,6 +175,7 @@ describe('test/OSSObject.test.ts', () => {
       assert.deepEqual(result2.prefixes, []);
     });
 
+    // oxlint-disable-next-line max-statements
     it('should list with prefix', async () => {
       let result = await ossObject.list({
         prefix: `${listPrefix}fun/movie/`,
@@ -189,6 +196,7 @@ describe('test/OSSObject.test.ts', () => {
       assert.deepEqual(result.prefixes, []);
     });
 
+    // oxlint-disable-next-line max-statements
     it('should list current dir files only', async () => {
       let result = await ossObject.list({
         prefix: listPrefix,
@@ -251,6 +259,7 @@ describe('test/OSSObject.test.ts', () => {
       );
     });
 
+    // oxlint-disable-next-line max-statements
     function checkObjectProperties(
       obj: ObjectMeta,
       options?: { owner: boolean }
@@ -260,7 +269,7 @@ describe('test/OSSObject.test.ts', () => {
       assert.equal(typeof obj.etag, 'string');
       assert.ok(obj.type === 'Normal' || obj.type === 'Multipart');
       assert.equal(typeof obj.size, 'number');
-      // assert.equal(obj.storageClass, 'Standard');
+      // Assert.equal(obj.storageClass, 'Standard');
       assert.ok(obj.storageClass === 'Standard' || obj.storageClass === 'IA');
       if (options?.owner) {
         assert.ok(obj.owner);
@@ -275,6 +284,7 @@ describe('test/OSSObject.test.ts', () => {
       }
     }
 
+    // oxlint-disable-next-line max-statements
     it('should list top 3 objects', async () => {
       const result = await ossObject.listV2({
         'max-keys': 1,
@@ -288,7 +298,7 @@ describe('test/OSSObject.test.ts', () => {
       assert.deepEqual(result.prefixes, []);
       assert.equal(result.keyCount, 1);
 
-      // next 2
+      // Next 2
       const result2 = await ossObject.listV2({
         'max-keys': '2',
         continuationToken: result.nextContinuationToken,
@@ -303,6 +313,7 @@ describe('test/OSSObject.test.ts', () => {
       assert.equal(result2.keyCount, 2);
     });
 
+    // oxlint-disable-next-line max-statements
     it('should list with prefix', async () => {
       let result = await ossObject.listV2({
         prefix: `${listPrefix}fun/movie/`,
@@ -328,6 +339,7 @@ describe('test/OSSObject.test.ts', () => {
       assert.deepEqual(result.prefixes, []);
     });
 
+    // oxlint-disable-next-line max-statements
     it('should list current dir files only', async () => {
       let result = await ossObject.listV2({
         prefix: listPrefix,
@@ -369,6 +381,7 @@ describe('test/OSSObject.test.ts', () => {
       assert.deepEqual(result.prefixes, []);
     });
 
+    // oxlint-disable-next-line max-statements
     it('should list with start-after', async () => {
       let result = await ossObject.listV2({
         'start-after': `${listPrefix}fun`,
@@ -425,7 +438,7 @@ describe('test/OSSObject.test.ts', () => {
           'continuation-token': nextContinuationToken,
         });
         if (nextContinuationToken) {
-          // should has prev index
+          // Should has prev index
           assert.ok(result.continuationToken);
         }
         keyCount += result.keyCount;
@@ -441,6 +454,7 @@ describe('test/OSSObject.test.ts', () => {
       await ossObject.delete(name);
     });
 
+    // oxlint-disable-next-line max-statements
     it('should append object with content buffer', async () => {
       let object = await ossObject.append(name, Buffer.from('foo'));
       assert.equal(object.res.status, 200);
@@ -534,10 +548,10 @@ describe('test/OSSObject.test.ts', () => {
 
   describe('mimetype', () => {
     const createFile = async (filepath: string, size?: number) => {
-      size = size ?? 200 * 1024;
+      const _size = size ?? 200 * 1024;
       const rs = createReadStream('/dev/random', {
         start: 0,
-        end: size - 1,
+        end: _size - 1,
       });
       await pipeline(rs, createWriteStream(filepath));
       return filepath;
@@ -552,9 +566,9 @@ describe('test/OSSObject.test.ts', () => {
       const result = await ossObject.head(name);
       assert.equal(result.res.headers['content-type'], 'image/jpeg');
 
-      // await ossObject.multipartUpload(name, filepath);
-      // result = await ossObject.head(name);
-      // assert.equal(result.res.headers['content-type'], 'image/jpeg');
+      // Await ossObject.multipartUpload(name, filepath);
+      // Result = await ossObject.head(name);
+      // Assert.equal(result.res.headers['content-type'], 'image/jpeg');
     });
 
     it('should set mimetype by object key', async () => {
@@ -565,9 +579,9 @@ describe('test/OSSObject.test.ts', () => {
 
       const result = await ossObject.head(name);
       assert.equal(result.res.headers['content-type'], 'image/png');
-      // await ossObject.multipartUpload(name, filepath);
-      // result = await ossObject.head(name);
-      // assert.equal(result.res.headers['content-type'], 'image/png');
+      // Await ossObject.multipartUpload(name, filepath);
+      // Result = await ossObject.head(name);
+      // Assert.equal(result.res.headers['content-type'], 'image/png');
     });
 
     it('should set user-specified mimetype', async () => {
@@ -578,14 +592,15 @@ describe('test/OSSObject.test.ts', () => {
 
       const result = await ossObject.head(name);
       assert.equal(result.res.headers['content-type'], 'text/plain');
-      // await ossObject.multipartUpload(name, filepath, {
-      //   mime: 'text/plain',
+      // Await ossObject.multipartUpload(name, filepath, {
+      //   Mime: 'text/plain',
       // });
-      // result = await ossObject.head(name);
-      // assert.equal(result.res.headers['content-type'], 'text/plain');
+      // Result = await ossObject.head(name);
+      // Assert.equal(result.res.headers['content-type'], 'text/plain');
     });
   });
 
+  // oxlint-disable-next-line max-statements
   describe('put()', () => {
     let name: string;
     afterEach(async () => {
@@ -594,9 +609,10 @@ describe('test/OSSObject.test.ts', () => {
       }
     });
 
+    // oxlint-disable-next-line max-statements
     it('should add object with local file path', async () => {
       name = `${prefix}oss-client/oss/put-localfile-${randomUUID()}.js`;
-      // put not exists name
+      // Put not exists name
       const object = await ossObject.put(name, __filename);
       assert.equal(object.res.status, 200);
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
@@ -604,7 +620,7 @@ describe('test/OSSObject.test.ts', () => {
       assert.equal(object.res.size, 0);
       assert.equal(object.name, name);
 
-      // put exists name
+      // Put exists name
       const object2 = await ossObject.put(name, __filename);
       assert.equal(object.res.status, 200);
       assert.equal(typeof object2.res.headers['x-oss-request-id'], 'string');
@@ -612,7 +628,7 @@ describe('test/OSSObject.test.ts', () => {
       assert.equal(object2.res.size, 0);
       assert.equal(object2.name, name);
 
-      // put with callback fail
+      // Put with callback fail
       await assert.rejects(
         async () => {
           await ossObject.put(name, __filename, {
@@ -632,7 +648,7 @@ describe('test/OSSObject.test.ts', () => {
         }
       );
 
-      // delete the new file
+      // Delete the new file
       const result = await ossObject.delete(name);
       assert.equal(result.res.status, 204);
     });
@@ -648,6 +664,7 @@ describe('test/OSSObject.test.ts', () => {
       assert.equal(object.name, name);
     });
 
+    // oxlint-disable-next-line max-statements
     it('should keep /foo/bar compatible to foo/bar', async () => {
       const name1 = `/${prefix}oss-client/oss/put-name-compatible`;
       const name2 = `${prefix}oss-client/oss/put-name-compatible`;
@@ -887,6 +904,7 @@ describe('test/OSSObject.test.ts', () => {
       await ossObject.delete(name);
     });
 
+    // oxlint-disable-next-line max-statements
     it('should add object with streaming way', async () => {
       name = `${prefix}oss-client/oss/putStream-localfile.js`;
       const object = await ossObject.putStream(
@@ -899,7 +917,7 @@ describe('test/OSSObject.test.ts', () => {
       assert.equal(object.name, name);
       assert.ok(object.url);
 
-      // check content
+      // Check content
       const r = await ossObject.get(name);
       assert.equal(r.res.headers['content-type'], 'application/javascript');
       const stats = await stat(__filename);
@@ -910,6 +928,7 @@ describe('test/OSSObject.test.ts', () => {
       assert.equal(r.content.toString(), await readFile(__filename, 'utf8'));
     });
 
+    // oxlint-disable-next-line max-statements
     it('should add image with file streaming way', async () => {
       name = `${prefix}oss-client/oss/nodejs-1024x768.png`;
       const imagePath = path.join(__dirname, 'nodejs-1024x768.png');
@@ -925,18 +944,18 @@ describe('test/OSSObject.test.ts', () => {
       assert.equal(object.res.size, 0);
       assert.equal(object.name, name);
 
-      // check content
+      // Check content
       const r = await ossObject.get(name);
-      // console.log(r.res.headers);
+      // Console.log(r.res.headers);
       // {
-      //   server: 'AliyunOSS',
-      //   date: 'Sat, 22 Oct 2022 13:25:55 GMT',
+      //   Server: 'AliyunOSS',
+      //   Date: 'Sat, 22 Oct 2022 13:25:55 GMT',
       //   'content-type': 'image/png',
       //   'content-length': '502182',
-      //   connection: 'keep-alive',
+      //   Connection: 'keep-alive',
       //   'x-oss-request-id': '6353EF633DE20A809D8088EA',
       //   'accept-ranges': 'bytes',
-      //   etag: '"39D12ED73B63BAAC31F980F555AE4FDE"',
+      //   Etag: '"39D12ED73B63BAAC31F980F555AE4FDE"',
       //   'last-modified': 'Sat, 22 Oct 2022 13:25:55 GMT',
       //   'x-oss-object-type': 'Normal',
       //   'x-oss-hash-crc64ecma': '8835162692478804631',
@@ -953,6 +972,7 @@ describe('test/OSSObject.test.ts', () => {
       assert.deepEqual(r.content, buf);
     });
 
+    // oxlint-disable-next-line max-statements
     it('should put object with http streaming way', async () => {
       name = `${prefix}oss-client/oss/nodejs-1024x768.png`;
       const nameCpy = `${prefix}oss-client/oss/nodejs-1024x768`;
@@ -983,9 +1003,10 @@ describe('test/OSSObject.test.ts', () => {
       assert.equal(getResult.res.headers.etag, httpStream.headers.etag);
     });
 
-    // timeout on Node.js 18
+    // Timeout on Node.js 18
     it.skipIf(process.version.startsWith('v18.'))(
       'should add very big file: 4mb with streaming way',
+      // oxlint-disable-next-line max-statements
       async () => {
         name = `${prefix}oss-client/oss/bigfile-4mb.bin`;
         const bigFile = path.join(tmpdir, 'bigfile-4mb.bin');
@@ -999,7 +1020,7 @@ describe('test/OSSObject.test.ts', () => {
         assert.equal(object.res.size, 0);
         assert.equal(object.name, name);
 
-        // check content
+        // Check content
         const r = await ossObject.get(name);
         assert.equal(r.res.status, 200);
         assert.equal(r.res.headers['content-type'], 'application/octet-stream');
@@ -1076,6 +1097,7 @@ describe('test/OSSObject.test.ts', () => {
       await ossObject.delete(name);
     });
 
+    // oxlint-disable-next-line max-statements
     it('should put and get object ACL', async () => {
       name = `${prefix}object/acl`;
       const r1 = await ossObject.put(name, Buffer.from('hello world'));
@@ -1088,7 +1110,7 @@ describe('test/OSSObject.test.ts', () => {
       assert.ok(r2.owner.displayName);
       assert.ok(r2.owner.id);
 
-      // public-read, Put public object acl is not allowed
+      // Public-read, Put public object acl is not allowed
       const r3 = await ossObject.putACL(name, 'private');
       assert.equal(r3.res.status, 200);
 
@@ -1111,8 +1133,8 @@ describe('test/OSSObject.test.ts', () => {
       assert.equal(info.res.status, 204);
       assert.equal(info.status, 204);
 
-      // await utils.throws(async () => {
-      //   await store.head(name);
+      // Await utils.throws(async () => {
+      //   Await store.head(name);
       // }, 'NoSuchKeyError');
     });
 
@@ -1182,6 +1204,7 @@ describe('test/OSSObject.test.ts', () => {
     });
   });
 
+  // oxlint-disable-next-line max-statements
   describe('head()', () => {
     let name: string;
     let resHeaders: IncomingHttpHeaders;
@@ -1348,6 +1371,7 @@ describe('test/OSSObject.test.ts', () => {
     });
   });
 
+  // oxlint-disable-next-line max-statements
   describe('signatureUrl() and asyncSignatureUrl()', () => {
     let name: string;
     let needEscapeName: string;
@@ -1409,7 +1433,7 @@ describe('test/OSSObject.test.ts', () => {
         subResource: {
           'x-oss-process': 'image/resize,w_20',
         },
-        // others parameters
+        // Others parameters
         filename: 'test.js',
         testParameters: 'xxx',
       };
@@ -1455,14 +1479,14 @@ describe('test/OSSObject.test.ts', () => {
         'Content-Type': 'text/plain; charset=UTF-8',
         'Content-MD5': contentMD5,
       };
-      // console.log('%o', url);
+      // Console.log('%o', url);
       const res = await request<string>(url, {
         method: 'PUT',
         data: putString,
         headers,
         dataType: 'text',
       });
-      // console.log(res.data);
+      // Console.log(res.data);
       assert.equal(res.status, 200);
       const headRes = await ossObject.head(name);
       assert.equal(headRes.status, 200);
@@ -1517,6 +1541,7 @@ describe('test/OSSObject.test.ts', () => {
     });
   });
 
+  // oxlint-disable-next-line max-statements
   describe('get()', () => {
     let name: string;
     let resHeaders: IncomingHttpHeaders;
@@ -1658,11 +1683,11 @@ describe('test/OSSObject.test.ts', () => {
       });
       assert.equal(result.res.status, 200);
       assert.ok(Buffer.isBuffer(result.content), 'content should be Buffer');
-      // assert.deepEqual(result.content == fs.readFileSync(processedImagePath),
+      // Assert.deepEqual(result.content == fs.readFileSync(processedImagePath),
       //   'get content should be same as test/nodejs-processed-w200.png');
 
-      // it should use the value of process
-      // when 'subres.x-oss-process' coexists with 'process'.
+      // It should use the value of process
+      // When 'subres.x-oss-process' coexists with 'process'.
       result = await ossObject.get(imageName, {
         process: 'image/resize,w_200',
         subres: { 'x-oss-process': 'image/resize,w_100' },
@@ -1893,6 +1918,7 @@ describe('test/OSSObject.test.ts', () => {
      * and the performance may be inconsistent
      * between different regions
      */
+    // oxlint-disable-next-line max-statements
     it('should get image stream with image process', async () => {
       const imageName = `${prefix}oss-client/oss/nodejs-test-getstream-image-1024x768.png`;
       const originImagePath = path.join(__dirname, 'nodejs-1024x768.png');
@@ -1969,16 +1995,17 @@ describe('test/OSSObject.test.ts', () => {
       assert.equal(info.status, 200);
       assert.equal(info.res.headers.etag, resHeaders.etag);
       assert.equal(info.res.headers['content-length'], fileSize.toString());
-      // no versionId won't return this header
+      // No versionId won't return this header
       assert.ok(!info.res.headers['x-oss-last-access-time']);
     });
   });
 
+  // oxlint-disable-next-line max-statements
   describe('copy()', () => {
     let name: string;
     let resHeaders: IncomingHttpHeaders;
-    // let otherBucket: string;
-    // let otherBucketObject: string;
+    // Let otherBucket: string;
+    // Let otherBucketObject: string;
     beforeAll(async () => {
       name = `${prefix}oss-client/oss/copy-meta.js`;
       const object = await ossObject.put(name, __filename, {
@@ -1991,19 +2018,20 @@ describe('test/OSSObject.test.ts', () => {
       assert.equal(typeof object.res.headers['x-oss-request-id'], 'string');
       resHeaders = object.res.headers;
 
-      // otherBucket = `oss-client-copy-source-bucket-${prefix.replace(/[/.]/g, '-')}`;
-      // otherBucket = otherBucket.substring(0, otherBucket.length - 1);
-      // await store.putBucket(otherBucket);
-      // store.useBucket(otherBucket);
-      // otherBucketObject = `${prefix}oss-client/oss/copy-source.js`;
-      // await store.put(otherBucketObject, __filename);
-      // store.useBucket(bucket);
+      // OtherBucket = `oss-client-copy-source-bucket-${prefix.replace(/[/.]/g, '-')}`;
+      // OtherBucket = otherBucket.substring(0, otherBucket.length - 1);
+      // Await store.putBucket(otherBucket);
+      // Store.useBucket(otherBucket);
+      // OtherBucketObject = `${prefix}oss-client/oss/copy-source.js`;
+      // Await store.put(otherBucketObject, __filename);
+      // Store.useBucket(bucket);
     });
 
     afterAll(async () => {
       await ossObject.delete(name);
     });
 
+    // oxlint-disable-next-line max-statements
     it('should copy object from same bucket', async () => {
       const targetName = `${prefix}oss-client/oss/copy-new.js`;
       const result = await ossObject.copy(targetName, name);
@@ -2032,26 +2060,27 @@ describe('test/OSSObject.test.ts', () => {
       assert.strictEqual(res.headers['content-disposition'], disposition);
     });
 
-    // it.skip('should copy object from other bucket, sourceBucket in copySource', async () => {
-    //   const copySource = `/${otherBucket}/${otherBucketObject}`;
-    //   const copyTarget = `${prefix}oss-client/oss/copy-target.js`;
-    //   const result = await ossObject.copy(copyTarget, copySource);
-    //   assert.equal(result.res.status, 200);
+    // It.skip('should copy object from other bucket, sourceBucket in copySource', async () => {
+    //   Const copySource = `/${otherBucket}/${otherBucketObject}`;
+    //   Const copyTarget = `${prefix}oss-client/oss/copy-target.js`;
+    //   Const result = await ossObject.copy(copyTarget, copySource);
+    //   Assert.equal(result.res.status, 200);
     //
-    //   const info = await ossObject.head(copyTarget);
-    //   assert.equal(info.status, 200);
+    //   Const info = await ossObject.head(copyTarget);
+    //   Assert.equal(info.status, 200);
     // });
 
-    // it.skip('should copy object from other bucket, sourceBucket is a separate parameter', async () => {
-    //   const copySource = otherBucketObject;
-    //   const copyTarget = `${prefix}oss-client/oss/has-bucket-name-copy-target.js`;
-    //   const result = await ossObject.copy(copyTarget, copySource, otherBucket);
-    //   assert.equal(result.res.status, 200);
+    // It.skip('should copy object from other bucket, sourceBucket is a separate parameter', async () => {
+    //   Const copySource = otherBucketObject;
+    //   Const copyTarget = `${prefix}oss-client/oss/has-bucket-name-copy-target.js`;
+    //   Const result = await ossObject.copy(copyTarget, copySource, otherBucket);
+    //   Assert.equal(result.res.status, 200);
     //
-    //   const info = await ossObject.head(copyTarget);
-    //   assert.equal(info.status, 200);
+    //   Const info = await ossObject.head(copyTarget);
+    //   Assert.equal(info.status, 200);
     // });
 
+    // oxlint-disable-next-line max-statements
     it('should copy object with non-english name', async () => {
       const sourceName = `${prefix}oss-client/oss/copy-meta_测试.js`;
       await ossObject.put(sourceName, __filename, {
@@ -2075,30 +2104,30 @@ describe('test/OSSObject.test.ts', () => {
     });
 
     it.skip('should copy object with non-english name and bucket', async () => {
-      // let sourceName = `${prefix}oss-client/oss/copy-meta_测试2.js`;
-      // let result = await ossObject.put(sourceName, __filename, {
-      //   meta: {
-      //     uid: 3,
-      //     pid: '12345',
-      //     slus: 'test2.html',
+      // Let sourceName = `${prefix}oss-client/oss/copy-meta_测试2.js`;
+      // Let result = await ossObject.put(sourceName, __filename, {
+      //   Meta: {
+      //     Uid: 3,
+      //     Pid: '12345',
+      //     Slus: 'test2.html',
       //   },
       // });
-      // let info = await ossObject.head(sourceName);
-      // assert.equal(info.meta.uid, '3');
-      // assert.equal(info.meta.pid, '12345');
-      // assert.equal(info.meta.slus, 'test2.html');
-      // assert.equal(info.status, 200);
-      // sourceName = `/${bucket}/${sourceName}`;
-      // const originname = `${prefix}oss-client/oss/copy-new_测试2.js`;
-      // result = await ossObject.copy(originname, sourceName);
-      // assert.equal(result.res.status, 200);
-      // assert.equal(typeof result.data.etag, 'string');
-      // assert.equal(typeof result.data.lastModified, 'string');
-      // info = await ossObject.head(originname);
-      // assert.equal(info.meta.uid, '3');
-      // assert.equal(info.meta.pid, '12345');
-      // assert.equal(info.meta.slus, 'test2.html');
-      // assert.equal(info.status, 200);
+      // Let info = await ossObject.head(sourceName);
+      // Assert.equal(info.meta.uid, '3');
+      // Assert.equal(info.meta.pid, '12345');
+      // Assert.equal(info.meta.slus, 'test2.html');
+      // Assert.equal(info.status, 200);
+      // SourceName = `/${bucket}/${sourceName}`;
+      // Const originname = `${prefix}oss-client/oss/copy-new_测试2.js`;
+      // Result = await ossObject.copy(originname, sourceName);
+      // Assert.equal(result.res.status, 200);
+      // Assert.equal(typeof result.data.etag, 'string');
+      // Assert.equal(typeof result.data.lastModified, 'string');
+      // Info = await ossObject.head(originname);
+      // Assert.equal(info.meta.uid, '3');
+      // Assert.equal(info.meta.pid, '12345');
+      // Assert.equal(info.meta.slus, 'test2.html');
+      // Assert.equal(info.status, 200);
     });
 
     it('should copy object and set other meta', async () => {
@@ -2126,6 +2155,7 @@ describe('test/OSSObject.test.ts', () => {
       await ossObject.copy(`${prefix}oss-client/oss/copy-a+b.js`, sourceName);
     });
 
+    // oxlint-disable-next-line max-statements
     it('should use copy to change exists object headers', async () => {
       const targetName = `${prefix}oss-client/oss/copy-new-3.js`;
       let result = await ossObject.copy(targetName, name);
@@ -2135,7 +2165,7 @@ describe('test/OSSObject.test.ts', () => {
       let info = await ossObject.head(targetName);
       assert.ok(!info.res.headers['cache-control']);
 
-      // add Cache-Control header to a exists object
+      // Add Cache-Control header to a exists object
       result = await ossObject.copy(targetName, targetName, {
         headers: {
           'Cache-Control': 'max-age=0, s-maxage=86400',
@@ -2310,6 +2340,7 @@ describe('test/OSSObject.test.ts', () => {
   });
 
   describe('putSymlink() and getSymlink()', () => {
+    // oxlint-disable-next-line max-statements
     it('Should put and get Symlink', async () => {
       const targetName = `${prefix}oss-client/target-测试.js`;
       const name = `${prefix}oss-client/symlink-软链接.js`;
@@ -2326,7 +2357,7 @@ describe('test/OSSObject.test.ts', () => {
 
       const getResult = await ossObject.getSymlink(name);
       assert.equal(getResult.res.status, 200);
-      // console.log(getResult.res.headers);
+      // Console.log(getResult.res.headers);
       assert.equal(getResult.targetName, targetName);
       assert.deepEqual(getResult.meta, {
         uid: '1',
@@ -2343,6 +2374,7 @@ describe('test/OSSObject.test.ts', () => {
     });
   });
 
+  // oxlint-disable-next-line max-statements
   describe('getObjectTagging() putObjectTagging() deleteObjectTagging()', () => {
     const name = `${prefix}oss-client/tagging-${Date.now()}.js`;
 
@@ -2360,6 +2392,7 @@ describe('test/OSSObject.test.ts', () => {
       assert.deepEqual(result.tag, {});
     });
 
+    // oxlint-disable-next-line max-statements
     it('should configures or updates the tags of object', async () => {
       const tag = { a: '1', b: '2', c: '' };
       let putResult = await ossObject.putObjectTagging(name, tag);
@@ -2530,6 +2563,7 @@ describe('test/OSSObject.test.ts', () => {
   });
 
   describe('calculatePostSignature()', () => {
+    // oxlint-disable-next-line max-statements
     it('should get signature for postObject', async () => {
       const name = 'calculatePostSignature.js';
       const url = ossObject.generateObjectUrl(name).replace(name, '');
@@ -2612,12 +2646,12 @@ describe('test/OSSObject.test.ts', () => {
 
   describe('options.cname = true', () => {
     it('should work', async () => {
-      const ossObject = new OSSObject({
+      const cnameOssObject = new OSSObject({
         ...config.oss,
         cname: true,
         endpoint: 'https://foo.bar.com',
       });
-      const url = ossObject.signatureUrl('foo.jpg');
+      const url = cnameOssObject.signatureUrl('foo.jpg');
       assert.match(url, /https:\/\/foo\.bar\.com\/foo\.jpg\?OSSAccessKeyId=/);
     });
 

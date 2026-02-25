@@ -1,3 +1,4 @@
+/* oxlint-disable no-named-export, no-nodejs-modules, no-relative-parent-imports */
 import { debuglog } from 'node:util';
 import crypto from 'node:crypto';
 
@@ -20,9 +21,10 @@ function compareCanonicalizedString(entry1: string, entry2: string) {
 }
 
 /**
- * build canonicalized resource
+ * Build canonicalized resource
  * @see https://help.aliyun.com/zh/oss/developer-reference/include-signatures-in-the-authorization-header#section-rvv-dx2-xdb
  */
+// oxlint-disable-next-line max-statements
 function buildCanonicalizedResource(
   resourcePath: string,
   parameters?: RequestParameters
@@ -35,8 +37,9 @@ function buildCanonicalizedResource(
       canonicalizedResource += separatorString + parameters;
     }
   } else if (Array.isArray(parameters)) {
-    parameters.sort();
-    canonicalizedResource += separatorString + parameters.join('&');
+    // oxlint-disable-next-line no-array-sort
+    const sortedParameters = [...parameters].sort();
+    canonicalizedResource += separatorString + sortedParameters.join('&');
   } else if (parameters) {
     const processFunc = (key: string) => {
       canonicalizedResource += separatorString + key;
@@ -45,6 +48,7 @@ function buildCanonicalizedResource(
       }
       separatorString = '&';
     };
+    // oxlint-disable-next-line no-array-sort
     for (const key of Object.keys(parameters).sort(
       compareCanonicalizedString
     )) {
@@ -86,6 +90,7 @@ export function buildCanonicalString(
     }
   }
 
+  // oxlint-disable-next-line no-array-sort
   for (const key of Object.keys(headersToSign).sort()) {
     signContent.push(`${key}:${headersToSign[key]}`);
   }
@@ -113,6 +118,7 @@ export function authorization(
   return `OSS ${accessKeyId}:${computeSignature(accessKeySecret, canonicalString)}`;
 }
 
+// oxlint-disable-next-line max-statements
 export function signatureForURL(
   accessKeySecret: string,
   options: SignatureUrlOptions,
@@ -153,7 +159,7 @@ export function signatureForURL(
     headers['content-type'] = options['content-type'];
   }
 
-  // copy other x-oss-* headers
+  // Copy other x-oss-* headers
   for (const key in options) {
     const lowerKey = key.toLowerCase();
     if (lowerKey.startsWith('x-oss-')) {
