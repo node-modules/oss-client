@@ -37,8 +37,9 @@ function buildCanonicalizedResource(
       canonicalizedResource += separatorString + parameters;
     }
   } else if (Array.isArray(parameters)) {
-    parameters.sort();
-    canonicalizedResource += separatorString + parameters.join('&');
+    // oxlint-disable-next-line no-array-sort
+    const sortedParameters = [...parameters].sort();
+    canonicalizedResource += separatorString + sortedParameters.join('&');
   } else if (parameters) {
     const processFunc = (key: string) => {
       canonicalizedResource += separatorString + key;
@@ -47,7 +48,8 @@ function buildCanonicalizedResource(
       }
       separatorString = '&';
     };
-    for (const key of Object.keys(parameters).toSorted(
+    // oxlint-disable-next-line no-array-sort
+    for (const key of Object.keys(parameters).sort(
       compareCanonicalizedString
     )) {
       processFunc(key);
@@ -88,7 +90,8 @@ export function buildCanonicalString(
     }
   }
 
-  for (const key of Object.keys(headersToSign).toSorted()) {
+  // oxlint-disable-next-line no-array-sort
+  for (const key of Object.keys(headersToSign).sort()) {
     signContent.push(`${key}:${headersToSign[key]}`);
   }
   signContent.push(
