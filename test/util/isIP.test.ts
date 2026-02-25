@@ -6,6 +6,7 @@ import { describe, it } from 'vitest';
 import { isIP } from '../../src/util/index.js';
 
 describe('test/util/isIP.test.ts', () => {
+  // oxlint-disable-next-line max-statements
   it('ipv4 test', () => {
     // First length is 3
     assert.equal(isIP('200.255.255.255'), true);
@@ -62,6 +63,7 @@ describe('test/util/isIP.test.ts', () => {
     assert.equal(isIP('200.1.1.1.1'), false);
   });
 
+  // oxlint-disable-next-line max-statements
   it('ipv6 test', () => {
     assert.equal(isIP('1:2:3:4:5:6:7::'), true);
     assert.equal(isIP('1:2:3:4:5:6:7:8'), true);

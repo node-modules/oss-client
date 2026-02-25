@@ -6,6 +6,7 @@ export interface CallbackOptions {
   callbackVar?: string;
 }
 
+// oxlint-disable-next-line max-statements
 export function encodeCallback(objectCallback: ObjectCallback) {
   const data: Record<string, string> = {
     // Must use encodeURI not encodeURIComponent

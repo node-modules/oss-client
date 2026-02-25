@@ -1,6 +1,7 @@
 /* oxlint-disable no-named-export */
 const ALLOW_STRING_RE = /^[a-zA-Z0-9 +-=._:/]+$/;
 
+// oxlint-disable-next-line max-statements
 export function checkObjectTag(tag: Record<string, string>) {
   if (typeof tag !== 'object') {
     throw new TypeError('tag must be Object');

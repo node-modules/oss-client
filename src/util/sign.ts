@@ -24,6 +24,7 @@ function compareCanonicalizedString(entry1: string, entry2: string) {
  * Build canonicalized resource
  * @see https://help.aliyun.com/zh/oss/developer-reference/include-signatures-in-the-authorization-header#section-rvv-dx2-xdb
  */
+// oxlint-disable-next-line max-statements
 function buildCanonicalizedResource(
   resourcePath: string,
   parameters?: RequestParameters
@@ -114,6 +115,7 @@ export function authorization(
   return `OSS ${accessKeyId}:${computeSignature(accessKeySecret, canonicalString)}`;
 }
 
+// oxlint-disable-next-line max-statements
 export function signatureForURL(
   accessKeySecret: string,
   options: SignatureUrlOptions,

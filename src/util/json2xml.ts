@@ -1,6 +1,7 @@
 /* oxlint-disable no-named-export */
 import { escape as escapeHTML } from 'utility';
 
+// oxlint-disable-next-line max-statements
 export function json2xml(
   json: Record<string, unknown>,
   options?: { headers: boolean }
