@@ -1,3 +1,4 @@
+/* oxlint-disable no-named-export */
 const ALLOW_STRING_RE = /^[a-zA-Z0-9 +-=._:/]+$/;
 
 export function checkObjectTag(tag: Record<string, string>) {

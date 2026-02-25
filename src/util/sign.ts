@@ -1,3 +1,4 @@
+/* oxlint-disable no-named-export, no-nodejs-modules, no-relative-parent-imports */
 import { debuglog } from 'node:util';
 import crypto from 'node:crypto';
 
@@ -20,7 +21,7 @@ function compareCanonicalizedString(entry1: string, entry2: string) {
 }
 
 /**
- * build canonicalized resource
+ * Build canonicalized resource
  * @see https://help.aliyun.com/zh/oss/developer-reference/include-signatures-in-the-authorization-header#section-rvv-dx2-xdb
  */
 function buildCanonicalizedResource(
@@ -45,7 +46,7 @@ function buildCanonicalizedResource(
       }
       separatorString = '&';
     };
-    for (const key of Object.keys(parameters).sort(
+    for (const key of Object.keys(parameters).toSorted(
       compareCanonicalizedString
     )) {
       processFunc(key);
@@ -86,7 +87,7 @@ export function buildCanonicalString(
     }
   }
 
-  for (const key of Object.keys(headersToSign).sort()) {
+  for (const key of Object.keys(headersToSign).toSorted()) {
     signContent.push(`${key}:${headersToSign[key]}`);
   }
   signContent.push(
@@ -153,7 +154,7 @@ export function signatureForURL(
     headers['content-type'] = options['content-type'];
   }
 
-  // copy other x-oss-* headers
+  // Copy other x-oss-* headers
   for (const key in options) {
     const lowerKey = key.toLowerCase();
     if (lowerKey.startsWith('x-oss-')) {

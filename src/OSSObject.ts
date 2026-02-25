@@ -1,3 +1,4 @@
+/* oxlint-disable no-named-export, no-nodejs-modules */
 import type { Readable, Writable } from 'node:stream';
 import { createReadStream, createWriteStream } from 'node:fs';
 import { strict as assert } from 'node:assert';
@@ -109,7 +110,7 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
     }
     super(options);
     if (options.cname) {
-      // ignore bucket on cname set to true
+      // Ignore bucket on cname set to true
       this.#bucket = '';
       this.#bucketEndpoint = this.options.endpoint;
     } else {
@@ -120,7 +121,7 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
     }
   }
 
-  /** public methods */
+  /** Public methods */
 
   /**
    * AppendObject
@@ -153,7 +154,7 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
   }
 
   /**
-   * put an object from String(file path)/Buffer/Readable
+   * Put an object from String(file path)/Buffer/Readable
    * @param {String} name the object key
    * @param {Mixed} file String(file path)/Buffer/Readable
    * @param {Object} options options
@@ -181,7 +182,7 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
   }
 
   /**
-   * put an object from ReadableStream.
+   * Put an object from ReadableStream.
    */
   async putStream(
     name: string,
@@ -210,7 +211,7 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
     query?: ListObjectsQuery,
     options?: RequestOptions
   ): Promise<ListObjectResult> {
-    // prefix, marker, max-keys, delimiter
+    // Prefix, marker, max-keys, delimiter
     const params = this.#objectRequestParams('GET', '', options);
     if (query) {
       params.query = query;
@@ -274,7 +275,7 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
     const continuationToken =
       query?.['continuation-token'] ?? query?.continuationToken;
     if (continuationToken) {
-      // should set subResource to add sign string
+      // Should set subResource to add sign string
       params.subResource = {
         'continuation-token': continuationToken,
       };
@@ -369,7 +370,7 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
       writeStream = createWriteStream(file);
       needDestroy = true;
     } else {
-      // get(name, options)
+      // Get(name, options)
       options = file;
     }
 
@@ -387,7 +388,7 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
     } catch (err) {
       if (needDestroy && writeStream) {
         writeStream.destroy();
-        // should delete the exists file before throw error
+        // Should delete the exists file before throw error
         await fs.rm(file as string, { force: true });
       }
       throw err;
@@ -485,15 +486,15 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
   //  * @param {Object} options {type : Archive or ColdArchive}
   //  * @return {{res}} result
   //  */
-  // proto.restore = async function restore(name, options = { type: 'Archive' }) {
-  //   options = options || {};
-  //   options.subres = Object.assign({ restore: '' }, options.subres);
-  //   if (options.versionId) {
-  //     options.subres.versionId = options.versionId;
+  // Proto.restore = async function restore(name, options = { type: 'Archive' }) {
+  //   Options = options || {};
+  //   Options.subres = Object.assign({ restore: '' }, options.subres);
+  //   If (options.versionId) {
+  //     Options.subres.versionId = options.versionId;
   //   }
-  //   const params = this._objectRequestParams('POST', name, options);
-  //   if (options.type === 'ColdArchive') {
-  //     const paramsXMLObj = {
+  //   Const params = this._objectRequestParams('POST', name, options);
+  //   If (options.type === 'ColdArchive') {
+  //     Const paramsXMLObj = {
   //       RestoreRequest: {
   //         Days: options.Days ? options.Days : 2,
   //         JobParameters: {
@@ -501,17 +502,17 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
   //         },
   //       },
   //     };
-  //     params.content = obj2xml(paramsXMLObj, {
-  //       headers: true,
+  //     Params.content = obj2xml(paramsXMLObj, {
+  //       Headers: true,
   //     });
-  //     params.mime = 'xml';
+  //     Params.mime = 'xml';
   //   }
-  //   params.successStatuses = [ 202 ];
+  //   Params.successStatuses = [ 202 ];
 
-  //   const result = await this.request(params);
+  //   Const result = await this.request(params);
 
-  //   return {
-  //     res: result.res,
+  //   Return {
+  //     Res: result.res,
   //   };
   // };
 
@@ -567,7 +568,7 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
     const xml = json2xml(
       {
         Delete: {
-          Quiet: !!options?.quiet,
+          Quiet: Boolean(options?.quiet),
           Object: objects,
         },
       },
@@ -589,7 +590,7 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
     params.xmlResponse = true;
     params.successStatuses = [200];
     const { data, res } = await this.request(params);
-    // quiet will return null
+    // Quiet will return null
     let deleted = data?.Deleted || [];
     if (deleted && !Array.isArray(deleted)) {
       deleted = [deleted];
@@ -797,7 +798,7 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
     params.successStatuses = [200];
     params.xmlResponse = true;
     const { res, data } = await this.request(params);
-    // console.log(data.toString());
+    // Console.log(data.toString());
     let tags = data.TagSet?.Tag;
     if (tags && !Array.isArray(tags)) {
       tags = [tags];
@@ -843,7 +844,7 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
   }
 
   /**
-   * signatureUrl URL签名
+   * SignatureUrl URL签名
    * @see https://help.aliyun.com/zh/oss/developer-reference/signed-urls
    */
   signatureUrl(name: string, options?: SignatureUrlOptions) {
@@ -950,7 +951,7 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
     }
     options = options ?? {};
     options.headers = options.headers ?? {};
-    let hasMetadata = !!options.meta;
+    let hasMetadata = Boolean(options.meta);
     const REPLACE_HEADERS = new Set([
       'content-type',
       'content-encoding',
@@ -1026,13 +1027,13 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
     };
   }
 
-  /** protected methods */
+  /** Protected methods */
 
   protected getRequestEndpoint(): string {
     return this.#bucketEndpoint;
   }
 
-  /** private methods */
+  /** Private methods */
 
   #getCopySourceName(sourceName: string, bucketName?: string) {
     if (typeof bucketName === 'string') {
@@ -1067,7 +1068,7 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
     }
     name = this.#objectName(name);
     this.#convertMetaToHeaders(options.meta, options.headers);
-    // don't override exists headers
+    // Don't override exists headers
     if (options.callback && !options.headers['x-oss-callback']) {
       const callbackOptions = encodeCallback(options.callback);
       options.headers['x-oss-callback'] = callbackOptions.callback;
@@ -1135,7 +1136,7 @@ export class OSSObject extends OSSBaseClient implements IObjectSimple {
   }
 
   /**
-   * generator request params
+   * Generator request params
    */
   #objectRequestParams(
     method: RequestMethod,

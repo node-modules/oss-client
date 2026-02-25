@@ -1,3 +1,4 @@
+/* oxlint-disable no-named-export */
 export function policyToJSONString(policy: object | string) {
   let policyJSONString: string;
   if (typeof policy === 'string') {
@@ -5,7 +6,7 @@ export function policyToJSONString(policy: object | string) {
       policyJSONString = JSON.stringify(JSON.parse(policy));
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      throw new TypeError(`Policy string is not a valid JSON: ${message}`);
+      throw new TypeError(`Policy string is not a valid JSON: ${message}`, { cause: err });
     }
   } else {
     policyJSONString = JSON.stringify(policy);

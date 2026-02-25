@@ -1,3 +1,4 @@
+/* oxlint-disable no-named-export */
 export * from './checkBucketName.js';
 export * from './checkObjectTag.js';
 export * from './date.js';

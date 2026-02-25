@@ -1,3 +1,4 @@
+/* oxlint-disable no-nodejs-modules, no-relative-parent-imports */
 import { strict as assert } from 'node:assert';
 
 import { describe, it } from 'vitest';
@@ -6,7 +7,7 @@ import { isIP } from '../../src/util/index.js';
 
 describe('test/util/isIP.test.ts', () => {
   it('ipv4 test', () => {
-    // first length is 3
+    // First length is 3
     assert.equal(isIP('200.255.255.255'), true);
     assert.equal(isIP('223.255.255.255'), true);
     assert.equal(isIP('224.255.255.255'), true);
@@ -20,7 +21,7 @@ describe('test/util/isIP.test.ts', () => {
     assert.equal(isIP('200.1.255.255'), true);
     assert.equal(isIP('200.001.255.255'), false);
 
-    // first length is 1 or 2
+    // First length is 1 or 2
     assert.equal(isIP('09.255.255.255'), false);
     assert.equal(isIP('9.255.255.255'), true);
     assert.equal(isIP('90.255.255.255'), true);
@@ -29,7 +30,7 @@ describe('test/util/isIP.test.ts', () => {
     assert.equal(isIP('0.0.0.1'), true);
     assert.equal(isIP('1.0.0.1'), true);
 
-    // test last 3 byte
+    // Test last 3 byte
     assert.equal(isIP('200.0.255.255'), true);
     assert.equal(isIP('200.01.255.255'), false);
     assert.equal(isIP('200.1.255.255'), true);
@@ -54,7 +55,7 @@ describe('test/util/isIP.test.ts', () => {
     assert.equal(isIP('200.255.255.001'), false);
     assert.equal(isIP('200.255.255.1'), true);
 
-    // excetion
+    // Excetion
     assert.equal(isIP('200'), false);
     assert.equal(isIP('200.1'), false);
     assert.equal(isIP('200.1.1'), false);

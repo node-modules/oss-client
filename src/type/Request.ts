@@ -1,3 +1,4 @@
+/* oxlint-disable no-named-export, no-nodejs-modules */
 import type { Readable, Writable } from 'node:stream';
 import type { ListObjectsQuery } from 'oss-interface';
 import type { RawResponseWithMeta, IncomingHttpHeaders } from 'urllib';
@@ -33,7 +34,7 @@ export interface OSSRequestParams {
   writeStream?: Writable;
   timeout?: number;
   /**
-   * set request query params
+   * Set request query params
    * e.g.:
    *  - DELETE object `versionId`
    */

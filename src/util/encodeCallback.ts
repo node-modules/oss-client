@@ -1,3 +1,4 @@
+/* oxlint-disable no-named-export */
 import type { ObjectCallback } from 'oss-interface';
 
 export interface CallbackOptions {
@@ -7,7 +8,7 @@ export interface CallbackOptions {
 
 export function encodeCallback(objectCallback: ObjectCallback) {
   const data: Record<string, string> = {
-    // must use encodeURI not encodeURIComponent
+    // Must use encodeURI not encodeURIComponent
     callbackUrl: encodeURI(objectCallback.url),
     callbackBody: objectCallback.body,
   };

@@ -1,3 +1,4 @@
+/* oxlint-disable no-named-export */
 const REQUEST_ID_KEY = 'request-id';
 const RESPONSE_CODE_KEY = 'response-code';
 const RESPONSE_HOST_KEY = 'response-host';

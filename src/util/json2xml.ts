@@ -1,3 +1,4 @@
+/* oxlint-disable no-named-export */
 import { escape as escapeHTML } from 'utility';
 
 export function json2xml(
